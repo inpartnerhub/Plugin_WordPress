@@ -4,6 +4,8 @@
  * surfaces provider payloads or credentials in errors.
  */
 
+import type { Config } from '../config/env.js';
+
 export type LlmErrorKind = 'timeout' | 'unavailable' | 'rate_limited' | 'auth' | 'blocked' | 'bad_response';
 
 export class LlmError extends Error {
@@ -94,6 +96,36 @@ function isInvalidKeyError(body: string): boolean {
   }
 }
 
+/**
+ * Runs `attempt` until it succeeds, the overall deadline is near, or the
+ * error is not worth retrying. Shared by every provider client.
+ */
+async function withRetry(
+  timeoutMs: number,
+  sleep: (ms: number) => Promise<void>,
+  attempt: (remainingMs: number) => Promise<string>,
+): Promise<string> {
+  const deadline = Date.now() + timeoutMs;
+  let lastError: LlmError | undefined;
+
+  for (let i = 0; i < 2; i++) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 250) break;
+    try {
+      return await attempt(remaining);
+    } catch (err) {
+      lastError = err instanceof LlmError ? err : new LlmError('unavailable');
+      const retryable =
+        lastError.kind === 'unavailable' ||
+        (lastError.kind === 'rate_limited' && i === 0) ||
+        (lastError.providerStatus !== undefined && RETRYABLE_STATUS.has(lastError.providerStatus));
+      if (!retryable || lastError.kind === 'timeout') break;
+      await sleep(Math.min(400, Math.max(0, deadline - Date.now() - 250)));
+    }
+  }
+  throw lastError ?? new LlmError('timeout');
+}
+
 export class GeminiClient implements LlmClient {
   private readonly fetchImpl: typeof fetch;
   private readonly sleep: (ms: number) => Promise<void>;
@@ -104,25 +136,7 @@ export class GeminiClient implements LlmClient {
   }
 
   async generate(request: LlmRequest): Promise<string> {
-    const deadline = Date.now() + this.options.timeoutMs;
-    let lastError: LlmError | undefined;
-
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const remaining = deadline - Date.now();
-      if (remaining <= 250) break;
-      try {
-        return await this.attempt(request, remaining);
-      } catch (err) {
-        lastError = err instanceof LlmError ? err : new LlmError('unavailable');
-        const retryable =
-          lastError.kind === 'unavailable' ||
-          (lastError.kind === 'rate_limited' && attempt === 0) ||
-          (lastError.providerStatus !== undefined && RETRYABLE_STATUS.has(lastError.providerStatus));
-        if (!retryable || lastError.kind === 'timeout') break;
-        await this.sleep(Math.min(400, Math.max(0, deadline - Date.now() - 250)));
-      }
-    }
-    throw lastError ?? new LlmError('timeout');
+    return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs));
   }
 
   private async attempt(request: LlmRequest, timeoutMs: number): Promise<string> {
@@ -222,4 +236,144 @@ function extractText(payload: unknown): string {
     .trim();
   if (!text) throw new LlmError('bad_response');
   return text;
+}
+
+export const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
+
+export interface OpenRouterOptions {
+  apiKey: string;
+  /** Primary model id, for example deepseek/deepseek-chat. */
+  model: string;
+  /** Tried by OpenRouter, in order, when the primary model fails (outage, rate limit, provider error). */
+  fallbackModels?: readonly string[];
+  baseUrl: string;
+  timeoutMs: number;
+  maxOutputTokens: number;
+  fetchImpl?: typeof fetch;
+  sleep?: (ms: number) => Promise<void>;
+  onUsage?: (usage: { promptTokens: number; outputTokens: number }) => void;
+}
+
+/** Maps an OpenRouter HTTP status to the shared error kinds (no provider text is kept). */
+function openRouterErrorKind(status: number): LlmErrorKind {
+  if (status === 401 || status === 402 || status === 403) return 'auth';
+  if (status === 429) return 'rate_limited';
+  if (status >= 500) return 'unavailable';
+  return 'bad_response';
+}
+
+/**
+ * OpenRouter client over its OpenAI-compatible chat completions API. The
+ * primary model is always tried first; fallback models are passed in the
+ * `models` array so OpenRouter itself moves to them when the primary fails.
+ * `require_parameters` makes OpenRouter skip any model that cannot honour
+ * JSON output, instead of silently returning free text.
+ */
+export class OpenRouterClient implements LlmClient {
+  private readonly fetchImpl: typeof fetch;
+  private readonly sleep: (ms: number) => Promise<void>;
+
+  constructor(private readonly options: OpenRouterOptions) {
+    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
+  }
+
+  async generate(request: LlmRequest): Promise<string> {
+    return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs));
+  }
+
+  private async attempt(request: LlmRequest, timeoutMs: number): Promise<string> {
+    const fallbacks = this.options.fallbackModels ?? [];
+    const body = JSON.stringify({
+      ...(fallbacks.length > 0 ? { models: [this.options.model, ...fallbacks] } : { model: this.options.model }),
+      messages: [
+        { role: 'system', content: request.systemInstruction },
+        { role: 'user', content: request.userContent },
+      ],
+      temperature: 0.35,
+      max_tokens: this.options.maxOutputTokens,
+      response_format: { type: 'json_object' },
+      provider: { require_parameters: true },
+    });
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      let response: Response;
+      try {
+        response = await this.fetchImpl(`${this.options.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.options.apiKey}` },
+          body,
+          signal: controller.signal,
+        });
+      } catch {
+        throw new LlmError(controller.signal.aborted ? 'timeout' : 'unavailable');
+      }
+
+      const read = async (limit: number): Promise<string> => {
+        try {
+          return await readLimited(response, limit, controller.signal);
+        } catch (err) {
+          if (controller.signal.aborted) throw new LlmError('timeout');
+          throw err instanceof LlmError ? err : new LlmError('unavailable', response.status);
+        }
+      };
+
+      if (!response.ok) {
+        // Error bodies are discarded unread: they can echo the request, which contains the visitor's question.
+        await response.body?.cancel().catch(() => undefined);
+        throw new LlmError(openRouterErrorKind(response.status), response.status);
+      }
+
+      const text = await read(MAX_RESPONSE_BYTES);
+      let payload: unknown;
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        throw new LlmError('bad_response');
+      }
+      if (this.options.onUsage) {
+        const usage = (payload as { usage?: { prompt_tokens?: unknown; completion_tokens?: unknown } })?.usage;
+        this.options.onUsage({
+          promptTokens: typeof usage?.prompt_tokens === 'number' ? usage.prompt_tokens : 0,
+          outputTokens: typeof usage?.completion_tokens === 'number' ? usage.completion_tokens : 0,
+        });
+      }
+      return extractOpenRouterText(payload);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+}
+
+function extractOpenRouterText(payload: unknown): string {
+  const data = payload as { choices?: { finish_reason?: string; message?: { content?: unknown } }[] };
+  const choice = data?.choices?.[0];
+  if (!choice) throw new LlmError('bad_response');
+  if (choice.finish_reason === 'content_filter') throw new LlmError('blocked');
+  const text = typeof choice.message?.content === 'string' ? choice.message.content.trim() : '';
+  if (!text) throw new LlmError('bad_response');
+  return text;
+}
+
+/** Builds the provider client selected by LLM_PROVIDER. */
+export function createLlmClient(config: Config): LlmClient {
+  if (config.llmProvider === 'openrouter') {
+    return new OpenRouterClient({
+      apiKey: config.openrouterApiKey,
+      model: config.openrouterModel,
+      fallbackModels: config.openrouterFallbackModels,
+      baseUrl: OPENROUTER_BASE_URL,
+      timeoutMs: config.geminiTimeoutMs,
+      maxOutputTokens: config.geminiMaxOutputTokens,
+    });
+  }
+  return new GeminiClient({
+    apiKey: config.geminiApiKey,
+    model: config.geminiModel,
+    baseUrl: config.geminiApiBaseUrl,
+    timeoutMs: config.geminiTimeoutMs,
+    maxOutputTokens: config.geminiMaxOutputTokens,
+  });
 }

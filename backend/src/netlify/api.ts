@@ -3,7 +3,7 @@ import { createApp } from '../app.js';
 import { ConfigError, loadConfig, type Config } from '../config/env.js';
 import { createLogger, type Logger } from '../lib/logger.js';
 import { KnowledgeBaseStore, readKnowledgeBaseFile } from '../services/knowledge-base.js';
-import { GeminiClient } from '../services/llm.js';
+import { createLlmClient } from '../services/llm.js';
 import { handleWebRequest } from './adapter.js';
 
 let appPromise: Promise<RequestListener> | null = null;
@@ -24,13 +24,7 @@ async function getApp(): Promise<RequestListener> {
       logger.warn('kb_load_failed', { error: err instanceof Error ? err.name : 'unknown' });
     }
 
-    const llm = new GeminiClient({
-      apiKey: config.geminiApiKey,
-      model: config.geminiModel,
-      baseUrl: config.geminiApiBaseUrl,
-      timeoutMs: config.geminiTimeoutMs,
-      maxOutputTokens: config.geminiMaxOutputTokens,
-    });
+    const llm = createLlmClient(config);
 
     // Each function instance keeps its own memory and /tmp: runtime index updates would not reach the
     // other instances and would vanish on cold start, so /api/index is disabled here (501). Rate limits,
