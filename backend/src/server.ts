@@ -3,7 +3,7 @@ import { createApp } from './app.js';
 import { ConfigError, loadConfig } from './config/env.js';
 import { createLogger } from './lib/logger.js';
 import { KnowledgeBaseStore, readKnowledgeBaseFile } from './services/knowledge-base.js';
-import { GeminiClient } from './services/llm.js';
+import { createLlmClient } from './services/llm.js';
 
 async function main(): Promise<void> {
   let config;
@@ -27,13 +27,7 @@ async function main(): Promise<void> {
     logger.warn('kb_load_failed', { error: err instanceof Error ? err.name : 'unknown' });
   }
 
-  const llm = new GeminiClient({
-    apiKey: config.geminiApiKey,
-    model: config.geminiModel,
-    baseUrl: config.geminiApiBaseUrl,
-    timeoutMs: config.geminiTimeoutMs,
-    maxOutputTokens: config.geminiMaxOutputTokens,
-  });
+  const llm = createLlmClient(config);
 
   const server = createServer(createApp({ config, store, llm, logger }));
   server.requestTimeout = 30_000;
@@ -42,7 +36,7 @@ async function main(): Promise<void> {
   server.maxHeadersCount = 50;
 
   server.listen(config.port, config.host, () => {
-    logger.info('server_started', { host: config.host, port: config.port });
+    logger.info('server_started', { host: config.host, port: config.port, provider: config.llmProvider });
   });
 
   const shutdown = (signal: string) => {

@@ -6,9 +6,15 @@
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
+export type LlmProvider = 'gemini' | 'openrouter';
+
 export interface Config {
   host: string;
   port: number;
+  llmProvider: LlmProvider;
+  openrouterApiKey: string;
+  openrouterModel: string;
+  openrouterFallbackModels: string[];
   geminiApiKey: string;
   geminiModel: string;
   geminiApiBaseUrl: string;
@@ -81,7 +87,15 @@ export function loadConfig(env: Env = process.env): Config {
     return value;
   };
 
-  const geminiApiKey = required('GEMINI_API_KEY');
+  const providerValue = env.LLM_PROVIDER?.trim() || 'gemini';
+  if (providerValue !== 'gemini' && providerValue !== 'openrouter') {
+    problems.push('LLM_PROVIDER must be gemini or openrouter');
+  }
+  const llmProvider: LlmProvider = providerValue === 'openrouter' ? 'openrouter' : 'gemini';
+
+  // Only the selected provider's key is required; the other one is unused.
+  const geminiApiKey = llmProvider === 'gemini' ? required('GEMINI_API_KEY') : env.GEMINI_API_KEY?.trim() ?? '';
+  const openrouterApiKey = llmProvider === 'openrouter' ? required('OPENROUTER_API_KEY') : env.OPENROUTER_API_KEY?.trim() ?? '';
   const chatSharedSecret = secret('CHAT_SHARED_SECRET');
   const indexApiToken = secret('INDEX_API_TOKEN');
   if (chatSharedSecret && chatSharedSecret === indexApiToken) {
@@ -115,6 +129,21 @@ export function loadConfig(env: Env = process.env): Config {
     }
   }
 
+  const modelIdPattern = /^[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._:-]{0,120}$/i;
+  const openrouterModel = env.OPENROUTER_MODEL?.trim() || 'deepseek/deepseek-chat';
+  if (!modelIdPattern.test(openrouterModel)) {
+    problems.push('OPENROUTER_MODEL must be a model id such as deepseek/deepseek-chat');
+  }
+  const openrouterFallbackModels = (env.OPENROUTER_FALLBACK_MODELS ?? '')
+    .split(',')
+    .map((m) => m.trim())
+    .filter(Boolean);
+  if (openrouterFallbackModels.length > 4) {
+    problems.push('OPENROUTER_FALLBACK_MODELS allows at most 4 models');
+  } else if (openrouterFallbackModels.some((m) => !modelIdPattern.test(m) || m === openrouterModel)) {
+    problems.push('OPENROUTER_FALLBACK_MODELS must list model ids (provider/model), different from OPENROUTER_MODEL');
+  }
+
   const logLevel = (env.LOG_LEVEL?.trim() || 'info') as LogLevel;
   if (!['debug', 'info', 'warn', 'error'].includes(logLevel)) {
     problems.push('LOG_LEVEL must be one of debug, info, warn, error');
@@ -123,6 +152,10 @@ export function loadConfig(env: Env = process.env): Config {
   const config: Config = {
     host: env.HOST?.trim() || '127.0.0.1',
     port: int('PORT', 8787, 1, 65535),
+    llmProvider,
+    openrouterApiKey,
+    openrouterModel,
+    openrouterFallbackModels: [...new Set(openrouterFallbackModels)],
     geminiApiKey,
     geminiModel,
     geminiApiBaseUrl,

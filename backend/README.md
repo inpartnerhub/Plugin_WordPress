@@ -73,13 +73,17 @@ All configuration comes from environment variables, validated at startup. On inv
 
 | Variable | Required | Default | Notes |
 |---|---|---|---|
-| `GEMINI_API_KEY` | yes | — | server-side only |
+| `LLM_PROVIDER` | | `gemini` (`.env.example` sets `openrouter`) | `openrouter` or `gemini` |
+| `OPENROUTER_API_KEY` | if `openrouter` | — | server-side only |
+| `OPENROUTER_MODEL` | | `deepseek/deepseek-chat` | OpenRouter model id |
+| `OPENROUTER_FALLBACK_MODELS` | | empty | comma-separated, max 4; OpenRouter tries them in order if the primary fails |
+| `GEMINI_API_KEY` | if `gemini` | — | server-side only |
 | `CHAT_SHARED_SECRET` | yes | — | ≥ 32 chars; equals `WP_KNOWLEDGE_CHAT_SHARED_SECRET` in WordPress |
 | `INDEX_API_TOKEN` | yes | — | ≥ 32 chars; must differ from the chat secret |
 | `HOST` / `PORT` | | `127.0.0.1` / `8787` | use `HOST=0.0.0.0` in containers/PaaS |
 | `GEMINI_MODEL` | | `gemini-2.5-flash` | "thinking" is disabled for 2.5 Flash to keep answers fast and cheap |
-| `GEMINI_TIMEOUT_MS` | | `12000` | total deadline including one retry |
-| `GEMINI_MAX_OUTPUT_TOKENS` | | `600` | |
+| `GEMINI_TIMEOUT_MS` | | `12000` | total deadline including one retry; also applies to OpenRouter |
+| `GEMINI_MAX_OUTPUT_TOKENS` | | `600` | also applies to OpenRouter |
 | `GEMINI_API_BASE_URL` | | Google endpoint | http only allowed for localhost |
 | `KB_PATH` | | `data/kb.json` | |
 | `ALLOWED_SOURCE_HOSTS` | | `inpartnerglobal.com,www.inpartnerglobal.com` | citations and indexed URLs must match exactly |

@@ -31,7 +31,7 @@ export function createApp({ config, store, llm, logger, now = () => Date.now(), 
     logger,
     topK: config.retrievalTopK,
     minScore: config.retrievalMinScore,
-    secrets: [config.geminiApiKey, config.chatSharedSecret, config.indexApiToken],
+    secrets: [config.geminiApiKey, config.openrouterApiKey, config.chatSharedSecret, config.indexApiToken],
     budget: new DailyBudget(config.dailyRequestLimit, now),
     now,
   });
