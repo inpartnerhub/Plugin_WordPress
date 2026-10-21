@@ -3,7 +3,7 @@ import type { Config } from './config/env.js';
 import { SignatureVerifier } from './lib/auth.js';
 import { HttpError, sendError, sendJson } from './lib/http.js';
 import type { Logger } from './lib/logger.js';
-import { DailyBudget, FixedWindowLimiter } from './middleware/rate-limit.js';
+import { AbusePenaltyTracker, DailyBudget, FixedWindowLimiter, ResponseCache } from './middleware/rate-limit.js';
 import { handleChat } from './routes/chat.js';
 import { handleHealth } from './routes/health.js';
 import { createLock, handleIndex } from './routes/index.js';
@@ -37,6 +37,9 @@ export function createApp({ config, store, llm, logger, now = () => Date.now(), 
   });
   const verifier = new SignatureVerifier(config.chatSharedSecret, config.signatureMaxSkewSeconds, now);
 
+  const penaltyTracker = new AbusePenaltyTracker(3, 5 * 60_000, 10 * 60_000, now);
+  const responseCache = new ResponseCache(60 * 60 * 1000, 500, now);
+
   const chatDeps = {
     verifier,
     clientLimiter: new FixedWindowLimiter(config.rateLimitPerClientPerMinute, 60_000, now),
@@ -45,6 +48,8 @@ export function createApp({ config, store, llm, logger, now = () => Date.now(), 
     store,
     logger,
     maxMessageChars: config.maxMessageChars,
+    penaltyTracker,
+    responseCache,
   };
 
   const indexDeps = {
@@ -57,6 +62,7 @@ export function createApp({ config, store, llm, logger, now = () => Date.now(), 
     logger,
     lock: createLock(),
     indexingEnabled,
+    responseCache,
   };
 
   const routes: Record<string, { method: string; handle: (req: IncomingMessage, res: ServerResponse) => Promise<void> | void }> = {

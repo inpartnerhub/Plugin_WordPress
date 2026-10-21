@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { verifyBearerToken } from '../lib/auth.js';
 import { HttpError, headerValue, isPlainObject, parseJson, readRawBody, requireJsonContentType, sendJson } from '../lib/http.js';
 import type { Logger } from '../lib/logger.js';
-import type { FixedWindowLimiter } from '../middleware/rate-limit.js';
+import type { FixedWindowLimiter, ResponseCache } from '../middleware/rate-limit.js';
 import {
   DocumentValidationError,
   validateDocument,
@@ -31,6 +31,7 @@ export interface IndexRouteDeps {
    * and is lost on the next cold start.
    */
   indexingEnabled?: boolean;
+  responseCache?: ResponseCache;
 }
 
 export function createLock(): IndexRouteDeps['lock'] {
@@ -134,6 +135,7 @@ export async function handleIndex(req: IncomingMessage, res: ServerResponse, dep
       throw new HttpError(500, 'persist_failed', 'The knowledge base could not be saved. No changes were applied.');
     }
     deps.retriever.rebuild(deps.store.chunks());
+    deps.responseCache?.clear();
     if (!persisted.durable) deps.logger.warn('kb_persisted_ephemeral');
     return { ...counts, total: deps.store.size, persisted: persisted.durable ? 'file' : 'ephemeral' };
   });

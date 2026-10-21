@@ -22,7 +22,35 @@
  * patterns use no \b: JavaScript word boundaries only see ASCII letters.
  */
 
-export type ScopeViolation = 'injection' | 'investment_advice' | 'legal_tax_advice' | 'medical' | 'guarantee' | 'unrelated';
+export type ScopeViolation = 'injection' | 'investment_advice' | 'legal_tax_advice' | 'medical' | 'guarantee' | 'unrelated' | 'profanity_hate';
+
+const LEET_MAP: Record<string, string> = {
+  '@': 'a',
+  '4': 'a',
+  '8': 'b',
+  '3': 'e',
+  '1': 'i',
+  '!': 'i',
+  '0': 'o',
+  '$': 's',
+  '5': 's',
+  '7': 't',
+};
+
+const HOMOGLYPHS: Record<string, string> = {
+  'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'у': 'y', 'х': 'x',
+  'А': 'A', 'Е': 'E', 'О': 'O', 'Р': 'P', 'С': 'C', 'У': 'Y', 'Х': 'X',
+  'і': 'i', 'І': 'I',
+};
+
+/** Normalises homoglyphs, single-letter spacing, and leetspeak adjacent to letters to detect obfuscated prompts. */
+export function deobfuscate(text: string): string {
+  let norm = text.normalize('NFKC');
+  norm = norm.replace(/[аеорсухАЕОРСУХіІ]/g, (ch) => HOMOGLYPHS[ch] || ch);
+  const leetReplaced = norm.replace(/(?<=[a-zA-Z])[@4831!0$57]|[@4831!0$57](?=[a-zA-Z])/g, (ch) => LEET_MAP[ch] || ch);
+  const collapsed = leetReplaced.replace(/\b([a-zA-Z])[\s._-]([a-zA-Z])[\s._-]([a-zA-Z])[\s._-]([a-zA-Z])(?:\b|[\s._-])/g, '$1$2$3$4');
+  return norm + ' ' + leetReplaced + ' ' + collapsed;
+}
 
 const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
   {
@@ -45,6 +73,25 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
       /\b(tampilkan|tunjukkan|sebutkan)\b[^.?!]{0,40}\b(instruksi|prompt|kunci|rahasia|konfigurasi)\b/i,
       /\bkamu sekarang\b|\bberperan(lah)? sebagai\b|\bberpura-pura(lah)?\b/i,
       /\bulang(i)?\b[^.?!]{0,30}\b(kata|kalimat|semua|teks)\b[^.?!]{0,20}\b(di atas|sebelumnya)\b/i,
+      // Indonesian slang and informal bypass patterns
+      /\b(bodo amat|peduli amat|ga(k)? usah peduli|tak perlu patuh)\b[^.?!]{0,40}\b(aturan|instruksi|perintah|sistem|prompt)\b/i,
+      /\b(lupain|abaikan|hapus|reset)\s+(semua\s+)?(aturan|instruksi|perintah|prompt|arahan)\b/i,
+      /\b(jangan\s+(patuh|ikut|ikuti|dengerin|pedulikan))\b[^.?!]{0,30}\b(aturan|instruksi|perintah|prompt|sistem)\b/i,
+      /\b(kamu|lu|ente)\s+(sekarang|kini)\s+(jadi|adalah|berubah)\b/i,
+      /\b(bocorkan|ceritakan|kasih tahu|tunjukin|sebutin)\b[^.?!]{0,30}\b(prompt|instruksi|rahasia|konfigurasi|system prompt|perintah awal)\b/i,
+      /\b(mode tanpa filter|mode pengembang|tanpa batasan|unrestricted mode)\b/i,
+      /\b(pura[- ]pura|berperan)\s+(jadi|sebagai)\s+(ai|bot|hacker|orang lain|model lain)\b/i,
+      /\b(anggap aja|bayangkan)\s+(lu|kamu|anda)\s+(ga punya|tidak ada)\s+(aturan|batasan)\b/i,
+      // English & universal advanced jailbreak / exfiltration
+      /\b(hypothetical|fictional|imaginary)\s+(scenario|situation|world|roleplay)\b[^.?!]{0,40}\b(no rules|unrestricted|bypass|ignore|rules? don't apply)\b/i,
+      /\b(unrestricted|jailbreak(ed)?|uncensored|evil|chaos|shadow)\s+(mode|version|persona|character|assistant|ai)\b/i,
+      /\b(dan mode|developer mode v[0-9]|do anything now)\b/i,
+      /\b(encode|translate|convert)\b[^.?!]{0,30}\b(system prompt|instructions?|rules?)\b[^.?!]{0,25}\b(base64|rot13|hex|morse|binary|reverse)\b/i,
+      /\b(print|output|display)\b[^.?!]{0,20}\b(in reverse|backwards?)\b[^.?!]{0,30}\b(prompt|instructions?|text above)\b/i,
+      /\b(what was|summarize|tell me)\s+(the\s+)?(text|prompt|instructions?)\s+(written\s+)?before\s+(this|our|my)\s+(chat|conversation|message)\b/i,
+      /===\s*(new task|new instructions?|system override)\s*===/i,
+      /\[(system override|system|developer)\]/i,
+      /<<\s*sys\s*>>/i,
       // Korean is verb-final: "이전 지시를 무시하고" puts the object first.
       /(지시|지침|규칙|명령|프롬프트)[^.?!]{0,30}(무시|잊어|잊고|어기|따르지)/,
       /(무시|잊어)[^.?!]{0,30}(지시|지침|규칙|명령|프롬프트)/,
@@ -53,6 +100,14 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
       /(너는|당신은)\s?이제|척\s?(해|하세요|해줘)|역할을\s?(해|하세요|해줘|맡아)|탈옥/,
       /(위|앞|이전)(의)?\s?(내용|문장|텍스트|글)[^.?!]{0,20}(반복|그대로)/,
       /(비공개|임시|초안)\s?(페이지|게시물|콘텐츠|문서)/,
+    ],
+  },
+  {
+    kind: 'profanity_hate',
+    patterns: [
+      /\b(kontol|memek|ngentot|pantek|jembut|bangsat|bajingan|keparat|perek|lonte|tolol|goblok)\b/i,
+      /\b(fuck|fucking|bitch|bastard|asshole|cunt|dickhead|whore|nigger|nigga|faggot)\b/i,
+      /시발|씨발|개새끼|지랄|병신|좆|존나|개년/,
     ],
   },
   {
@@ -116,8 +171,9 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
 
 /** Returns the first scope violation found in a visitor question, or null. */
 export function scopeViolation(question: string): ScopeViolation | null {
+  const deobf = deobfuscate(question);
   for (const rule of SCOPE_RULES) {
-    if (rule.patterns.some((re) => re.test(question))) return rule.kind;
+    if (rule.patterns.some((re) => re.test(question) || re.test(deobf))) return rule.kind;
   }
   return null;
 }

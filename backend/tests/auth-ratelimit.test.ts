@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { computeSignature, SignatureVerifier, verifyBearerToken } from '../src/lib/auth.js';
-import { DailyBudget, FixedWindowLimiter } from '../src/middleware/rate-limit.js';
+import { AbusePenaltyTracker, DailyBudget, FixedWindowLimiter, ResponseCache } from '../src/middleware/rate-limit.js';
 
 describe('SignatureVerifier', () => {
   const secret = 's'.repeat(40);
@@ -97,5 +97,68 @@ describe('DailyBudget', () => {
     assert.equal(blocked.retryAfterSeconds, 60);
     now = Date.UTC(2026, 9, 15, 0, 0, 1);
     assert.equal(budget.consume().allowed, true);
+  });
+});
+
+describe('AbusePenaltyTracker', () => {
+  it('penalises clients after repeated violations and resets after cooldown', () => {
+    let now = 1000;
+    const tracker = new AbusePenaltyTracker(3, 300_000, 600_000, () => now);
+    assert.equal(tracker.check('attacker').allowed, true);
+    assert.equal(tracker.recordViolation('attacker').allowed, true);
+    assert.equal(tracker.recordViolation('attacker').allowed, true);
+    assert.equal(tracker.check('attacker').allowed, true);
+
+    // 3rd violation triggers cooldown
+    const penalty = tracker.recordViolation('attacker');
+    assert.equal(penalty.allowed, false);
+    assert.equal(penalty.retryAfterSeconds, 600);
+
+    // Blocked on subsequent checks
+    const blocked = tracker.check('attacker');
+    assert.equal(blocked.allowed, false);
+    assert.ok(blocked.retryAfterSeconds <= 600);
+
+    // Clean client is not affected
+    assert.equal(tracker.check('honest_user').allowed, true);
+
+    // After penalty expires
+    now += 600_001;
+    assert.equal(tracker.check('attacker').allowed, true);
+  });
+});
+
+describe('ResponseCache', () => {
+  it('caches grounded answers with normalization and obeys TTL', () => {
+    let now = 1000;
+    const cache = new ResponseCache(60_000, 10, () => now);
+    cache.set('en', 'What services does Inpartner offer?', {
+      answer: 'Inpartner offers advisory services.',
+      sources: [{ title: 'Services', url: 'https://inpartnerglobal.com/services' }],
+      grounded: true,
+    });
+
+    // Exact and case/spacing normalised lookups match
+    const hit1 = cache.get('en', 'What services does Inpartner offer?');
+    assert.ok(hit1);
+    assert.equal(hit1.answer, 'Inpartner offers advisory services.');
+
+    const hit2 = cache.get('en', '  what services does   inpartner offer?  ');
+    assert.ok(hit2);
+    assert.equal(hit2.answer, 'Inpartner offers advisory services.');
+
+    // Different language or question misses
+    assert.equal(cache.get('id', 'What services does Inpartner offer?'), null);
+    assert.equal(cache.get('en', 'Where is the office?'), null);
+
+    // After TTL expires
+    now += 60_001;
+    assert.equal(cache.get('en', 'What services does Inpartner offer?'), null);
+
+    // Clear works
+    cache.set('en', 'hello', { answer: 'hi', sources: [], grounded: true });
+    assert.equal(cache.size, 1);
+    cache.clear();
+    assert.equal(cache.size, 0);
   });
 });

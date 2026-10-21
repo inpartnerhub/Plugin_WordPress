@@ -67,3 +67,102 @@ export class DailyBudget {
     return { allowed: true, retryAfterSeconds: 0 };
   }
 }
+
+/** Caps repeated abusive requests (injection, profanity) from a client. */
+export class AbusePenaltyTracker {
+  private readonly violations = new Map<string, { count: number; windowStart: number; blockedUntil: number }>();
+
+  constructor(
+    private readonly threshold = 3,
+    private readonly windowMs = 5 * 60_000,
+    private readonly penaltyMs = 10 * 60_000,
+    private readonly now: () => number = () => Date.now(),
+    private readonly maxKeys = 20000,
+  ) {}
+
+  check(key: string): LimitResult {
+    const now = this.now();
+    const entry = this.violations.get(key);
+    if (!entry) return { allowed: true, retryAfterSeconds: 0 };
+    if (now < entry.blockedUntil) {
+      return { allowed: false, retryAfterSeconds: Math.max(1, Math.ceil((entry.blockedUntil - now) / 1000)) };
+    }
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+
+  recordViolation(key: string): LimitResult {
+    const now = this.now();
+    let entry = this.violations.get(key);
+    if (!entry || now - entry.windowStart >= this.windowMs) {
+      if (!entry && this.violations.size >= this.maxKeys) this.prune(now);
+      entry = { count: 0, windowStart: now, blockedUntil: 0 };
+      this.violations.set(key, entry);
+    }
+    entry.count += 1;
+    if (entry.count >= this.threshold) {
+      entry.blockedUntil = now + this.penaltyMs;
+      return { allowed: false, retryAfterSeconds: Math.ceil(this.penaltyMs / 1000) };
+    }
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+
+  private prune(now: number): void {
+    for (const [key, entry] of this.violations) {
+      if (now >= entry.blockedUntil && now - entry.windowStart >= this.windowMs) {
+        this.violations.delete(key);
+      }
+    }
+    if (this.violations.size >= this.maxKeys) this.violations.clear();
+  }
+}
+
+export interface CachedResponse {
+  answer: string;
+  sources: { title: string; url: string }[];
+  grounded: boolean;
+  cachedAt: number;
+}
+
+/** In-memory cache for grounded FAQ responses without conversation history. */
+export class ResponseCache {
+  private readonly cache = new Map<string, CachedResponse>();
+
+  constructor(
+    private readonly ttlMs = 60 * 60 * 1000,
+    private readonly maxSize = 500,
+    private readonly now: () => number = () => Date.now(),
+  ) {}
+
+  private makeKey(language: string, message: string): string {
+    const norm = message.toLowerCase().trim().replace(/\s+/g, ' ');
+    return `${language}:${norm}`;
+  }
+
+  get(language: string, message: string): CachedResponse | null {
+    const key = this.makeKey(language, message);
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    if (this.now() - entry.cachedAt >= this.ttlMs) {
+      this.cache.delete(key);
+      return null;
+    }
+    return entry;
+  }
+
+  set(language: string, message: string, data: Omit<CachedResponse, 'cachedAt'>): void {
+    const key = this.makeKey(language, message);
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey) this.cache.delete(firstKey);
+    }
+    this.cache.set(key, { ...data, cachedAt: this.now() });
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
+}

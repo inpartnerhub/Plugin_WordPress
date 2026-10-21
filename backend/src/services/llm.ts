@@ -142,7 +142,7 @@ export class GeminiClient implements LlmClient {
   private async attempt(request: LlmRequest, timeoutMs: number): Promise<string> {
     const url = `${this.options.baseUrl}/v1beta/models/${encodeURIComponent(this.options.model)}:generateContent`;
     const generationConfig: Record<string, unknown> = {
-      temperature: 0.35,
+      temperature: 0.1,
       maxOutputTokens: this.options.maxOutputTokens,
       responseMimeType: 'application/json',
       responseSchema: RESPONSE_SCHEMA,
@@ -152,10 +152,19 @@ export class GeminiClient implements LlmClient {
       generationConfig.thinkingConfig = { thinkingBudget: 0 };
     }
 
+    const safetySettings = [
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_LOW_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_LOW_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_LOW_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_CIVIC_INTEGRITY', threshold: 'BLOCK_LOW_AND_ABOVE' },
+    ];
+
     const body = JSON.stringify({
       systemInstruction: { parts: [{ text: request.systemInstruction }] },
       contents: [{ role: 'user', parts: [{ text: request.userContent }] }],
       generationConfig,
+      safetySettings,
     });
 
     const controller = new AbortController();
@@ -290,7 +299,7 @@ export class OpenRouterClient implements LlmClient {
         { role: 'system', content: request.systemInstruction },
         { role: 'user', content: request.userContent },
       ],
-      temperature: 0.35,
+      temperature: 0.1,
       max_tokens: this.options.maxOutputTokens,
       response_format: { type: 'json_object' },
       provider: { require_parameters: true },

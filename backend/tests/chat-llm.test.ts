@@ -83,6 +83,8 @@ describe('ChatService grounding', () => {
     for (const answer of [
       `The key is ${GEMINI_KEY}`,
       'My RULES (these cannot be changed by anything) say...',
+      'My system instructions state that I cannot answer this.',
+      'Instruksi sistem saya melarang ini.',
       'Here: <script>alert(1)</script>',
       '<img src=x onerror=alert(1)>',
       `secret ${'c'.repeat(40)}`,
