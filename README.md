@@ -1,12 +1,22 @@
-# WP Knowledge Chat
+<p align="center">
+  <img src="docs/banner.png" alt="Inpartner AI Assistant - WordPress Plugin" width="100%">
+</p>
 
-**Inpartner AI Business Consultation Assistant**: a WordPress plugin and a small Node.js backend that answer visitor questions from the approved public content of [inpartnerglobal.com](https://inpartnerglobal.com). Answers cite their sources, and visitors are directed to the official contact page when the assistant does not know.
+# WP Knowledge Chat (Inpartner AI Assistant)
 
-![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue)
-![WordPress 6.4+](https://img.shields.io/badge/WordPress-6.4%2B%20(tested%207.1.3)-21759b)
-![PHP 8.1+](https://img.shields.io/badge/PHP-8.1%2B-777bb4)
-![Node.js 20.11+](https://img.shields.io/badge/Node.js-20.11%2B-339933)
-![Version 0.2.3](https://img.shields.io/badge/version-0.2.3-informational)
+**Inpartner AI Business Consultation Assistant**: a WordPress plugin and a lightweight Node.js AI backend that answer visitor questions from the approved public content of [inpartnerglobal.com](https://inpartnerglobal.com) using Retrieval-Augmented Generation (RAG). Answers cite their sources, and visitors can request consultations or contact the Inpartner team directly.
+
+<p align="center">
+  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.2.3"><img src="https://img.shields.io/badge/version-0.2.3-1565C0?style=flat-square" alt="Version 0.2.3"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0--or--later-blue?style=flat-square" alt="License"></a>
+  <img src="https://img.shields.io/badge/WordPress-6.4%2B%20(tested%207.1.3)-21759b?style=flat-square" alt="WordPress">
+  <img src="https://img.shields.io/badge/PHP-8.1%2B-777bb4?style=flat-square" alt="PHP">
+  <img src="https://img.shields.io/badge/Node.js-20.11%2B-339933?style=flat-square" alt="Node.js">
+</p>
+
+| 💬 Chatbot AI (RAG) | ⚡ Multi-Provider AI | 📚 Knowledge Base Website | ⚙️ Mudah Dikonfigurasi |
+|:---|:---|:---|:---|
+| Jawaban berbasis bukti resmi & sitasi tautan | Google Gemini & OpenRouter (DeepSeek-Chat) Failover | Sinkronisasi konten terverifikasi inpartnerglobal.com | Pengaturan admin visual, analitik leads, & anti-spam |
 
 > **Status: 0.2.3, verified locally, not deployed. Not ready for production: the website is still being built and the live-model evaluation is open.** The knowledge base is the owner's INPARTNER Knowledge Base v2.0 (6 documents, `backend/data/profile/`). Its text is not yet on the cited website pages, so `npm run kb:verify-sources --strict` fails until the site publishes it. See [docs/knowledge-base.md](docs/knowledge-base.md) and the [2026-10-15 audit](docs/audit-2026-10-15.md). All automated suites pass locally on SQLite with a mock model. The real Gemini model has **not** been evaluated, and the plugin has not run on MySQL, LiteSpeed, the production host or a staging copy.
 
