@@ -164,6 +164,10 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 == Changelog ==
 
 = 0.2.2 =
+* Security guardrails: hardened prompt injection defenses, Indonesian slang/obfuscation handling, and PII redaction (NIK, payment cards, emails, phone numbers).
+* Dual-provider failover: automatic fallback between Gemini and OpenRouter for high availability.
+* Lead protection: blocked disposable email domains and honeypot spam detection.
+* Admin observability: added blocked threats counter and unanswered topics / knowledge gaps tracking.
 * Suggested privacy-policy text now appears under Settings → Privacy → Policy Guide (English, Bahasa Indonesia, Korean).
 * Added `Update URI: false` to the plugin header, so a plugin with the same slug on WordPress.org can never be offered as an "update" and overwrite this one.
 * Admin screens no longer print inline JavaScript, `onsubmit` handlers or `style` attributes. They load `assets/js/admin.js` and `assets/css/admin.css`, on this plugin's screens only, so a strict Content-Security-Policy works.
