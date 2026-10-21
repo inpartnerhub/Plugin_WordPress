@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SignatureVerifier } from '../lib/auth.js';
 import { HttpError, headerValue, isPlainObject, parseJson, readRawBody, requireJsonContentType, sendJson } from '../lib/http.js';
 import type { Logger } from '../lib/logger.js';
-import type { AbusePenaltyTracker, FixedWindowLimiter, ResponseCache } from '../middleware/rate-limit.js';
+import type { AbusePenaltyTracker, FixedWindowLimiter } from '../middleware/rate-limit.js';
 import { BudgetExceededError, LANGUAGES, type ChatHistoryTurn, type ChatService, type Language } from '../services/chat.js';
 import type { KnowledgeBaseStore } from '../services/knowledge-base.js';
 import { LlmError } from '../services/llm.js';
@@ -18,7 +18,6 @@ export interface ChatRouteDeps {
   logger: Logger;
   maxMessageChars: number;
   penaltyTracker?: AbusePenaltyTracker;
-  responseCache?: ResponseCache;
 }
 
 export function validateChatRequest(body: unknown, maxMessageChars: number): { message: string; language: Language; history?: ChatHistoryTurn[] } {
@@ -115,15 +114,6 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse, deps
     throw new HttpError(503, 'knowledge_base_unavailable', 'The assistant is not available right now.');
   }
 
-  if ((!history || history.length === 0) && deps.responseCache) {
-    const cached = deps.responseCache.get(language, message);
-    if (cached) {
-      deps.logger.info('chat_cache_hit', { language, message_chars: message.length, latency_ms: Date.now() - started });
-      sendJson(res, 200, { answer: cached.answer, sources: cached.sources, grounded: cached.grounded });
-      return;
-    }
-  }
-
   try {
     const result = await deps.chat.answer(message, language, history);
     if (deps.penaltyTracker && result.outcome === 'out_of_scope' && (result.reason === 'injection' || result.reason === 'profanity_hate')) {
@@ -131,13 +121,6 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse, deps
       if (!pen.allowed) {
         deps.logger.warn('abuse_penalty_triggered', { client: clientKey, reason: result.reason });
       }
-    }
-    if (deps.responseCache && result.grounded && result.outcome === 'answered' && (!history || history.length === 0)) {
-      deps.responseCache.set(language, message, {
-        answer: result.answer,
-        sources: result.sources,
-        grounded: result.grounded,
-      });
     }
     deps.logger.info('chat_completed', {
       outcome: result.outcome,
