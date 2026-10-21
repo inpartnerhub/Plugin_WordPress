@@ -9,7 +9,11 @@ In Netlify: *Site configuration → Environment variables*. Never commit these v
 
 | Variable | Value |
 |---|---|
-| `GEMINI_API_KEY` | A new key from Google AI Studio. Put a spending cap on the key, because Netlify's in-memory limits are per function instance. |
+| `LLM_PROVIDER` | `openrouter`, `gemini`, or omit to auto-select (`openrouter` if OpenRouter key is set, `gemini` if Gemini key is set, or auto-failover if both are present). |
+| `OPENROUTER_API_KEY` | Server-side API key from OpenRouter.ai (when using OpenRouter or Failover). |
+| `OPENROUTER_MODEL` | Default model: `deepseek/deepseek-chat` (or another provider model ID). |
+| `OPENROUTER_FALLBACK_MODELS` | Comma-separated fallback models (up to 4) for OpenRouter internal failover. |
+| `GEMINI_API_KEY` | Server-side key from Google AI Studio. Put a spending cap on the key. |
 | `CHAT_SHARED_SECRET` | 32+ random characters (`cd backend && npm run secret`). Same value as `WP_KNOWLEDGE_CHAT_SHARED_SECRET` in `wp-config.php`. |
 | `INDEX_API_TOKEN` | Optional on Netlify: `/api/index` returns 501 there. The KB changes by deploying `backend/data/kb.json`. |
 | `DAILY_REQUEST_LIMIT` | Daily model-call budget, from the owner's monthly budget. |

@@ -8,11 +8,11 @@ Every technology used in the project, the version it was built and tested with, 
 |---|---|---|---|
 | CMS | WordPress | ≥ 6.4 (tested 7.1.3) | yes (existing site) |
 | Plugin language | PHP | ≥ 8.1 (tested 8.5.5) | yes |
-| Widget | Vanilla JavaScript (ES5-compatible syntax) + CSS | — | yes |
-| Backend runtime | Node.js | ≥ 20.11 (tested 25.9.0) | yes |
+| Widget | Vanilla JavaScript (ES5-compatible syntax) + Scoped CSS | WCAG 2.1 AA | yes |
+| Backend runtime | Node.js / Serverless Netlify Functions | ≥ 20.11 (tested 25.9.0) | yes |
 | Backend language | TypeScript | 5.9.3 | compiled to JS |
-| AI model | Google Gemini API (`generateContent`, REST v1beta) | default model `gemini-2.5-flash` | external service |
-| Retrieval | BM25 lexical search (own implementation) | — | yes |
+| AI models | Dual-Provider: Google Gemini API & OpenRouter API | `gemini-1.5-flash` / `deepseek/deepseek-chat` | external services (with Failover) |
+| Retrieval | BM25 lexical search (EN, ID, KO support) | — | yes |
 | Knowledge-base storage | JSON file (`backend/data/kb.json`) | — | yes |
 
 **Runtime dependencies:** the plugin uses only WordPress core APIs, and the backend uses only Node.js built-in modules (`node:http`, `node:crypto`, `node:fs`, global `fetch`). No third-party package runs in production.

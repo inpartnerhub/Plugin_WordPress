@@ -1,14 +1,14 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 ## Inpartner AI Business Consultation Assistant
 
-**Versi:** 1.2 Final  
-**Status:** Ready for Prototyping  
+**Versi:** 2.0 (Release v0.2.3 Production-Hardened)  
+**Status:** Released (v0.2.3 Staging/Production Ready)  
 **Target Website:** https://inpartnerglobal.com  
 **Platform:** WordPress Plugin  
 **Nama Plugin:** WP Knowledge Chat  
 **Target Pengguna:** Pengunjung website dan calon klien Inpartner  
-**Model Implementasi:** WordPress Plugin + Backend AI  
-**Prioritas:** MVP dengan biaya operasional rendah
+**Model Implementasi:** WordPress Plugin + Backend AI (Dual-Provider: Gemini & OpenRouter)  
+**Prioritas:** Production-Ready, Biaya Terkendali, Keamanan Terverifikasi, Aksesibilitas WCAG 2.1 AA
 
 ---
 
@@ -59,29 +59,18 @@ Pengunjung yang ingin mengetahui layanan Inpartner dan mencari cara untuk memula
 
 Persona tersebut merupakan asumsi awal yang perlu divalidasi dengan tim Inpartner dan data pengguna aktual.
 
-## 5. Scope dan Prioritas MVP
+## 5. Scope dan Status Implementasi (v0.2.3)
 
-### P0: Wajib
+### Fitur Utama yang Telah Selesai (Delivered)
 
-- Floating chat widget.
-- Initial greeting.
-- Input pesan dan tampilan percakapan.
-- Suggested questions.
-- Jawaban berdasarkan knowledge base.
-- Tautan sumber jawaban.
-- Fallback ketika informasi tidak tersedia.
-- Loading dan error state.
-- Tombol menuju halaman kontak.
-- Pengaturan dasar di dashboard WordPress.
-- Validasi input, keamanan output, dan rate limiting.
-
-### P1: Pengembangan lanjutan
-
-- Sinkronisasi konten otomatis.
-- Pengaturan sumber knowledge base dari dashboard.
-- Logging dan analitik penggunaan.
-- Formulir lead capture opsional.
-- Rekomendasi kategori layanan yang lebih terstruktur.
+- **Chatbot Interface & Visual Hierarchy**: Floating widget modern berpalet royal blue (`#1565C0`), tipografi 14.5px tajam, *active pulsing status indicator*, bubble asimetris, dan kartu sitasi terstruktur.
+- **Trilingual Localization**: Dukungan penuh tiga bahasa (Bahasa Indonesia, English, 한국어) pada widget, greeting, saran pertanyaan, formulir konsultasi, dan dashboard admin.
+- **Dual-Provider AI & High Availability**: Otomatis failover antara Google Gemini dan OpenRouter (DeepSeek-Chat) dengan proteksi timeout dan cooldown saat kuota habis.
+- **Grounded RAG & Source Attribution**: BM25 lexical retrieval atas konten Knowledge Base v2.0 Inpartner, tautan sumber terverifikasi, dan pembatasan halusinasi angka/nama.
+- **Consultation Lead Capture**: Formulir permintaan konsultasi dengan proteksi bot honeypot, validasi domain disposable email, penyimpanan privat di WordPress, CSV export, dan integrasi WordPress Privacy Eraser/Exporter.
+- **Observability & Analytics**: Dasbor admin modern dengan metrik pesan, counter ancaman yang diblokir (*blocked prompt injection/threats*), serta pelacak celah topik pengetahuan (*unanswered topics/knowledge gaps*).
+- **Keamanan & Guardrails**: Sanitasi input ganda, deteksi injeksi prompt (termasuk slang/obfuscation bahasa Indonesia), redaksi PII otomatis (NIK, kartu kredit, email, nomor HP), dan rate limiting bertingkat.
+- **Aksesibilitas WCAG 2.1 AA**: Lulus 100% pada evaluasi real-browser axe-core di lingkungan desktop dan mobile responsive.
 
 ### Out of Scope
 

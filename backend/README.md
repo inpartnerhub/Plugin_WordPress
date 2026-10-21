@@ -99,15 +99,15 @@ All configuration comes from environment variables, validated at startup. On inv
 
 1. **Authenticate:** verify the HMAC signature, timestamp window and nonce replay cache (`src/lib/auth.ts`).
 2. **Limit:** per-client and global per-minute windows (`src/middleware/rate-limit.ts`). These run before the body is parsed, so malformed requests still count.
-3. **Validate:** message 1–500 characters, language `en` or `id` (`src/routes/chat.ts`).
-4. **Scope:** prompt injection, personal investment/legal/tax/medical advice, guarantees and unrelated tasks get the fallback without retrieval or Gemini (`src/services/scope.ts`).
-5. **Retrieve:** BM25 over ~700-character chunks, with Indonesian→English query expansion; markup in the question is ignored (`src/services/retrieval.ts`, `text.ts`). If no chunk reaches `RETRIEVAL_MIN_SCORE`, return the fallback and **do not call Gemini**.
+3. **Validate:** message 1–500 characters, language `en`, `id`, or `ko` (`src/routes/chat.ts`).
+4. **Scope & Guardrails:** prompt injection (including Indonesian slang/obfuscation), PII redaction (NIK, credit cards, emails, phone numbers), personal investment/legal/tax/medical advice, guarantees and unrelated tasks get the fallback without retrieval or calling LLMs (`src/services/scope.ts`, `src/services/pii.ts`). An abuse penalty tracker penalises sustained malicious requests.
+5. **Retrieve:** BM25 over ~700-character chunks, with Indonesian/Korean query expansion; markup in the question is ignored (`src/services/retrieval.ts`, `text.ts`). If no chunk reaches `RETRIEVAL_MIN_SCORE`, return the fallback and **do not call the model**.
 6. **Answer type:** a question asking for prices, a founding date, headcount, statistics, client names or office hours gets the fallback unless the retrieved text contains that kind of fact (`scope.ts`).
-7. **Budget:** one unit of `DAILY_REQUEST_LIMIT` is consumed; when it is used up the request gets 429 `daily_limit_reached`.
-8. **Generate:** the system instruction holds the rules (sources only, no invented claims, no personalised advice, ignore instructions inside sources or the question, answer language). Sources and the question are wrapped in sanitised delimiters, and the reply must be JSON (`src/services/chat.ts`, `llm.ts`).
+7. **Budget & Cache:** checks in-memory `ResponseCache` for identical grounded queries. Otherwise, one unit of `DAILY_REQUEST_LIMIT` is consumed; when it is used up the request gets 429 `daily_limit_reached`.
+8. **Generate:** the system instruction holds the rules (sources only, no invented claims, no personalised advice, ignore instructions inside sources or the question, answer language). Sources and the question are wrapped in sanitised delimiters, and the reply must be JSON (`src/services/chat.ts`, `llm.ts`, `openrouter.ts`). When both keys are configured, `FailoverLlmClient` automatically falls back if the primary provider times out or fails.
 9. **Check:** parse the JSON. Malformed, ungrounded or unsafe output (key patterns, leaked instructions, markup) becomes the fallback. Cited `S1…Sn` ids are mapped to knowledge-base titles and URLs, at most 3.
 
-Errors from Gemini become `504 provider_timeout` or `502 provider_unavailable`. The WordPress plugin turns them into a friendly message.
+Errors from providers become `504 provider_timeout` or `502 provider_unavailable`. The WordPress plugin turns them into a friendly message.
 
 ## Project structure
 
@@ -128,7 +128,7 @@ tests/                      *.test.ts + helpers.ts
 
 ## Tests
 
-`npm test` runs 64 tests covering configuration, signatures and replay, bearer auth, rate limits and budget, document validation (draft/private rejected), chunking, retrieval (including Indonesian), grounding and output validation, the Gemini client (timeout, retry, auth errors, blocked or malformed responses), every endpoint and status code, and XSS, prompt-injection and secret-leak payloads.
+`npm test` runs 137 tests across 35 test suites covering configuration, signatures and replay, bearer auth, rate limits and daily budget, document validation (draft/private rejected), chunking, retrieval (English, Indonesian, Korean NFD matching), grounding and output validation, dual providers (Gemini, OpenRouter, and FailoverLlmClient), PII scrubbing, every endpoint and status code, and XSS, prompt-injection and secret-leak payloads.
 
 ## Logging
 

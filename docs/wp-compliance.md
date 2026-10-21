@@ -1,10 +1,20 @@
-# WordPress plugin-guideline review (0.2.2)
+# WordPress plugin-guideline review (v0.2.3)
 
-Scope: `plugin/wp-knowledge-chat`, distributed **privately** to Inpartner (ZIP upload), not through WordPress.org. The reference is the WordPress Plugin Handbook (security, enqueueing, i18n, uninstall), the WordPress Coding Standards sniffs in `tests/phpcs.xml.dist`, and the WordPress **Plugin Check** tool. Reviewed 2026-10-16 against WordPress 7.1.3 / PHP 8.5.
+Scope: `plugin/wp-knowledge-chat`, distributed **privately** to Inpartner (ZIP upload), not through WordPress.org. The reference is the WordPress Plugin Handbook (security, enqueueing, i18n, uninstall), the WordPress Coding Standards sniffs in `tests/phpcs.xml.dist`, and the WordPress **Plugin Check** tool. Reviewed 2026-10-21 against WordPress 7.1.3 / PHP 8.5.
 
 ## Already compliant
 
 Capability and nonce checks on every admin action, escaped output, sanitised input, prepared SQL, `defined( 'ABSPATH' )` in every file, assets enqueued with a version, `wp_remote_*` for HTTP, secrets in `wp-config.php`, `uninstall.php`, privacy exporter/eraser, no development files in the ZIP.
+
+## Changed in 0.2.3
+
+| # | Finding | Change |
+|---|---|---|
+| 1 | Missing Korean lead form strings in `chat-widget.js` caused `undefined` error messages upon submission failure | Added `leadFailed` and `leadPrivacy` to `STRINGS.ko` |
+| 2 | Widget styling lacked visual hierarchy and corporate branding alignment | Modernized typography hierarchy (14.5px base, 1.55 line height), added live pulsing status indicator, asymmetric bubble radii (16px), and structured citation cards |
+| 3 | Admin dashboard styling lacked branded identity and visual polish | Modernized admin pages with corporate royal blue banner, elevated KPI cards with hover effects, and clean table layouts without breaking CSP |
+| 4 | Mobile touch targets and responsive bottom sheet sizing | Optimized mobile viewport bottom sheet (`100vw`, `85dvh`) with touch targets ≥ 36px/44px and zero horizontal overflow |
+| 5 | Axe-core accessibility qualification | Verified 0 WCAG 2.1 AA violations on all states across English, Indonesian, and Korean interfaces |
 
 ## Changed in 0.2.2
 

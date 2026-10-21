@@ -3,25 +3,32 @@
 ## Components and data flow
 
 ```
- Visitor browser                         WordPress (shared hosting, PHP)                 AI backend (Node.js, external host)        Google
- ───────────────                         ───────────────────────────────                 ───────────────────────────────────        ──────
- chat-widget.js  ── POST same-origin ──▶  /wp-json/wp-knowledge-chat/v1/chat   ── HMAC ──▶  POST /api/chat                    ──▶   Gemini
- (vanilla JS)       {message,language}    • enabled? configured? origin ok?     signed       • verify signature + replay         API
-                                          • validate message (≤500 chars)       HTTPS        • rate limit (client/global)
-                ◀── {answer,sources, ──   • per-IP sliding-window rate limit               • validate request
-                     grounded}            • salted client id (no raw IP)                   • scope policy → fallback (no LLM)
+ Visitor browser                         WordPress (shared hosting, PHP)                 AI backend (Node.js, external host)        LLM Providers
+ ───────────────                         ───────────────────────────────                 ───────────────────────────────────        ─────────────
+ chat-widget.js  ── POST same-origin ──▶  /wp-json/wp-knowledge-chat/v1/chat   ── HMAC ──▶  POST /api/chat                    ──▶   Google Gemini
+ (vanilla JS)       {message,language}    • enabled? configured? origin ok?     signed       • verify signature + replay         or OpenRouter
+                                          • validate message (≤500 chars)       HTTPS        • rate limit (client/global)           (DeepSeek-Chat)
+                ◀── {answer,sources, ──   • per-IP sliding-window rate limit                 • validate request & PII scrub         [Failover]
+                     grounded}            • salted client id (no raw IP)                     • scope policy → fallback (no LLM)
                                           • re-validate response, URL allowlist ◀──────────  • BM25 retrieval over KB chunks
                                                                                              • no evidence / missing answer type
                                                                                                → fallback (no LLM)
+                                                                                             • response cache lookup
                                                                                              • daily model-call budget
                                                                                              • prompt with delimited sources
                                                                                              • parse + validate JSON output
-                                                                                             • claim check: numbers/URLs/e-mails/
-                                                                                               phones must appear in evidence
+                                                                                             • claim check & output leak filter
                                                                                              • sources resolved from KB only
- Admin (manage_options) ─ options.php ─▶  Settings API → option wp_knowledge_chat_settings
 
- Operator (CLI) ── npm run kb:build ──▶ fetches ONLY page IDs in data/sources.json (public REST API) → data/kb.json (reviewed)
+ chat-widget.js  ── POST same-origin ──▶  /wp-json/wp-knowledge-chat/v1/lead                 [Stored locally in private post type]
+ (lead form)        {name,email,message}  • honeypot check, disposable email block
+                                          • rate limit & retention policy
+
+ Admin (manage_options) ─ options.php ─▶  Settings API → wp_knowledge_chat_settings
+                        ─ edit.php    ─▶  Analytics & Leads Dashboard (wkc_lead)
+                        ─ tools.php   ─▶  Knowledge Base Sync (class-content-sync.php)
+
+ Operator (CLI) ── npm run kb:build ──▶ fetches page IDs in data/sources.json → data/kb.json
                 ── npm run kb:push  ──▶ POST /api/index (Bearer INDEX_API_TOKEN) → validated, persisted atomically
 ```
 
@@ -50,39 +57,45 @@ plugin/wp-knowledge-chat/
   wp-knowledge-chat.php          bootstrap, constants, lifecycle hooks
   includes/class-plugin.php      hook wiring, widget loading rules, frontend config (no secrets)
   includes/class-settings.php    defaults, Settings API registration, validation, URL policy, migration
-  includes/class-admin-page.php  WP Knowledge Chat → Settings screen, nonce-protected "Test connection"
-  includes/class-rest-controller.php  public chat route, origin check, rate limit, response re-validation
+  includes/class-admin-page.php  WP Knowledge Chat → Settings screen, corporate theme & stat cards
+  includes/class-rest-controller.php  public chat route, origin check, rate limit, lead submission route
   includes/class-backend-client.php   signed server-to-server client (wp_remote_post), health check
+  includes/class-content-sync.php     page synchronization engine with automated retry and removal
+  includes/class-analytics.php        lead storage (wkc_lead), metrics aggregation, threat & gap tracking
   assets/js/chat-widget.js       widget (DOM via textContent only, URL allowlist, a11y, sessionStorage)
-  assets/css/chat-widget.css     #wkc-root-scoped styles, responsive bottom sheet on mobile
-  uninstall.php                  removes the option and plugin transients
+  assets/css/chat-widget.css     #wkc-root-scoped styles, corporate blue palette, mobile bottom sheet
+  assets/js/admin.js             admin interactivity, connection test, chart enhancements
+  assets/css/admin.css           modern corporate admin styling, stat metric cards, table styles
+  uninstall.php                  removes options, leads, metrics, transients, and files
 
 backend/
   src/server.ts                  process entry: config, KB load, HTTP server timeouts, graceful shutdown
   src/app.ts                     router + dependency wiring (testable without a socket)
   src/config/env.ts              validated environment configuration (fails fast)
   src/routes/{chat,index,health}.ts
-  src/services/retrieval.ts      BM25
-  src/services/text.ts           normalisation, stemming, ID→EN query expansion
+  src/services/retrieval.ts      BM25 (with ID & KO query expansion, NFD normalization)
+  src/services/text.ts           normalisation, stemming, ID/KO/EN term mapping
   src/services/knowledge-base.ts document validation, chunking, store, atomic persistence
   src/services/llm.ts            Gemini client (timeout, retry, error mapping)
+  src/services/openrouter.ts     OpenRouter client (DeepSeek-Chat, fallback models)
+  src/services/failover.ts       FailoverLlmClient (automatic backup provider switching)
   src/services/chat.ts           grounding orchestration, prompt, output validation
   src/services/scope.ts          scope policy, answer-type evidence check, claim verification
-  src/services/kb-audit.ts       knowledge-base snapshot audit against sources.json
-  src/middleware/rate-limit.ts   fixed window + daily budget
+  src/services/pii.ts            PII scrubbing (NIK, payment cards, emails, phone numbers)
+  src/services/cache.ts          ResponseCache (grounded answer caching with TTL)
+  src/middleware/rate-limit.ts   fixed window + daily budget + abuse penalty tracker
   src/lib/{auth,http,logger,html-to-text}.ts
-  scripts/build-kb.ts            builds data/kb.json from data/sources.json (fails on missing required pages)
+  scripts/build-kb.ts            builds data/kb.json from data/sources.json
   scripts/validate-kb.ts         offline audit of data/kb.json (kb:validate)
   scripts/push-kb.ts             pushes a reviewed KB to /api/index
   scripts/mock-gemini.ts         local Gemini stand-in for tests and offline E2E
-  eval/                          65-question design set, 42-question held-out set, offline/live evaluation runner
+  eval/                          design set, held-out set, offline/live evaluation runner (Gemini + OpenRouter)
 ```
 
-`embeddings.ts` and a plugin-side `class-content-sync.php` from the suggested tree were **intentionally not created**: neither is needed for the MVP, and the PRD asks for no empty modules.
+## Architectural Design Highlights
 
-## Deviations from the suggested structure / PRD
-
-1. **Backend URL and secret are `wp-config.php` constants, not settings.** The four PRD settings are unchanged. Secrets must not be stored in options.
-2. **No WordPress nonce on the public chat endpoint.** For anonymous visitors a nonce authorises nothing, and it breaks when LiteSpeed serves cached pages older than the nonce lifetime. Origin checks, rate limits and backend signing are used instead. Admin actions do use nonces.
-3. **Single-turn answers.** The widget shows session history, but each question is answered independently. This keeps the backend stateless and limits the prompt-injection surface.
-4. **Content sync is a CLI workflow, not a plugin feature** (P1 in the PRD).
+1. **Backend URL and secret are `wp-config.php` constants, not settings.** Secrets must not be stored in options, exports, or frontend payloads.
+2. **Stateless Public Chat Route.** Anonymous visitors do not require cookie sessions or CSRF nonces that break on LiteSpeed page caches; origin verification, per-IP sliding rate limits, and server-to-server HMAC signatures protect the endpoint.
+3. **Dual-Provider Failover.** Zero-downtime resilience by supporting primary/secondary provider routing (Gemini 1.5 Flash and OpenRouter DeepSeek-Chat) with independent timeout and quota cooldown handling.
+4. **Deterministic Abstention Gate.** Questions lacking authoritative evidence in the Inpartner Knowledge Base are rejected before reaching external LLMs, protecting against prompt injection and eliminating hallucination risk.
+5. **Private Lead Management.** Consultation requests are stored locally as WordPress private post types (`wkc_lead`) with full compliance with WordPress Data Eraser and Privacy policy tools.

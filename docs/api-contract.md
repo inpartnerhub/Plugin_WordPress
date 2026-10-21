@@ -52,7 +52,41 @@ Response headers include `Cache-Control: no-store, private` and `X-Robots-Tag: n
 
 ---
 
-## 2. Backend: `POST /api/chat`
+## 2. WordPress: `POST /wp-json/wp-knowledge-chat/v1/lead`
+
+Public (consultation request form). Allows visitors to submit inquiries directly from the widget.
+
+**Request**
+
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "company": "Acme Corp",
+  "message": "Interested in distribution partner sourcing advisory.",
+  "language": "en",
+  "website": ""
+}
+```
+
+| Field | Type | Rules |
+|---|---|---|
+| `name` | string | required; 1–100 characters |
+| `email` | string | required; valid email format; disposable email domains automatically rejected |
+| `message` | string | required; 1–2000 characters |
+| `company` | string | optional; max 100 characters |
+| `language` | string | optional; `"en"`, `"id"`, or `"ko"` |
+| `website` | string | honeypot field; must remain empty (if filled, silently rejected as spam) |
+
+**200 response**: `{ "success": true, "message": "Your consultation request has been received." }`
+
+**Errors**:
+- 400: `wkc_invalid_lead`, `wkc_disposable_email` (throwaway email domains blocked)
+- 429: `wkc_lead_rate_limited` (max 3 submissions per 10 minutes per visitor)
+
+---
+
+## 3. Backend: `POST /api/chat`
 
 Server-to-server only. Requires an HMAC signature from the WordPress plugin.
 

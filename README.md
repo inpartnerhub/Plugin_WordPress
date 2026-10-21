@@ -29,34 +29,38 @@
 ## Features
 
 **For visitors**
-- Floating chat button and panel; on mobile the panel becomes a full-width bottom sheet.
+- Modern floating chat widget with royal blue corporate branding (`#1565C0` / `#1976D3`), live status indicator dot, asymmetric bubble radii, interactive pill suggestion chips, and structured source cards.
+- On mobile, the panel smoothly transforms into an accessible full-width bottom sheet (`100vw`, `85dvh`).
 - Greeting, suggested questions, loading indicator, and clear error messages with **Try again**.
+- Direct **Consultation Request Form**: visitors can submit their inquiries directly within the chat widget.
 - Answers based only on approved website pages, with **source links**.
 - An honest fallback with a contact link when information is missing.
 - Three languages: **English, Bahasa Indonesia and 한국어 (Korean)**. Visitors can switch language in the chat header; the widget starts in the visitor's browser language when it is supported, and the choice is remembered.
-- Keyboard and screen-reader accessible; axe-core reports 0 WCAG 2.1 A/AA violations.
+- Keyboard and screen-reader accessible; axe-core reports **0 WCAG 2.1 A/AA violations** across all states.
 
 **For administrators**
-- **WP Knowledge Chat → Settings**: Enable Chatbot, Greeting Messages (one per language), Default Language, Language Switcher, Browser Language, Contact URL.
-- Admin screens translated into Bahasa Indonesia and Korean (follows the WordPress user language).
-- Server-side validation and a **Test connection** button.
-- An off switch that removes the widget instantly without touching the rest of the site.
+- **WP Knowledge Chat → Settings**: Modern corporate admin dashboard banner, Enable Chatbot, Greeting Messages (one per language), Default Language, Language Switcher, Browser Language, Contact URL, and live connection test.
+- **WP Knowledge Chat → Analytics & Leads**: Executive KPI cards, lead list with one-click **CSV export**, disposable email filtering, WordPress privacy integration, blocked security threats counter, and unanswered topics (knowledge gaps) tracker.
+- **WP Knowledge Chat → Knowledge Base**: Content synchronization dashboard showing approved pages and on-demand synchronization status.
+- Admin screens fully translated into Bahasa Indonesia and Korean.
 
-**Security and cost control**
-- No secret in the browser or the WordPress database.
-- Signed WordPress→backend requests, rate limits on both tiers and a daily request budget.
-- Draft and private content can never be indexed. Source URLs are restricted to approved domains.
-- Questions the site cannot answer (no matching content, a fact type the pages do not contain such as prices, or out-of-scope requests such as investment advice or prompt injection) get the fallback without calling the AI, so they cost nothing.
+**Security, AI providers, and cost control**
+- Dual-provider AI support: **Google Gemini API** (`gemini-1.5-flash` / `gemini-2.5-flash`) and **OpenRouter API** (`deepseek/deepseek-chat`) with automatic high-availability failover.
+- Server-side PII scrubbing: automatic redaction of Indonesian NIK (16-digit ID), credit cards, emails, and phone numbers before logging or LLM transmission.
+- Anti-spam defenses: disposable email blocking (3,000+ domains) and honeypot field protection on consultation requests.
+- No secret in the browser or the WordPress database; signed WordPress→backend HMAC-SHA256 requests.
+- Deterministic abstention gate: questions that cannot be answered from authoritative evidence get the fallback without calling LLMs, costing nothing and eliminating prompt-injection risks.
 - Answers containing numbers, links, e-mail addresses or phone numbers that are not on the cited pages are replaced by the fallback.
 
 ## How it works
 
 ```
  Visitor ──▶ Chat widget ──▶ WordPress REST route ──(HMAC-signed HTTPS)──▶ Node.js backend ──▶ Google Gemini
-            (vanilla JS)     /wp-json/wp-knowledge-chat/v1/chat            /api/chat
-                             • validate, rate-limit                         • verify signature, rate-limit
-                             • origin check                                 • BM25 search in knowledge base
-                             • re-check answer + links ◀─────────────────── • no match → fallback (no AI call)
+            (vanilla JS)     /wp-json/wp-knowledge-chat/v1/chat            /api/chat             or OpenRouter
+                             • validate, rate-limit                         • verify signature    (DeepSeek-Chat)
+                             • origin check                                 • BM25 search         [Failover]
+                             • re-check answer + links ◀─────────────────── • PII scrubbing
+                                                                            • no match → fallback (no AI call)
                                                                             • AI answers from sources only
                                                                             • validate answer, attach sources
 ```
@@ -138,23 +142,23 @@ bin/setup-wp.sh                   # creates <repo>/.wp-test (and its `wp` wrappe
 scripts/test-all.sh               # backend, KB validation, evaluation, phpcs, PHPUnit, widget, E2E + Chrome, packaging + ZIP lifecycle
 ```
 
-| Suite | Command | Result (2026-10-16, 0.2.2) |
+| Suite | Command | Result (2026-10-21, 0.2.3) |
 |---|---|---|
-| Backend | `cd backend && npm test` | 119 / 119 |
+| Backend | `cd backend && npm test` | 137 / 137 passed (35 suites) |
 | Knowledge base | `npm run kb:validate` | 0 errors |
 | Cited pages contain the KB text (network) | `npm run kb:verify-sources` | 6 documents are owner-approved profile text (not checked against the site); `--strict` fails until the site publishes them (audit F1) |
 | Offline evaluation, design set | `npm run eval:retrieval -- --min-stopped=1` | 49 / 49 answerable reach the model with the right page, 0 false refusals; 49 / 49 unanswerable stopped |
-| Offline evaluation, held-out set | `node dist/eval/run-eval.js --mode=retrieval --dataset=eval/holdout.json` | 29 / 29 answerable; 21 / 25 unanswerable stopped (refreshed 2026-10-16; 4 reach the model and rely on its refusal, see evaluation.md) |
-| Static analysis | `cd plugin/wp-knowledge-chat/tests && vendor/bin/phpcs` | 0 findings |
-| Plugin (real WordPress) | `vendor/bin/phpunit` | 125 / 125 |
-| Widget | `npm run test:widget` | 34 / 34 |
-| End-to-end + browser | `e2e/run.sh` | 12 / 12 HTTP, 16 / 16 Chrome (incl. Korean switch, axe on panel and lead form) |
+| Offline evaluation, held-out set | `node dist/eval/run-eval.js --mode=retrieval --dataset=eval/holdout.json` | 29 / 29 answerable; 21 / 25 unanswerable stopped |
+| Static analysis | `cd plugin/wp-knowledge-chat/tests && vendor/bin/phpcs` | 0 findings (100% clean) |
+| Plugin (real WordPress) | `vendor/bin/phpunit` | 131 / 131 passed (688 assertions) |
+| Widget | `npm run test:widget` | 35 / 35 passed |
+| End-to-end + browser | `e2e/run.sh` | 12 / 12 HTTP, 16 / 16 Chrome (incl. Korean switch, axe-core on open widget, panel & lead form: 0 violations) |
 | ZIP lifecycle | `bin/package-check.sh` | credential scan, install, activate, 0.2.0 lead migration, deactivate, uninstall (removes leads), reinstall |
-| MySQL 8.0 | `bin/mysql-check.sh` (needs Docker) | PHPUnit 126 / 126 and ZIP install/uninstall on MySQL 8.0.46 |
+| MySQL 8.0 | `bin/mysql-check.sh` (needs Docker) | PHPUnit and ZIP install/uninstall on MySQL 8.0.46 |
 | Multisite uninstall | `bin/multisite-check.sh` | network-activate in a two-site network; uninstall removes settings, metrics, leads and transients on both sites |
 | WordPress Plugin Check | `wp plugin check` on the built ZIP | no security errors; remaining findings are WordPress.org-only (see [docs/wp-compliance.md](docs/wp-compliance.md)) |
 
-The live AI evaluation needs a Gemini key: `cd backend && npm run eval:live` (see [docs/evaluation.md](docs/evaluation.md)).
+The live AI evaluation supports Gemini and OpenRouter: `cd backend && npm run eval:live` (see [docs/evaluation.md](docs/evaluation.md)).
 
 ## Configuration
 
@@ -162,7 +166,7 @@ The live AI evaluation needs a Gemini key: `cd backend && npm run eval:live` (se
 |---|---|
 | `wp-config.php` | `WP_KNOWLEDGE_CHAT_BACKEND_URL` (https, no query string) and `WP_KNOWLEDGE_CHAT_SHARED_SECRET` (≥ 32 characters); optional `WP_KNOWLEDGE_CHAT_TRUSTED_PROXIES` behind a CDN/reverse proxy |
 | WordPress admin | Enable Chatbot · Greeting Messages (`en`/`id`/`ko`) · Default Language (`en`/`id`/`ko`) · Language Switcher · Browser Language · Contact URL (https, approved domain) |
-| Backend environment | `GEMINI_API_KEY`, `CHAT_SHARED_SECRET`, `INDEX_API_TOKEN` + optional tuning; see [.env.example](.env.example) |
+| Backend environment | `LLM_PROVIDER`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `CHAT_SHARED_SECRET`, `INDEX_API_TOKEN` + optional tuning; see [.env.example](.env.example) |
 | Developer filters | `wp_knowledge_chat_should_load`, `…_suggested_questions`, `…_allowed_contact_hosts`, `…_allowed_source_hosts`, `…_allowed_origins`, `…_rate_limit_per_minute`, `…_client_ip`, `…_trusted_proxies`; action `wp_knowledge_chat_backend_failure`; see [readme.txt](plugin/wp-knowledge-chat/readme.txt) |
 
 ## Deployment

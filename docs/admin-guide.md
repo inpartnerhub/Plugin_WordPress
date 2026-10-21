@@ -12,7 +12,19 @@ For Inpartner website administrators. No technical background needed. Technical 
 
 ## Where to find the settings
 
-WordPress dashboard → **WP Knowledge Chat** → **Settings**. Only administrators can see this page.
+## Where to find the admin screens
+
+The plugin provides three dedicated administration screens under the **WP Knowledge Chat** menu in the WordPress dashboard (accessible only by users with `manage_options` capability):
+
+1. **WP Knowledge Chat → Settings**
+2. **WP Knowledge Chat → Analytics & Leads**
+3. **WP Knowledge Chat → Knowledge Base**
+
+---
+
+### 1. Settings Screen
+
+Contains the general chatbot behavior, language settings, and AI backend connectivity test. Styled with Inpartner's corporate royal blue banner and real-time connection status pill.
 
 | Setting | What it does | Tips |
 |---|---|---|
@@ -25,11 +37,33 @@ WordPress dashboard → **WP Knowledge Chat** → **Settings**. Only administrat
 
 Click **Save Changes**. If a value is not accepted, a red message explains why and the old value is kept. With LiteSpeed Cache, the page cache is purged automatically when settings change; with any other page cache, **purge it** after saving so visitors see the change.
 
-### The "AI backend" box
-
-- **Configured** means the connection details have been added by the technical team.
-- **Test connection** checks that the AI service is running and accepts this site's shared secret. Expected result: "backend is reachable, the shared secret is accepted and the knowledge base is ready". "Rejected the shared secret" means the connection details in `wp-config.php` do not match the AI service.
+#### The "AI Backend" Status Box
+- **Configured**: The connection constants (`WP_KNOWLEDGE_CHAT_BACKEND_URL`, `WP_KNOWLEDGE_CHAT_SHARED_SECRET`) are present in `wp-config.php`.
+- **Test connection**: Runs a signed live health check against the AI backend. It verifies that the backend is reachable, the shared secret matches, and the knowledge base index is ready.
 - If it says **Not configured** or the test fails, contact the technical team. The chat button stays hidden while it is not configured.
+
+---
+
+### 2. Analytics & Leads Screen
+
+Provides high-level performance metrics, lead management, and content gap tracking:
+
+- **Executive KPI Cards**: Real-time cards showing *Total Conversations*, *Grounded Answers Rate*, *Active Leads Captured*, and *Blocked Security Threats*.
+- **Consultation Requests (Leads)**: When visitors request a consultation via the widget, their name, email, company, and message are stored safely in WordPress.
+  - **Export CSV**: Download all leads for your sales or advisory team with one click.
+  - **Lead Privacy**: Integrates automatically with WordPress core *Tools → Export Personal Data* and *Erase Personal Data*.
+  - **Spam Protection**: Automatically discards disposable email addresses and honeypot submissions.
+- **Unanswered Topics & Knowledge Gaps**: Shows queries where the assistant did not find sufficient evidence in the knowledge base. Use this table to decide which new services or explanations should be added to the website.
+- **Security & Blocked Threats Counter**: Displays how many malicious prompt-injection, secret-extraction, or out-of-scope abuse attempts were safely intercepted before reaching AI models.
+
+---
+
+### 3. Knowledge Base Sync Screen
+
+Lists all published Inpartner service pages approved for the assistant:
+- Displays page title, URL, post ID, and synchronization timestamp.
+- Allows administrators to trigger an on-demand sync of updated pages to the AI backend.
+- Automatically handles trashed or unpublished pages so the assistant never quotes outdated or private content.
 
 ## Common tasks
 
