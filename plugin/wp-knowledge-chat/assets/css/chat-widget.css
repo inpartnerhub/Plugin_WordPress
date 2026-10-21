@@ -3,18 +3,20 @@
  * Every selector is scoped under #wkc-root: ID specificity outranks theme and Elementor kit rules
  * (e.g. Hello Elementor button styles) without !important,
  * and key properties are reset so theme styles do not leak in.
- * Palette follows inpartnerglobal.com (Elementor globals): #063232, #030917, #F9D67C, #F7F3EC.
+ * Palette follows inpartnerglobal.com (Elementor globals):
+ * Royal Blue: #1565C0 / #1976D3, Navy Ink: #030917, Soft Ice Blue: #F4F8FC / #F7FBFF, Accent: #F9D67C
  */
 #wkc-root {
-	--wkc-brand: #063232;
+	--wkc-brand: #1565c0;
+	--wkc-brand-hover: #0d47a1;
 	--wkc-brand-contrast: #ffffff;
 	--wkc-accent: #f9d67c;
 	--wkc-ink: #030917;
-	--wkc-text: #1f2d30;
-	--wkc-muted: #4a5a5e;
+	--wkc-text: #1a2530;
+	--wkc-muted: #526370;
 	--wkc-surface: #ffffff;
-	--wkc-bot: #f7f3ec;
-	--wkc-border: #d9d4ca;
+	--wkc-bot: #f4f8fc;
+	--wkc-border: #d6e4f0;
 	--wkc-error-bg: #fff4f2;
 	--wkc-error: #9b1c1c;
 	--wkc-focus: #1976d3;
@@ -118,13 +120,14 @@
 	border-radius: 50%;
 	background: var(--wkc-brand);
 	color: var(--wkc-brand-contrast);
-	box-shadow: 0 6px 20px rgba(3, 9, 23, 0.28);
+	box-shadow: 0 6px 22px rgba(21, 101, 192, 0.35);
 	cursor: pointer;
-	transition: transform 0.15s ease;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 #wkc-root .wkc-launcher:hover {
 	transform: translateY(-2px);
+	box-shadow: 0 8px 26px rgba(13, 71, 161, 0.45);
 }
 
 #wkc-root .wkc-launcher svg {
@@ -157,7 +160,7 @@
 	justify-content: space-between;
 	gap: 12px;
 	padding: 14px 16px;
-	background: var(--wkc-brand);
+	background: linear-gradient(135deg, #0d2b5c 0%, #1565c0 100%);
 	color: var(--wkc-brand-contrast);
 	border-bottom: 3px solid var(--wkc-accent);
 }
@@ -475,6 +478,10 @@
 	cursor: pointer;
 }
 
+#wkc-root .wkc-send:hover:not(:disabled) {
+	background: var(--wkc-brand-hover, #0d47a1);
+}
+
 #wkc-root .wkc-send svg {
 	width: 18px;
 	height: 18px;
@@ -550,7 +557,7 @@
 }
 
 #wkc-root .wkc-lead-btn:hover {
-	background: #094747;
+	background: var(--wkc-brand-hover, #0d47a1);
 }
 
 #wkc-root .wkc-lead-card {
@@ -629,7 +636,7 @@
 }
 
 #wkc-root .wkc-lead-submit:hover {
-	background: #094747;
+	background: var(--wkc-brand-hover, #0d47a1);
 }
 
 #wkc-root .wkc-lead-cancel {

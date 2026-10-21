@@ -207,13 +207,37 @@ final class Admin_Page {
 		}
 	}
 
+	/**
+	 * Renders the top branded banner on admin screens.
+	 *
+	 * @param string $title Page title.
+	 * @param string $description Subtitle description.
+	 */
+	private function render_header_banner( string $title, string $description ): void {
+		?>
+		<div class="wkc-header-banner">
+			<div class="wkc-header-top">
+				<span class="wkc-header-badge"><?php esc_html_e( 'Inpartner AI Assistant', 'wp-knowledge-chat' ); ?></span>
+				<span class="wkc-version-pill"><?php echo esc_html( 'v' . WP_KNOWLEDGE_CHAT_VERSION ); ?></span>
+			</div>
+			<h1 class="wkc-admin-title"><?php echo esc_html( $title ); ?></h1>
+			<p class="wkc-header-desc"><?php echo esc_html( $description ); ?></p>
+		</div>
+		<?php
+	}
+
 	public function render(): void {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
 			wp_die( esc_html__( 'You do not have permission to manage these settings.', 'wp-knowledge-chat' ), 403 );
 		}
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'WP Knowledge Chat Settings', 'wp-knowledge-chat' ); ?></h1>
+		<div class="wrap wkc-wrap">
+			<?php
+			$this->render_header_banner(
+				__( 'WP Knowledge Chat Settings', 'wp-knowledge-chat' ),
+				__( 'Configure the AI consultation assistant, language defaults, and backend connectivity.', 'wp-knowledge-chat' )
+			);
+			?>
 			<?php settings_errors(); ?>
 			<?php $this->render_backend_status(); ?>
 			<form action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
@@ -298,11 +322,13 @@ final class Admin_Page {
 		$pages            = Content_Sync::get_syncable_pages();
 		$categories       = Content_Sync::CATEGORIES;
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Knowledge Base Synchronization', 'wp-knowledge-chat' ); ?></h1>
-			<p class="description">
-				<?php esc_html_e( 'Sync published WordPress pages directly into the AI knowledge base. Content is cleaned (markup, Gutenberg blocks, and scripts removed) and vectorized by the AI backend.', 'wp-knowledge-chat' ); ?>
-			</p>
+		<div class="wrap wkc-wrap">
+			<?php
+			$this->render_header_banner(
+				__( 'Knowledge Base Synchronization', 'wp-knowledge-chat' ),
+				__( 'Sync published WordPress pages directly into the AI knowledge base. Content is cleaned and indexed by the AI backend.', 'wp-knowledge-chat' )
+			);
+			?>
 
 			<?php if ( is_array( $sync_result ) && ! empty( $sync_result['message'] ) ) : ?>
 				<div class="notice <?php echo ! empty( $sync_result['success'] ) ? 'notice-success' : 'notice-error'; ?> is-dismissible">
@@ -561,11 +587,13 @@ final class Admin_Page {
 		$sec_events   = $metrics['security_events'] ?? array();
 		$total_blocked = (int) ( ( $sec_events['honeypot_caught'] ?? 0 ) + ( $sec_events['spam_leads'] ?? 0 ) + ( $sec_events['abuse_blocked'] ?? 0 ) + ( $sec_events['rate_limited'] ?? 0 ) );
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Analytics & Consultation Leads', 'wp-knowledge-chat' ); ?></h1>
-			<p class="description">
-				<?php esc_html_e( 'Monitor chatbot engagement, question trends, and visitor consultation requests. Visitor IP addresses are never stored. Question snippets have e-mail addresses, phone numbers and links removed, but may still contain personal details a visitor typed. Leads contain personal data: keep them only as long as needed.', 'wp-knowledge-chat' ); ?>
-			</p>
+		<div class="wrap wkc-wrap">
+			<?php
+			$this->render_header_banner(
+				__( 'Analytics & Consultation Leads', 'wp-knowledge-chat' ),
+				__( 'Monitor chatbot engagement, question trends, and visitor consultation requests. Leads contain personal data: keep them only as long as needed.', 'wp-knowledge-chat' )
+			);
+			?>
 			<?php if ( is_string( $notice ) && '' !== $notice ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php echo esc_html( $notice ); ?></p></div>
 			<?php endif; ?>
@@ -576,22 +604,22 @@ final class Admin_Page {
 					<div class="wkc-stat-value"><?php echo (int) $total; ?></div>
 					<p class="wkc-stat-note"><?php esc_html_e( 'Total questions asked by visitors', 'wp-knowledge-chat' ); ?></p>
 				</div>
-				<div class="card wkc-stat">
+				<div class="card wkc-stat wkc-stat-good">
 					<h3 class="wkc-stat-title wkc-good"><?php esc_html_e( 'Answered from Knowledge', 'wp-knowledge-chat' ); ?></h3>
 					<div class="wkc-stat-value wkc-good"><?php echo (int) $grounded; ?> <span class="wkc-stat-pct">(<?php echo (int) $answered_pct; ?>%)</span></div>
 					<p class="wkc-stat-note"><?php esc_html_e( 'Supported by official website sources', 'wp-knowledge-chat' ); ?></p>
 				</div>
-				<div class="card wkc-stat">
+				<div class="card wkc-stat wkc-stat-bad">
 					<h3 class="wkc-stat-title wkc-bad"><?php esc_html_e( 'Consultation Fallbacks', 'wp-knowledge-chat' ); ?></h3>
 					<div class="wkc-stat-value wkc-bad"><?php echo (int) $fallback; ?> <span class="wkc-stat-pct">(<?php echo (int) $fallback_pct; ?>%)</span></div>
 					<p class="wkc-stat-note"><?php esc_html_e( 'Directed to consultation / contact link', 'wp-knowledge-chat' ); ?></p>
 				</div>
-				<div class="card wkc-stat">
+				<div class="card wkc-stat wkc-stat-link">
 					<h3 class="wkc-stat-title wkc-link"><?php esc_html_e( 'Captured Leads', 'wp-knowledge-chat' ); ?></h3>
 					<div class="wkc-stat-value wkc-link"><?php echo (int) $lead_count; ?></div>
 					<p class="wkc-stat-note"><?php esc_html_e( 'Prospective clients requesting consultation', 'wp-knowledge-chat' ); ?></p>
 				</div>
-				<div class="card wkc-stat">
+				<div class="card wkc-stat wkc-stat-bad">
 					<h3 class="wkc-stat-title wkc-bad"><?php esc_html_e( 'Threats & Spam Blocked', 'wp-knowledge-chat' ); ?></h3>
 					<div class="wkc-stat-value wkc-bad"><?php echo (int) $total_blocked; ?></div>
 					<p class="wkc-stat-note"><?php esc_html_e( 'Honeypots, disposable emails & abuse limits', 'wp-knowledge-chat' ); ?></p>

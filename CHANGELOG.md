@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- Admin theme: modern branded corporate header banner, elevated stat metric cards with hover elevation, glowing status indicators, and styled table layouts following the inpartnerglobal.com design language.
+
+### Changed
+- Chat widget palette: updated primary brand color to inpartnerglobal.com Elementor royal blue (`#1565C0` / `#1976D3`), soft ice blue bot bubble background (`#F4F8FC`), and crisp blue-grey borders (`#D6E4F0`), maintaining full WCAG 2.1 AA accessibility contrast (5.96:1).
+
 ### Fixed
 - Chat widget: added missing Korean strings `leadFailed` and `leadPrivacy` in `STRINGS.ko` to prevent `undefined` error messages and ensure privacy consent disclosure on the consultation form.
 - Eval runner: supported dynamic `OpenRouterClient` in `backend/eval/run-eval.ts` when `llmProvider` is `openrouter`, and ensured `openrouterApiKey` is scrubbed from evaluation logs and reports.
