@@ -29,7 +29,7 @@ import { loadConfig } from '../src/config/env.js';
 import { createLogger } from '../src/lib/logger.js';
 import { BudgetExceededError, ChatService, type ChatHistoryTurn, type ChatOutcome, type Language } from '../src/services/chat.js';
 import { KnowledgeBaseStore, readKnowledgeBaseFile } from '../src/services/knowledge-base.js';
-import { GeminiClient, LlmError, type LlmRequest } from '../src/services/llm.js';
+import { GeminiClient, LlmError, type LlmRequest, OpenRouterClient, OPENROUTER_BASE_URL } from '../src/services/llm.js';
 import { Bm25Retriever } from '../src/services/retrieval.js';
 
 interface Item {
@@ -155,21 +155,34 @@ async function liveEval(dataset: Dataset): Promise<boolean> {
   const chat = new ChatService({
     store,
     retriever: new Bm25Retriever(store.chunks()),
-    llm: new GeminiClient({
-      apiKey: config.geminiApiKey,
-      model: config.geminiModel,
-      baseUrl: config.geminiApiBaseUrl,
-      timeoutMs: config.geminiTimeoutMs,
-      maxOutputTokens: config.geminiMaxOutputTokens,
-      onUsage: (u) => {
-        promptTokens += u.promptTokens;
-        outputTokens += u.outputTokens;
-      },
-    }),
+    llm: config.llmProvider === 'openrouter'
+      ? new OpenRouterClient({
+          apiKey: config.openrouterApiKey,
+          model: config.openrouterModel,
+          fallbackModels: config.openrouterFallbackModels,
+          baseUrl: OPENROUTER_BASE_URL,
+          timeoutMs: config.geminiTimeoutMs,
+          maxOutputTokens: config.geminiMaxOutputTokens,
+          onUsage: (u) => {
+            promptTokens += u.promptTokens;
+            outputTokens += u.outputTokens;
+          },
+        })
+      : new GeminiClient({
+          apiKey: config.geminiApiKey,
+          model: config.geminiModel,
+          baseUrl: config.geminiApiBaseUrl,
+          timeoutMs: config.geminiTimeoutMs,
+          maxOutputTokens: config.geminiMaxOutputTokens,
+          onUsage: (u) => {
+            promptTokens += u.promptTokens;
+            outputTokens += u.outputTokens;
+          },
+        }),
     logger,
     topK: config.retrievalTopK,
     minScore: config.retrievalMinScore,
-    secrets: [config.geminiApiKey, config.chatSharedSecret, config.indexApiToken],
+    secrets: [config.geminiApiKey, config.openrouterApiKey, config.chatSharedSecret, config.indexApiToken].filter(Boolean),
     // Hard cap on spend: each answer that reaches the model consumes one unit (the client may retry once).
     budget: { consume: () => (modelCalls < maxModelCalls ? (modelCalls++, { allowed: true, retryAfterSeconds: 0 }) : { allowed: false, retryAfterSeconds: 0 }) },
   });

@@ -518,4 +518,27 @@ describe('consultation request form', () => {
 		assert.equal(ctx.calls.length, 1, 'no lead request sent');
 		assert.match(ctx.$('.wkc-lead-error').textContent, /valid name and email/);
 	});
+
+	it('renders localized Korean lead form strings and privacy statement', async () => {
+		const ctx = await setup({
+			config: { language: 'ko', detect_browser_language: false, language_switcher: false },
+			responses: [
+				jsonResponse(200, { answer: '한국어 폴백 답변', sources: [], grounded: false }),
+				jsonResponse(500, { success: false, code: 'lead_failed', message: 'error' }),
+			],
+		});
+		ctx.$('.wkc-launcher').click();
+		ctx.$('.wkc-input').value = '한국어 질문';
+		ctx.$('.wkc-form').dispatchEvent(new ctx.window.Event('submit', { bubbles: true, cancelable: true }));
+		await ctx.flush();
+		await ctx.flush();
+
+		ctx.$('.wkc-lead-btn').click();
+		assert.ok(ctx.$('.wkc-lead-privacy').textContent.includes('Inpartner 자문팀'), 'Korean privacy statement rendered');
+		fill(ctx, '홍길동', 'gildong@example.com');
+		submit(ctx);
+		await ctx.flush();
+		await ctx.flush();
+		assert.match(ctx.$('.wkc-lead-error').textContent, /요청을 보낼 수 없습니다/, 'Korean failure error message shown');
+	});
 });

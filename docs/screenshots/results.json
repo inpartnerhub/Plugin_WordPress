@@ -33,6 +33,10 @@
       "ok": true
     },
     {
+      "name": "consultation form: labelled fields, focus, no axe violations (not submitted)",
+      "ok": true
+    },
+    {
       "name": "Escape closes the panel and returns focus to the launcher",
       "ok": true
     },
