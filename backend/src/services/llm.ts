@@ -366,19 +366,70 @@ function extractOpenRouterText(payload: unknown): string {
   return text;
 }
 
-/** Builds the provider client selected by LLM_PROVIDER. */
+/**
+ * Automatically fails over to a secondary provider if the primary provider experiences
+ * an outage, timeout, or rate-limit exhaustion. Does not fail over on safety policy blocks.
+ */
+export class FailoverLlmClient implements LlmClient {
+  constructor(
+    public readonly primary: LlmClient,
+    public readonly secondary: LlmClient,
+    private readonly onFailover?: (err: Error) => void,
+  ) {}
+
+  async generate(request: LlmRequest): Promise<string> {
+    try {
+      return await this.primary.generate(request);
+    } catch (err) {
+      if (err instanceof LlmError && err.kind === 'blocked') {
+        throw err;
+      }
+      this.onFailover?.(err instanceof Error ? err : new Error(String(err)));
+      return await this.secondary.generate(request);
+    }
+  }
+}
+
+/** Builds the provider client selected by LLM_PROVIDER, enabling automatic failover when both keys are present. */
 export function createLlmClient(config: Config): LlmClient {
+  const gemini = config.geminiApiKey
+    ? new GeminiClient({
+        apiKey: config.geminiApiKey,
+        model: config.geminiModel,
+        baseUrl: config.geminiApiBaseUrl,
+        timeoutMs: config.geminiTimeoutMs,
+        maxOutputTokens: config.geminiMaxOutputTokens,
+      })
+    : null;
+
+  const openrouter = config.openrouterApiKey
+    ? new OpenRouterClient({
+        apiKey: config.openrouterApiKey,
+        model: config.openrouterModel,
+        fallbackModels: config.openrouterFallbackModels,
+        baseUrl: OPENROUTER_BASE_URL,
+        timeoutMs: config.geminiTimeoutMs,
+        maxOutputTokens: config.geminiMaxOutputTokens,
+      })
+    : null;
+
+  if (gemini && openrouter) {
+    const primary = config.llmProvider === 'openrouter' ? openrouter : gemini;
+    const secondary = config.llmProvider === 'openrouter' ? gemini : openrouter;
+    return new FailoverLlmClient(primary, secondary);
+  }
+
   if (config.llmProvider === 'openrouter') {
-    return new OpenRouterClient({
-      apiKey: config.openrouterApiKey,
-      model: config.openrouterModel,
-      fallbackModels: config.openrouterFallbackModels,
-      baseUrl: OPENROUTER_BASE_URL,
+    return openrouter ?? new GeminiClient({
+      apiKey: config.geminiApiKey,
+      model: config.geminiModel,
+      baseUrl: config.geminiApiBaseUrl,
       timeoutMs: config.geminiTimeoutMs,
       maxOutputTokens: config.geminiMaxOutputTokens,
     });
   }
-  return new GeminiClient({
+
+  return gemini ?? new GeminiClient({
     apiKey: config.geminiApiKey,
     model: config.geminiModel,
     baseUrl: config.geminiApiBaseUrl,

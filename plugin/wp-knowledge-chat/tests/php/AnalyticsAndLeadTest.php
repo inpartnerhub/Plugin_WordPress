@@ -377,4 +377,51 @@ final class AnalyticsAndLeadTest extends TestCase {
 		$this->assertTrue( $erase['items_removed'] );
 		$this->assertSame( array( 'other@example.com' ), array_column( Analytics::get_leads(), 'email' ) );
 	}
+
+	public function test_is_disposable_email_detects_temporary_domains(): void {
+		$this->assertTrue( Analytics::is_disposable_email( 'spammer@mailinator.com' ) );
+		$this->assertTrue( Analytics::is_disposable_email( 'user@10minutemail.com' ) );
+		$this->assertTrue( Analytics::is_disposable_email( 'USER@TEMPMAIL.COM' ) );
+		$this->assertFalse( Analytics::is_disposable_email( 'legit@company.com' ) );
+		$this->assertFalse( Analytics::is_disposable_email( 'client@gmail.com' ) );
+	}
+
+	public function test_clean_lead_rejects_disposable_email(): void {
+		$lead = $this->valid_lead( array( 'email' => 'fake@yopmail.com' ) );
+		$this->assertNull( Analytics::clean_lead( $lead ) );
+	}
+
+	public function test_lead_endpoint_rejects_disposable_email_and_records_security_event(): void {
+		$controller = new Rest_Controller();
+		$response   = $controller->handle_lead( $this->lead_request( $this->valid_lead( array( 'email' => 'bot@guerrillamail.com' ) ) ) );
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertFalse( $response->get_data()['success'] );
+
+		$metrics = Analytics::get_metrics();
+		$this->assertSame( 1, $metrics['security_events']['spam_leads'] );
+		$this->assertSame( 0, Analytics::count_leads() );
+	}
+
+	public function test_honeypot_increments_security_event(): void {
+		$controller = new Rest_Controller();
+		$response   = $controller->handle_lead( $this->lead_request( $this->valid_lead( array( 'website' => 'http://spambot.xyz' ) ) ) );
+		$this->assertSame( 200, $response->get_status() );
+		$metrics = Analytics::get_metrics();
+		$this->assertSame( 1, $metrics['security_events']['honeypot_caught'] );
+		$this->assertSame( 0, Analytics::count_leads() );
+	}
+
+	public function test_record_security_event_and_content_gaps(): void {
+		Analytics::record_security_event( 'abuse_blocked' );
+		Analytics::record_security_event( 'rate_limited' );
+		Analytics::record_content_gap( 'Can you draft a binding contract for me? Call +62812345678', 'en' );
+
+		$metrics = Analytics::get_metrics();
+		$this->assertSame( 1, $metrics['security_events']['abuse_blocked'] );
+		$this->assertSame( 1, $metrics['security_events']['rate_limited'] );
+		$this->assertCount( 1, $metrics['content_gaps'] );
+		$this->assertSame( 'en', $metrics['content_gaps'][0]['language'] );
+		$this->assertStringNotContainsString( '+62812345678', $metrics['content_gaps'][0]['question'] );
+		$this->assertStringContainsString( '[phone]', $metrics['content_gaps'][0]['question'] );
+	}
 }

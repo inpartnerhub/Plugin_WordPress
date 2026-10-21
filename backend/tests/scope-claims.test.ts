@@ -5,7 +5,7 @@ import { BudgetExceededError, ChatService, FALLBACK_MESSAGES } from '../src/serv
 import { KnowledgeBaseStore } from '../src/services/knowledge-base.js';
 import { LlmError } from '../src/services/llm.js';
 import { Bm25Retriever } from '../src/services/retrieval.js';
-import { missingAnswerType, scopeViolation, unsupportedClaims } from '../src/services/scope.js';
+import { missingAnswerType, scopeViolation, scrubPii, unsupportedClaims } from '../src/services/scope.js';
 import { tokenizeQuery } from '../src/services/text.js';
 import { FakeLlm, FIXTURE_DOCS } from './helpers.js';
 
@@ -298,5 +298,39 @@ describe('ChatService answerability gate', () => {
     assert.equal((await svc.answer('Can you help shortlist distributors?', 'en')).grounded, true);
     await assert.rejects(svc.answer('Can you help shortlist resellers?', 'en'), (err: unknown) => err instanceof BudgetExceededError && err.retryAfterSeconds === 60);
     assert.equal(llm.calls.length, 1);
+  });
+});
+
+describe('scrubPii', () => {
+  it('redacts sensitive NIK, credit cards, emails and phone numbers while keeping business context', () => {
+    // 16-digit NIK
+    assert.equal(
+      scrubPii('My NIK is 3171012345670001 please help'),
+      'My NIK is [REDACTED_NIK] please help',
+    );
+    // Credit card
+    assert.equal(
+      scrubPii('Charge my card 4532 1234 5678 9012 for services'),
+      'Charge my card [REDACTED_CARD] for services',
+    );
+    // Email
+    assert.equal(
+      scrubPii('Contact me at john.doe@consulting.co.id'),
+      'Contact me at [REDACTED_EMAIL]',
+    );
+    // Phone numbers
+    assert.equal(
+      scrubPii('Call my mobile at +6281234567890'),
+      'Call my mobile at [REDACTED_PHONE]',
+    );
+    assert.equal(
+      scrubPii('Office phone is 021-555-1234'),
+      'Office phone is [REDACTED_PHONE]',
+    );
+    // Does NOT redact non-PII numbers like years or floor or counts
+    assert.equal(
+      scrubPii('Established in 2019 at Pakuwon Tower Floor 10 with 90+ projects'),
+      'Established in 2019 at Pakuwon Tower Floor 10 with 90+ projects',
+    );
   });
 });

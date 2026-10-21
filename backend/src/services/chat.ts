@@ -3,7 +3,7 @@ import type { LimitResult } from '../middleware/rate-limit.js';
 import type { KnowledgeBaseStore } from './knowledge-base.js';
 import { LlmError, type LlmClient } from './llm.js';
 import type { Bm25Retriever, RetrievedChunk } from './retrieval.js';
-import { missingAnswerType, scopeViolation, unsupportedClaims } from './scope.js';
+import { missingAnswerType, scopeViolation, scrubPii, unsupportedClaims } from './scope.js';
 
 /**
  * Chat orchestration: retrieve evidence, ask the model to answer only from
@@ -223,19 +223,20 @@ export class ChatService {
     const violation = scopeViolation(message);
     if (violation) return fallback('out_of_scope', violation);
 
-    const safeHistory = history?.filter((h) => !scopeViolation(h.text));
+    const safeMessage = scrubPii(message);
+    const safeHistory = history?.filter((h) => !scopeViolation(h.text)).map((h) => ({ role: h.role, text: scrubPii(h.text) }));
 
-    let evidence = this.options.retriever.search(message, this.options.topK, this.options.minScore);
+    let evidence = this.options.retriever.search(safeMessage, this.options.topK, this.options.minScore);
     if (evidence.length === 0 && safeHistory && safeHistory.length > 0) {
       const lastUser = [...safeHistory].reverse().find((h) => h.role === 'user');
       if (lastUser && lastUser.text) {
-        evidence = this.options.retriever.search(`${lastUser.text} ${message}`, this.options.topK, this.options.minScore);
+        evidence = this.options.retriever.search(`${lastUser.text} ${safeMessage}`, this.options.topK, this.options.minScore);
       }
     }
     if (evidence.length === 0) return fallback('no_evidence');
 
     const evidenceText = evidence.map((e) => `${e.chunk.title}\n${e.chunk.text}`).join('\n');
-    const missing = missingAnswerType(message, evidenceText);
+    const missing = missingAnswerType(safeMessage, evidenceText);
     if (missing) return fallback('missing_answer_type', missing);
 
     if (this.now() < this.providerOpenUntil) throw new LlmError(this.providerOpenKind);
@@ -249,7 +250,7 @@ export class ChatService {
     try {
       raw = await this.options.llm.generate({
         systemInstruction: buildSystemInstruction(language),
-        userContent: buildUserContent(message, evidence, safeHistory),
+        userContent: buildUserContent(safeMessage, evidence, safeHistory),
       });
     } catch (err) {
       // A safety block is about this question, not an outage: answer with the fallback.

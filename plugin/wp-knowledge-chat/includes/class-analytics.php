@@ -33,6 +33,21 @@ final class Analytics {
 	/** Upper bound for one admin screen; leads beyond it are kept, not dropped. */
 	public const MAX_LEADS  = 100;
 	public const MAX_RECENT = 25;
+	public const MAX_CONTENT_GAPS = 50;
+
+	/** Disposable and temporary email domains blocked from lead capture. */
+	public const DISPOSABLE_DOMAINS = array(
+		'mailinator.com',
+		'tempmail.com',
+		'10minutemail.com',
+		'guerrillamail.com',
+		'yopmail.com',
+		'trashmail.com',
+		'sharklasers.com',
+		'dispostable.com',
+		'getairmail.com',
+		'throwawaymail.com',
+	);
 
 	/** Maximum characters per lead field. */
 	public const FIELD_LIMITS = array(
@@ -134,7 +149,7 @@ final class Analytics {
 	/**
 	 * Returns the aggregate metrics.
 	 *
-	 * @return array{total_queries:int,grounded_queries:int,fallback_queries:int,languages:array<string,int>,recent_queries:array<int,array{time:string,question:string,language:string,grounded:bool,outcome:string}>}
+	 * @return array{total_queries:int,grounded_queries:int,fallback_queries:int,languages:array<string,int>,recent_queries:array<int,array{time:string,question:string,language:string,grounded:bool,outcome:string}>,security_events:array<string,int>,content_gaps:array<int,array{time:string,question:string,language:string}>}
 	 */
 	public static function get_metrics(): array {
 		$defaults = array(
@@ -147,9 +162,84 @@ final class Analytics {
 				'ko' => 0,
 			),
 			'recent_queries'   => array(),
+			'security_events'  => array(
+				'honeypot_caught' => 0,
+				'spam_leads'      => 0,
+				'abuse_blocked'   => 0,
+				'rate_limited'    => 0,
+			),
+			'content_gaps'     => array(),
 		);
-		$metrics  = get_option( self::METRICS_OPTION, array() );
-		return is_array( $metrics ) ? array_merge( $defaults, $metrics ) : $defaults;
+		$metrics = get_option( self::METRICS_OPTION, array() );
+		if ( ! is_array( $metrics ) ) {
+			return $defaults;
+		}
+		$merged                    = array_merge( $defaults, $metrics );
+		$merged['security_events'] = array_merge( $defaults['security_events'], (array) ( $metrics['security_events'] ?? array() ) );
+		return $merged;
+	}
+
+	/**
+	 * Records an aggregate security event (honeypot, disposable email spam, rate limits, abuse blocks).
+	 */
+	public static function record_security_event( string $type ): void {
+		$allowed = array( 'honeypot_caught', 'spam_leads', 'abuse_blocked', 'rate_limited' );
+		if ( ! in_array( $type, $allowed, true ) ) {
+			return;
+		}
+		$metrics                             = self::get_metrics();
+		$metrics['security_events'][ $type ] = (int) ( $metrics['security_events'][ $type ] ?? 0 ) + 1;
+		update_option( self::METRICS_OPTION, $metrics, false );
+	}
+
+	/**
+	 * Records an unanswered or ungrounded question as a content gap snippet.
+	 */
+	public static function record_content_gap( string $question, string $language ): void {
+		/**
+		 * Filters whether unanswered questions are stored to identify knowledge base gaps.
+		 *
+		 * @param bool $store Default true.
+		 */
+		if ( ! apply_filters( 'wp_knowledge_chat_store_content_gaps', true ) ) {
+			return;
+		}
+		$metrics = self::get_metrics();
+		$gaps    = isset( $metrics['content_gaps'] ) && is_array( $metrics['content_gaps'] ) ? $metrics['content_gaps'] : array();
+
+		$cleaned_snippet = mb_substr( self::redact( wp_strip_all_tags( $question ) ), 0, 120 );
+		if ( '' === trim( $cleaned_snippet ) ) {
+			return;
+		}
+
+		array_unshift(
+			$gaps,
+			array(
+				'time'     => gmdate( 'Y-m-d H:i:s' ),
+				'question' => $cleaned_snippet,
+				'language' => $language,
+			)
+		);
+		$metrics['content_gaps'] = array_slice( $gaps, 0, self::MAX_CONTENT_GAPS );
+		update_option( self::METRICS_OPTION, $metrics, false );
+	}
+
+	/**
+	 * Checks if an email address belongs to a known temporary/disposable provider.
+	 */
+	public static function is_disposable_email( string $email ): bool {
+		$parts = explode( '@', strtolower( trim( $email ) ) );
+		if ( count( $parts ) !== 2 ) {
+			return false;
+		}
+		$domain = $parts[1];
+		/**
+		 * Filters the list of blocked disposable email domains.
+		 *
+		 * @param array<string> $domains List of domain strings.
+		 */
+		$blocked = (array) apply_filters( 'wp_knowledge_chat_disposable_email_domains', self::DISPOSABLE_DOMAINS );
+		return in_array( $domain, $blocked, true );
 	}
 
 	/**
@@ -172,7 +262,7 @@ final class Analytics {
 			$clean[ $field ] = trim( 'message' === $field ? sanitize_textarea_field( $raw ) : sanitize_text_field( $raw ) );
 		}
 		$clean['email'] = sanitize_email( $clean['email'] );
-		if ( '' === $clean['name'] || ! is_email( $clean['email'] ) ) {
+		if ( '' === $clean['name'] || ! is_email( $clean['email'] ) || self::is_disposable_email( $clean['email'] ) ) {
 			return null;
 		}
 		return $clean;

@@ -152,6 +152,7 @@ final class Rest_Controller {
 
 		$ip = $this->client_ip();
 		if ( ! $this->rate_limit_allows( $ip ) ) {
+			Analytics::record_security_event( 'rate_limited' );
 			return $this->rate_limited( $language, MINUTE_IN_SECONDS );
 		}
 
@@ -164,6 +165,7 @@ final class Rest_Controller {
 			return $this->error( 'wkc_unavailable', 'unavailable', $language, 503 );
 		}
 		if ( 429 === $result['status'] ) {
+			Analytics::record_security_event( 'abuse_blocked' );
 			self::report_backend_failure( 'rate_limited', 429 );
 			return $this->rate_limited( $language, $result['retry_after'] ?? MINUTE_IN_SECONDS );
 		}
@@ -179,6 +181,9 @@ final class Rest_Controller {
 		}
 
 		Analytics::record_query( $message, $language, $clean['grounded'], $clean['grounded'] ? 'answered' : 'fallback' );
+		if ( ! $clean['grounded'] ) {
+			Analytics::record_content_gap( $message, $language );
+		}
 
 		$response = new \WP_REST_Response( $clean, 200 );
 		$response->header( 'Cache-Control', 'no-store, private' );
@@ -215,12 +220,14 @@ final class Rest_Controller {
 
 		$honeypot = $request->get_param( 'website' );
 		if ( is_string( $honeypot ) && '' !== trim( $honeypot ) ) {
+			Analytics::record_security_event( 'honeypot_caught' );
 			// Look successful so the bot learns nothing; nothing is stored or mailed.
 			return $this->lead_response( true, 'lead_sent', $language, 200 );
 		}
 
 		$client_ip = $this->client_ip();
 		if ( ! $this->lead_rate_limit_allows( $client_ip ) ) {
+			Analytics::record_security_event( 'rate_limited' );
 			return $this->rate_limited( $language, self::LEAD_WINDOW );
 		}
 
@@ -228,6 +235,10 @@ final class Rest_Controller {
 		foreach ( array( 'name', 'email', 'company', 'message' ) as $field ) {
 			$value            = $request->get_param( $field );
 			$fields[ $field ] = is_string( $value ) ? $value : '';
+		}
+		if ( Analytics::is_disposable_email( $fields['email'] ) ) {
+			Analytics::record_security_event( 'spam_leads' );
+			return $this->lead_response( false, 'lead_invalid', $language, 400 );
 		}
 		if ( null === Analytics::clean_lead( $fields ) ) {
 			return $this->lead_response( false, 'lead_invalid', $language, 400 );

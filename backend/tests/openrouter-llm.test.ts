@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { loadConfig, ConfigError } from '../src/config/env.js';
-import { createLlmClient, LlmError, OpenRouterClient } from '../src/services/llm.js';
+import { createLlmClient, FailoverLlmClient, LlmError, OpenRouterClient } from '../src/services/llm.js';
 import { baseEnv } from './helpers.js';
 
 const OPENROUTER_KEY = 'sk-or-v1-test-key-0123456789abcdef';
@@ -149,5 +149,48 @@ describe('OpenRouterClient', () => {
 
   it('rejects an unknown provider name', () => {
     assert.throws(() => loadConfig(baseEnv({ LLM_PROVIDER: 'openai' })), /LLM_PROVIDER must be gemini or openrouter/);
+  });
+
+  it('automatically fails over to the backup client when the primary client fails', async () => {
+    const primary = {
+      generate: async () => {
+        throw new LlmError('unavailable');
+      },
+    };
+    const secondary = {
+      generate: async () => '{"answer":"secondary response","source_ids":["S1"],"grounded":true}',
+    };
+    let failoverCalled = false;
+    const failover = new FailoverLlmClient(primary, secondary, () => {
+      failoverCalled = true;
+    });
+
+    const res = await failover.generate(REQUEST);
+    assert.equal(res, '{"answer":"secondary response","source_ids":["S1"],"grounded":true}');
+    assert.equal(failoverCalled, true);
+  });
+
+  it('does not fail over if the primary client threw a blocked safety error', async () => {
+    const primary = {
+      generate: async () => {
+        throw new LlmError('blocked');
+      },
+    };
+    let secondaryCalled = false;
+    const secondary = {
+      generate: async () => {
+        secondaryCalled = true;
+        return 'unreachable';
+      },
+    };
+    const failover = new FailoverLlmClient(primary, secondary);
+    await assert.rejects(failover.generate(REQUEST), (err: unknown) => err instanceof LlmError && err.kind === 'blocked');
+    assert.equal(secondaryCalled, false);
+  });
+
+  it('creates a FailoverLlmClient when both Gemini and OpenRouter keys are present', () => {
+    const config = loadConfig(baseEnv({ OPENROUTER_API_KEY: OPENROUTER_KEY, GEMINI_API_KEY: 'AIza' + 'a'.repeat(35) }));
+    const client = createLlmClient(config);
+    assert.ok(client instanceof FailoverLlmClient);
   });
 });

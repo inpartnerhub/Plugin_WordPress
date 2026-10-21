@@ -558,6 +558,8 @@ final class Admin_Page {
 		$fallback     = $metrics['fallback_queries'];
 		$answered_pct = $total > 0 ? (int) round( ( $grounded / $total ) * 100 ) : 0;
 		$fallback_pct = $total > 0 ? (int) round( ( $fallback / $total ) * 100 ) : 0;
+		$sec_events   = $metrics['security_events'] ?? array();
+		$total_blocked = (int) ( ( $sec_events['honeypot_caught'] ?? 0 ) + ( $sec_events['spam_leads'] ?? 0 ) + ( $sec_events['abuse_blocked'] ?? 0 ) + ( $sec_events['rate_limited'] ?? 0 ) );
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Analytics & Consultation Leads', 'wp-knowledge-chat' ); ?></h1>
@@ -588,6 +590,11 @@ final class Admin_Page {
 					<h3 class="wkc-stat-title wkc-link"><?php esc_html_e( 'Captured Leads', 'wp-knowledge-chat' ); ?></h3>
 					<div class="wkc-stat-value wkc-link"><?php echo (int) $lead_count; ?></div>
 					<p class="wkc-stat-note"><?php esc_html_e( 'Prospective clients requesting consultation', 'wp-knowledge-chat' ); ?></p>
+				</div>
+				<div class="card wkc-stat">
+					<h3 class="wkc-stat-title wkc-bad"><?php esc_html_e( 'Threats & Spam Blocked', 'wp-knowledge-chat' ); ?></h3>
+					<div class="wkc-stat-value wkc-bad"><?php echo (int) $total_blocked; ?></div>
+					<p class="wkc-stat-note"><?php esc_html_e( 'Honeypots, disposable emails & abuse limits', 'wp-knowledge-chat' ); ?></p>
 				</div>
 			</div>
 
@@ -666,6 +673,37 @@ final class Admin_Page {
 										<span class="wkc-bad wkc-strong"><?php esc_html_e( 'Fallback', 'wp-knowledge-chat' ); ?></span>
 									<?php endif; ?>
 								</td>
+							</tr>
+						<?php endforeach; ?>
+					<?php endif; ?>
+				</tbody>
+			</table>
+
+			<h2><?php esc_html_e( 'Knowledge Gaps & Unanswered Topics', 'wp-knowledge-chat' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Questions where the chatbot could not find sufficient evidence and triggered a consultation fallback. Use these topics to expand your Knowledge Base.', 'wp-knowledge-chat' ); ?>
+			</p>
+			<table class="wp-list-table widefat fixed striped">
+				<thead>
+					<tr>
+						<th scope="col" class="wkc-w-160"><?php esc_html_e( 'Date (UTC)', 'wp-knowledge-chat' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Unanswered Question (Redacted)', 'wp-knowledge-chat' ); ?></th>
+						<th scope="col" class="wkc-w-100"><?php esc_html_e( 'Language', 'wp-knowledge-chat' ); ?></th>
+						<th scope="col" class="wkc-w-140"><?php esc_html_e( 'Suggested Action', 'wp-knowledge-chat' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php if ( empty( $metrics['content_gaps'] ) ) : ?>
+						<tr>
+							<td colspan="4"><?php esc_html_e( 'No knowledge gaps recorded yet.', 'wp-knowledge-chat' ); ?></td>
+						</tr>
+					<?php else : ?>
+						<?php foreach ( $metrics['content_gaps'] as $gap ) : ?>
+							<tr>
+								<td><?php echo esc_html( $gap['time'] ); ?></td>
+								<td><?php echo esc_html( $gap['question'] ); ?></td>
+								<td><span class="wkc-badge"><?php echo esc_html( strtoupper( $gap['language'] ) ); ?></span></td>
+								<td><span class="wkc-link wkc-strong"><?php esc_html_e( 'Add to Knowledge', 'wp-knowledge-chat' ); ?></span></td>
 							</tr>
 						<?php endforeach; ?>
 					<?php endif; ?>

@@ -52,6 +52,26 @@ export function deobfuscate(text: string): string {
   return norm + ' ' + leetReplaced + ' ' + collapsed;
 }
 
+/**
+ * Redacts personal identifiers (credit cards, NIK, emails, phones) from visitor text
+ * before retrieval or prompt assembly to protect visitor privacy.
+ */
+export function scrubPii(text: string): string {
+  // Email addresses
+  let scrubbed = text.replace(/\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/g, '[REDACTED_EMAIL]');
+  // Telephone numbers (with international or domestic prefix)
+  scrubbed = scrubbed.replace(/(?:\+62|\+1|\+82|\b08|\b021|\+\d{1,3})[-.\s]?\(?\d{2,4}\)?[-.\s]?\d{3,4}(?:[-.\s]?\d{3,6})?\b/g, '[REDACTED_PHONE]');
+  // 16-digit continuous numbers (e.g. Indonesian NIK / national ID)
+  scrubbed = scrubbed.replace(/\b\d{16}\b/g, '[REDACTED_NIK]');
+  // Credit card numbers (13-19 digits with optional spaces or hyphens)
+  scrubbed = scrubbed.replace(/\b(?:\d[ -]?){12,18}\d\b/g, (match) => {
+    const digits = match.replace(/\D/g, '');
+    if (digits.length >= 13 && digits.length <= 19) return '[REDACTED_CARD]';
+    return match;
+  });
+  return scrubbed;
+}
+
 const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
   {
     kind: 'injection',
