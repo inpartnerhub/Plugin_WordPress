@@ -286,3 +286,4 @@ Summary steps (detailed step-by-step checklist in [docs/deployment.md](docs/depl
 
 - **License**: Released under the terms of the **[GNU General Public License v2.0 or later (GPL-2.0-or-later)](LICENSE)**.
 - **Author**: Built with care for **[Inpartner Global](https://inpartnerglobal.com)**.
+

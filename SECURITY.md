@@ -4,7 +4,8 @@
 
 | Version | Supported |
 |---|---|
-| 0.1.x | yes |
+| 0.2.x | yes |
+| 0.1.x | critical security fixes only |
 
 ## Reporting a vulnerability
 
@@ -37,6 +38,7 @@ Never test against the production site (inpartnerglobal.com) without written per
 | Secret | Where it lives | Rotation |
 |---|---|---|
 | `GEMINI_API_KEY` | backend environment | revoke in Google Cloud / AI Studio, create a new key, update the backend environment, restart |
+| `OPENROUTER_API_KEY` | backend environment | revoke in OpenRouter dashboard, generate new key, update backend environment, restart |
 | `CHAT_SHARED_SECRET` | backend environment + `WP_KNOWLEDGE_CHAT_SHARED_SECRET` in `wp-config.php` | generate with `npm run secret` and update **both** places together |
 | `INDEX_API_TOKEN` | backend environment (+ wherever `kb:push` runs) | generate a new value, update, restart |
 
