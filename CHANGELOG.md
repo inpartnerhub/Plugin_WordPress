@@ -8,6 +8,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Admin theme: modern branded corporate header banner, elevated stat metric cards with hover elevation, glowing status indicators, and styled table layouts following the inpartnerglobal.com design language.
 
 ### Changed
+- Chat widget visual hierarchy & typography: modernized typography hierarchy with 14.5px base font, 1.55 line height, subpixel antialiasing, 16.5px bold header with active online status indicator dot, asymmetric bubble radii (user `16px 16px 4px 16px`, bot `16px 16px 16px 4px`), structured source citation cards with external indicators, interactive pill suggestion chips, modern input field with focus glow, and full-width responsive mobile sheet.
 - Chat widget palette: updated primary brand color to inpartnerglobal.com Elementor royal blue (`#1565C0` / `#1976D3`), soft ice blue bot bubble background (`#F4F8FC`), and crisp blue-grey borders (`#D6E4F0`), maintaining full WCAG 2.1 AA accessibility contrast (5.96:1).
 
 ### Fixed
