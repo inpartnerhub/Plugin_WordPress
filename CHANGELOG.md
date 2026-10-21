@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-10-21
+
 ### Added
 - Admin theme: modern branded corporate header banner, elevated stat metric cards with hover elevation, glowing status indicators, and styled table layouts following the inpartnerglobal.com design language.
 

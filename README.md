@@ -6,9 +6,9 @@
 ![WordPress 6.4+](https://img.shields.io/badge/WordPress-6.4%2B%20(tested%207.1.3)-21759b)
 ![PHP 8.1+](https://img.shields.io/badge/PHP-8.1%2B-777bb4)
 ![Node.js 20.11+](https://img.shields.io/badge/Node.js-20.11%2B-339933)
-![Version 0.2.2](https://img.shields.io/badge/version-0.2.2-informational)
+![Version 0.2.3](https://img.shields.io/badge/version-0.2.3-informational)
 
-> **Status: 0.2.2, verified locally, not deployed. Not ready for production: the website is still being built and the live-model evaluation is open.** The knowledge base is the owner's INPARTNER Knowledge Base v2.0 (6 documents, `backend/data/profile/`). Its text is not yet on the cited website pages, so `npm run kb:verify-sources --strict` fails until the site publishes it. See [docs/knowledge-base.md](docs/knowledge-base.md) and the [2026-10-15 audit](docs/audit-2026-10-15.md). All automated suites pass locally on SQLite with a mock model. The real Gemini model has **not** been evaluated, and the plugin has not run on MySQL, LiteSpeed, the production host or a staging copy.
+> **Status: 0.2.3, verified locally, not deployed. Not ready for production: the website is still being built and the live-model evaluation is open.** The knowledge base is the owner's INPARTNER Knowledge Base v2.0 (6 documents, `backend/data/profile/`). Its text is not yet on the cited website pages, so `npm run kb:verify-sources --strict` fails until the site publishes it. See [docs/knowledge-base.md](docs/knowledge-base.md) and the [2026-10-15 audit](docs/audit-2026-10-15.md). All automated suites pass locally on SQLite with a mock model. The real Gemini model has **not** been evaluated, and the plugin has not run on MySQL, LiteSpeed, the production host or a staging copy.
 
 ## Contents
 
@@ -170,7 +170,7 @@ The live AI evaluation needs a Gemini key: `cd backend && npm run eval:live` (se
 Summary (full guide with rollback and troubleshooting: [docs/deployment.md](docs/deployment.md)):
 
 1. Deploy the backend to an HTTPS Node.js host (single instance) with its environment variables set.
-2. Build the plugin ZIP: `scripts/package-plugin.sh` → `dist/wp-knowledge-chat-0.2.2.zip`.
+2. Build the plugin ZIP: `scripts/package-plugin.sh` → `dist/wp-knowledge-chat-0.2.3.zip`.
 3. On **staging**: verify the ZIP checksum, add the `wp-config.php` constants, upload and activate the ZIP, and click **Test connection**. Keep the Contact URL at the homepage default unless the owner approves a dedicated contact page.
 4. Run `npm run eval:live` against the staging backend with a real Gemini key and have Inpartner review the answers.
 5. Go to production only with the site owner's explicit approval.

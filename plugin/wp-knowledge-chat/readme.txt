@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.2.2
+Stable tag: 0.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,12 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 
 == Changelog ==
 
+= 0.2.3 =
+* UI/UX polish: modernized chat typography (14.5px base, 1.55 line height), live status indicator dot, asymmetric bubble radii (16px), pill suggestion chips, and structured source citation cards.
+* Corporate theme: royal blue brand theme (#1565C0 / #1976D3) aligned with inpartnerglobal.com, with a modernized WordPress admin dashboard and stat cards.
+* Internationalization: added missing Korean consultation form translations (leadFailed and leadPrivacy) to prevent undefined errors.
+* AI Evaluation: added dynamic OpenRouter eval test runner and log scrubbing.
+
 = 0.2.2 =
 * Security guardrails: hardened prompt injection defenses, Indonesian slang/obfuscation handling, and PII redaction (NIK, payment cards, emails, phone numbers).
 * Dual-provider failover: automatic fallback between Gemini and OpenRouter for high availability.
@@ -190,6 +196,9 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 * Initial MVP: chat widget, four admin settings, signed REST proxy to the AI backend, rate limiting, source links, fallback, English and Indonesian interface.
 
 == Upgrade Notice ==
+
+= 0.2.3 =
+UI/UX and visual hierarchy update with corporate blue branding. Purge the page cache so the new asset query strings are loaded.
 
 = 0.2.2 =
 No settings or data changes. Purge the page cache so the new version query string is used. On a multisite network, uninstalling now cleans every site.
