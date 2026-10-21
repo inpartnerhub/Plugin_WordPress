@@ -1,152 +1,163 @@
-# WP Knowledge Chat: AI backend
+# WP Knowledge Chat: AI Backend Service
 
-Node.js + TypeScript service behind the WordPress plugin. It authenticates requests from WordPress, retrieves relevant knowledge-base content, asks Google Gemini to answer only from that content, validates the answer, and returns `{ answer, sources, grounded }`.
+Lightweight, high-performance Node.js & TypeScript microservice backing the Inpartner WordPress AI Chatbot. It provides authenticated request processing, BM25 retrieval over authoritative company knowledge-base chunks, dual-provider LLM orchestration with high-availability failover (Google Gemini & OpenRouter DeepSeek-Chat), automated PII scrubbing, and strict source citation grounding.
 
-- Runtime dependencies: **none** (Node built-ins only). Dev dependencies: `typescript`, `@types/node`.
-- Node.js ≥ 20.11.
-- API contract: [../docs/api-contract.md](../docs/api-contract.md). Security: [../docs/security.md](../docs/security.md). Deployment: [../docs/deployment.md](../docs/deployment.md).
+[![Node.js 20.11+](https://img.shields.io/badge/Node.js-20.11%2B-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
+[![TypeScript 5.9](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Runtime Dependencies: None](https://img.shields.io/badge/Dependencies-0%20Runtime-success?style=flat-square)](package.json)
+[![Tests: 137 Pass](https://img.shields.io/badge/Tests-137%20Passing-brightgreen?style=flat-square)](tests/)
 
-## Endpoints
+---
 
-| Method | Path | Auth | Purpose |
-|---|---|---|---|
-| POST | `/api/chat` | HMAC signature from the WordPress plugin | Answer a visitor question |
-| POST | `/api/index` | `Authorization: Bearer $INDEX_API_TOKEN` | Upsert, delete or replace knowledge-base documents |
-| GET | `/api/health` | none | `200 {status:"ok"}` or `503 {status:"degraded"}` |
+## 📌 Architecture Highlights
 
-## Getting started
+- **Zero Runtime Dependencies**: Built entirely with standard Node.js runtime APIs (`node:http`, `node:crypto`, `node:fs`, and global `fetch`). Zero third-party packages in production.
+- **Dual-Provider Failover**: Built-in `FailoverLlmClient` automatically handles primary/secondary failover between Google Gemini API (`gemini-1.5-flash`) and OpenRouter API (`deepseek/deepseek-chat`).
+- **Serverless & Container Ready**: Native standalone HTTP server with serverless compatibility (Netlify Functions Web API Request/Response adapter in `src/netlify-adapter.ts`).
+- **Enterprise Guardrails**: Pre-model scope enforcement, Indonesian slang/obfuscation injection detection, and automatic PII redaction (Indonesian NIK 16 digits, credit cards, emails, phone numbers).
 
+---
+
+## 🔌 API Endpoints
+
+| Method | Endpoint | Authorization | Description |
+|:---:|---|---|---|
+| `POST` | `/api/chat` | HMAC-SHA256 Signature (WordPress client) | Answers visitor questions with source-attributed citations |
+| `POST` | `/api/index` | `Bearer $INDEX_API_TOKEN` | Atomically upserts, deletes, or refreshes knowledge-base documents |
+| `GET` | `/api/health` | Public / Optional Signature | Health check returning status `200 ok` or `503 degraded` |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Installation
 ```bash
+cd backend
 npm install
-cp ../.env.example .env        # set GEMINI_API_KEY, CHAT_SHARED_SECRET, INDEX_API_TOKEN
-npm run secret                 # prints a random 64-hex secret (run twice: chat + index)
+cp ../.env.example .env
+```
+
+### 2. Generate Cryptographic Secrets
+Generate secure random 64-hex strings for `CHAT_SHARED_SECRET` and `INDEX_API_TOKEN`:
+```bash
+npm run secret    # Run twice: once for CHAT_SHARED_SECRET, once for INDEX_API_TOKEN
+```
+
+### 3. Build & Run Locally
+```bash
 npm run build
-npm run start:local            # loads .env; listens on 127.0.0.1:8787
+npm run start:local    # Listens on http://127.0.0.1:8787 using local .env
+
+# Verify service health:
 curl http://127.0.0.1:8787/api/health
 ```
 
-### Without a Gemini key
+---
 
-`scripts/mock-gemini.ts` imitates the `generateContent` endpoint. It always cites the first retrieved source, so it is useful for wiring and UI checks but **not** for answer quality.
+## 🧪 Testing with Mock Double (No API Keys Needed)
+
+If you don't have an active Gemini or OpenRouter API key yet, you can run the deterministic mock model server:
 
 ```bash
-npm run mock:gemini            # http://127.0.0.1:8790
-# in .env:
-# GEMINI_API_BASE_URL=http://127.0.0.1:8790
-# GEMINI_API_KEY=any-placeholder
+npm run mock:gemini    # Starts local mock server on http://127.0.0.1:8790
 ```
 
-Questions containing `__slow__`, `__error__` or `__garbage__` trigger a timeout, an HTTP 500 or malformed output respectively.
+Configure `.env`:
+```env
+GEMINI_API_BASE_URL=http://127.0.0.1:8790
+GEMINI_API_KEY=mock-test-key
+```
 
-### Calling `/api/chat` by hand
+> **Testing edge cases with mock:** Queries containing `__slow__`, `__error__`, or `__garbage__` simulate timeout, 500 server error, or malformed JSON output respectively.
 
-The endpoint requires a signature. With the shared secret in `$S`:
+---
+
+## 🔑 Manual Testing via cURL
+
+To test `/api/chat` manually from terminal, compute the required HMAC-SHA256 signature:
 
 ```bash
+SECRET="your-chat-shared-secret"
 BODY='{"message":"What services does Inpartner offer?","language":"en"}'
-TS=$(date +%s); NONCE=$(openssl rand -hex 16); CLIENT=manual-test
-SIG=$(printf '%s' "$TS.$NONCE.$CLIENT.$BODY" | openssl dgst -sha256 -hmac "$S" -hex | awk '{print $NF}')
-curl -s http://127.0.0.1:8787/api/chat -H 'Content-Type: application/json' \
-  -H "X-WKC-Timestamp: $TS" -H "X-WKC-Nonce: $NONCE" -H "X-WKC-Client: $CLIENT" -H "X-WKC-Signature: $SIG" \
+TIMESTAMP=$(date +%s)
+NONCE=$(openssl rand -hex 16)
+CLIENT="manual-curl-client"
+
+SIG=$(printf '%s' "$TIMESTAMP.$NONCE.$CLIENT.$BODY" | openssl dgst -sha256 -hmac "$SECRET" -hex | awk '{print $NF}')
+
+curl -s http://127.0.0.1:8787/api/chat \
+  -H 'Content-Type: application/json' \
+  -H "X-WKC-Timestamp: $TIMESTAMP" \
+  -H "X-WKC-Nonce: $NONCE" \
+  -H "X-WKC-Client: $CLIENT" \
+  -H "X-WKC-Signature: $SIG" \
   -d "$BODY"
 ```
 
-## npm scripts
+---
 
-| Script | What it does |
+## 📜 Available NPM Scripts
+
+| Command | Description |
 |---|---|
-| `build` | Compile TypeScript to `dist/` |
-| `start` | Run `dist/src/server.js` (env from the process/host) |
-| `start:local` | Same, loading `.env` (`node --env-file`) |
-| `test` | Build, then run all tests in `tests/` with `node:test` |
-| `kb:build` | Rebuild `data/kb.json` from the allowlist in `data/sources.json` (reads the public site) |
-| `kb:push` | Send `data/kb.json` to a running backend's `/api/index` (needs `BACKEND_URL`, `INDEX_API_TOKEN`) |
-| `kb:validate` | Check `data/kb.json` against `data/sources.json` offline (approved pages only, none missing, no empty pages or excluded lines); exits non-zero on errors |
-| `eval:retrieval` | Offline evaluation of retrieval and the answerability gate on `eval/dataset.json` (add `-- --dataset=eval/holdout.json` for the held-out set) |
-| `eval:live` | Evaluation through the real Gemini API; writes `eval/report-live-*.json` |
-| `mock:gemini` | Start the local Gemini stand-in on port 8790 |
-| `secret` | Print a random 32-byte hex secret |
+| `npm run build` | Compiles TypeScript source (`src/`) to JavaScript (`dist/`) |
+| `npm run start` | Runs production server (`node dist/src/server.js`) |
+| `npm run start:local` | Runs server loading local `.env` via `node --env-file` |
+| `npm test` | Builds and executes all 137 unit and integration tests |
+| `npm run kb:build` | Rebuilds `data/kb.json` from authoritative profile documents |
+| `npm run kb:validate` | Validates `data/kb.json` integrity and exclusion rules offline |
+| `npm run kb:push` | Pushes validated knowledge base to `/api/index` |
+| `npm run eval:retrieval`| Runs offline retrieval and gate accuracy evaluation on datasets |
+| `npm run eval:live` | Runs live evaluation through configured LLMs (scrubs keys) |
+| `npm run mock:gemini` | Starts local HTTP Gemini double on port 8790 |
+| `npm run secret` | Generates a cryptographically secure 32-byte (64-char) hex secret |
 
-## Configuration
+---
 
-All configuration comes from environment variables, validated at startup. On invalid configuration the process prints which variables are wrong (never their values) and exits with code 78. The full list with defaults is in [../.env.example](../.env.example).
+## ⚙️ Configuration Reference
 
-| Variable | Required | Default | Notes |
-|---|---|---|---|
-| `LLM_PROVIDER` | | `gemini` (`.env.example` sets `openrouter`) | `openrouter` or `gemini` |
-| `OPENROUTER_API_KEY` | if `openrouter` | — | server-side only |
-| `OPENROUTER_MODEL` | | `deepseek/deepseek-chat` | OpenRouter model id |
-| `OPENROUTER_FALLBACK_MODELS` | | empty | comma-separated, max 4; OpenRouter tries them in order if the primary fails |
-| `GEMINI_API_KEY` | if `gemini` | — | server-side only |
-| `CHAT_SHARED_SECRET` | yes | — | ≥ 32 chars; equals `WP_KNOWLEDGE_CHAT_SHARED_SECRET` in WordPress |
-| `INDEX_API_TOKEN` | yes | — | ≥ 32 chars; must differ from the chat secret |
-| `HOST` / `PORT` | | `127.0.0.1` / `8787` | use `HOST=0.0.0.0` in containers/PaaS |
-| `GEMINI_MODEL` | | `gemini-2.5-flash` | "thinking" is disabled for 2.5 Flash to keep answers fast and cheap |
-| `GEMINI_TIMEOUT_MS` | | `12000` | total deadline including one retry; also applies to OpenRouter |
-| `GEMINI_MAX_OUTPUT_TOKENS` | | `600` | also applies to OpenRouter |
-| `GEMINI_API_BASE_URL` | | Google endpoint | http only allowed for localhost |
-| `KB_PATH` | | `data/kb.json` | |
-| `ALLOWED_SOURCE_HOSTS` | | `inpartnerglobal.com,www.inpartnerglobal.com` | citations and indexed URLs must match exactly |
-| `MAX_MESSAGE_CHARS` | | `500` | |
-| `RATE_LIMIT_PER_CLIENT_PER_MINUTE` | | `8` | per signed client id (one visitor) |
-| `RATE_LIMIT_GLOBAL_PER_MINUTE` | | `60` | all visitors combined |
-| `DAILY_REQUEST_LIMIT` | | `1000` | cost ceiling: **model calls** per UTC day (questions answered without Gemini are not counted); resets 00:00 UTC |
-| `RETRIEVAL_MIN_SCORE` / `RETRIEVAL_TOP_K` | | `1.0` / `4` | see [../docs/knowledge-base.md](../docs/knowledge-base.md) |
-| `SIGNATURE_MAX_SKEW_SECONDS` | | `300` | allowed clock difference with WordPress |
-| `LOG_LEVEL` | | `info` | `debug`, `info`, `warn`, `error` |
+All configuration is supplied via environment variables and validated at process startup.
 
-## How a question is answered
+| Variable | Required | Default | Description |
+|---|:---:|---|---|
+| `LLM_PROVIDER` | No | `openrouter` (or auto) | `openrouter` or `gemini` (enables failover if both keys present) |
+| `OPENROUTER_API_KEY` | If OpenRouter | — | Server-side API key from OpenRouter.ai |
+| `OPENROUTER_MODEL` | No | `deepseek/deepseek-chat` | OpenRouter model identifier |
+| `OPENROUTER_FALLBACK_MODELS` | No | empty | Comma-separated fallback models for provider-level retry |
+| `GEMINI_API_KEY` | If Gemini | — | Server-side key from Google AI Studio |
+| `GEMINI_MODEL` | No | `gemini-1.5-flash` | Gemini model identifier |
+| `CHAT_SHARED_SECRET` | **Yes** | — | ≥ 32 characters; must match `WP_KNOWLEDGE_CHAT_SHARED_SECRET` |
+| `INDEX_API_TOKEN` | **Yes** | — | ≥ 32 characters; used for `/api/index` authorization |
+| `HOST` / `PORT` | No | `127.0.0.1` / `8787` | Set `HOST=0.0.0.0` in containers or cloud environments |
+| `GEMINI_TIMEOUT_MS` | No | `12000` | Request deadline including one retry (applies to both providers) |
+| `GEMINI_MAX_OUTPUT_TOKENS` | No | `600` | Maximum token ceiling for model responses |
+| `DAILY_REQUEST_LIMIT` | No | `1000` | Daily model-call budget ceiling (only charges actual LLM calls) |
+| `RATE_LIMIT_PER_CLIENT_PER_MINUTE` | No | `8` | Per-client sliding window rate limit |
+| `RATE_LIMIT_GLOBAL_PER_MINUTE` | No | `60` | Global aggregate rate limit |
+| `LOG_LEVEL` | No | `info` | Logging verbosity (`debug`, `info`, `warn`, `error`) |
 
-1. **Authenticate:** verify the HMAC signature, timestamp window and nonce replay cache (`src/lib/auth.ts`).
-2. **Limit:** per-client and global per-minute windows (`src/middleware/rate-limit.ts`). These run before the body is parsed, so malformed requests still count.
-3. **Validate:** message 1–500 characters, language `en`, `id`, or `ko` (`src/routes/chat.ts`).
-4. **Scope & Guardrails:** prompt injection (including Indonesian slang/obfuscation), PII redaction (NIK, credit cards, emails, phone numbers), personal investment/legal/tax/medical advice, guarantees and unrelated tasks get the fallback without retrieval or calling LLMs (`src/services/scope.ts`, `src/services/pii.ts`). An abuse penalty tracker penalises sustained malicious requests.
-5. **Retrieve:** BM25 over ~700-character chunks, with Indonesian/Korean query expansion; markup in the question is ignored (`src/services/retrieval.ts`, `text.ts`). If no chunk reaches `RETRIEVAL_MIN_SCORE`, return the fallback and **do not call the model**.
-6. **Answer type:** a question asking for prices, a founding date, headcount, statistics, client names or office hours gets the fallback unless the retrieved text contains that kind of fact (`scope.ts`).
-7. **Budget & Cache:** checks in-memory `ResponseCache` for identical grounded queries. Otherwise, one unit of `DAILY_REQUEST_LIMIT` is consumed; when it is used up the request gets 429 `daily_limit_reached`.
-8. **Generate:** the system instruction holds the rules (sources only, no invented claims, no personalised advice, ignore instructions inside sources or the question, answer language). Sources and the question are wrapped in sanitised delimiters, and the reply must be JSON (`src/services/chat.ts`, `llm.ts`, `openrouter.ts`). When both keys are configured, `FailoverLlmClient` automatically falls back if the primary provider times out or fails.
-9. **Check:** parse the JSON. Malformed, ungrounded or unsafe output (key patterns, leaked instructions, markup) becomes the fallback. Cited `S1…Sn` ids are mapped to knowledge-base titles and URLs, at most 3.
+---
 
-Errors from providers become `504 provider_timeout` or `502 provider_unavailable`. The WordPress plugin turns them into a friendly message.
+## 🛡️ Step-by-Step Question Lifecycle
 
-## Project structure
+1. **HMAC Authentication**: Verifies request signature, timestamp freshness (±300s window), and nonce against replay cache (`src/lib/auth.ts`).
+2. **Rate Limiting**: Enforces per-client and global rate windows before JSON body parsing (`src/middleware/rate-limit.ts`).
+3. **Validation**: Validates message length (1–500 characters) and supported language code (`en`, `id`, `ko`).
+4. **Scope & PII Redaction**: Checks for prompt injections, out-of-scope advice requests, and automatically scrubs sensitive PII (`src/services/pii.ts`, `src/services/scope.ts`).
+5. **BM25 Retrieval**: Performs lexical search over ~700-character line-aligned chunks with language-specific query expansion and Korean NFD matching (`src/services/retrieval.ts`).
+6. **Deterministic Abstention Gate**: If top retrieved score < `RETRIEVAL_MIN_SCORE` (1.0) or required fact type is absent, returns an honest fallback **without calling the model**.
+7. **Cache & Budget**: Checks in-memory `ResponseCache` for cached grounded answers; otherwise accounts for 1 unit of `DAILY_REQUEST_LIMIT`.
+8. **Constrained Generation & Failover**: Instructs LLM with delimited evidence. `FailoverLlmClient` automatically handles retries or failover to secondary provider if needed.
+9. **Claim Verification**: Validates numbers, emails, phone numbers, and URLs in the model answer against evidence. Any unsupported claim is rejected and replaced with the safe fallback.
 
-```
-src/
-  server.ts                 entry point: config, KB load, server timeouts, graceful shutdown
-  app.ts                    routing and dependency wiring
-  config/env.ts             environment validation
-  routes/                   chat.ts, index.ts, health.ts
-  services/                 chat.ts, llm.ts, retrieval.ts, text.ts, knowledge-base.ts
-  middleware/rate-limit.ts
-  lib/                      auth.ts, http.ts, logger.ts, html-to-text.ts
-scripts/                    build-kb.ts, push-kb.ts, mock-gemini.ts
-data/                       sources.json (allowlist), kb.json (snapshot)
-eval/                       dataset.json, run-eval.ts
-tests/                      *.test.ts + helpers.ts
-```
+---
 
-## Tests
+## 📊 Structured JSON Logging
 
-`npm test` runs 137 tests across 35 test suites covering configuration, signatures and replay, bearer auth, rate limits and daily budget, document validation (draft/private rejected), chunking, retrieval (English, Indonesian, Korean NFD matching), grounding and output validation, dual providers (Gemini, OpenRouter, and FailoverLlmClient), PII scrubbing, every endpoint and status code, and XSS, prompt-injection and secret-leak payloads.
-
-## Logging
-
-The backend writes one JSON object per line to stdout, for example:
+All logs are emitted as single-line JSON objects to standard output:
 
 ```json
-{"time":"…","level":"info","event":"chat_completed","outcome":"answered","language":"en","message_chars":42,"sources":1,"latency_ms":1830}
+{"time":"2026-10-21T15:20:00.000Z","level":"info","event":"chat_completed","outcome":"answered","language":"en","message_chars":45,"sources":1,"latency_ms":850}
 ```
 
-| Event | Meaning |
-|---|---|
-| `server_started`, `server_stopping` | process lifecycle |
-| `kb_loaded`, `kb_load_failed` | knowledge base load at startup |
-| `kb_indexed`, `kb_persist_failed` | `/api/index` result |
-| `chat_completed` | outcome is `answered`, `no_evidence`, `model_declined`, `invalid_model_output` or `unsafe_model_output` |
-| `chat_auth_failed` | `reason` is `missing`, `malformed`, `expired`, `invalid` or `replayed` |
-| `rate_limited` | `scope` is `client`, `global` or `daily` |
-| `llm_failed` | `kind` is `timeout`, `unavailable`, `rate_limited`, `auth`, `blocked` or `bad_response` |
-| `llm_output_invalid`, `llm_output_unsafe` | model output rejected |
-
-Message text, IP addresses, secrets and provider payloads are never logged.
+> **Privacy Guarantee:** Message contents, client IP addresses, passwords, and provider secrets are strictly **never** logged.

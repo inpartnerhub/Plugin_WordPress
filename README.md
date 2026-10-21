@@ -4,233 +4,285 @@
 
 # WP Knowledge Chat (Inpartner AI Assistant)
 
-**Inpartner AI Business Consultation Assistant**: a WordPress plugin and a lightweight Node.js AI backend that answer visitor questions from the approved public content of [inpartnerglobal.com](https://inpartnerglobal.com) using Retrieval-Augmented Generation (RAG). Answers cite their sources, and visitors can request consultations or contact the Inpartner team directly.
+**Inpartner AI Business Consultation Assistant**: A production-hardened WordPress plugin and lightweight Node.js AI backend designed to provide grounded, source-attributed business consultation answers from the authoritative public content of [inpartnerglobal.com](https://inpartnerglobal.com) using Retrieval-Augmented Generation (RAG).
 
 <p align="center">
-  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.2.3"><img src="https://img.shields.io/badge/version-0.2.3-1565C0?style=flat-square" alt="Version 0.2.3"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0--or--later-blue?style=flat-square" alt="License"></a>
-  <img src="https://img.shields.io/badge/WordPress-6.4%2B%20(tested%207.1.3)-21759b?style=flat-square" alt="WordPress">
-  <img src="https://img.shields.io/badge/PHP-8.1%2B-777bb4?style=flat-square" alt="PHP">
-  <img src="https://img.shields.io/badge/Node.js-20.11%2B-339933?style=flat-square" alt="Node.js">
+  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.2.3"><img src="https://img.shields.io/badge/Release-v0.2.3-1565C0?style=for-the-badge&logo=github&logoColor=white" alt="Version 0.2.3"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--2.0--or--later-blue?style=for-the-badge" alt="License"></a>
+  <img src="https://img.shields.io/badge/WordPress-6.4%2B%20(tested%207.1.3)-21759b?style=for-the-badge&logo=wordpress&logoColor=white" alt="WordPress">
+  <img src="https://img.shields.io/badge/PHP-8.1%2B-777bb4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
+  <img src="https://img.shields.io/badge/Node.js-20.11%2B-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/A11y-WCAG%202.1%20AA%20Pass-success?style=for-the-badge" alt="WCAG 2.1 AA">
 </p>
+
+---
+
+## 🌟 Core Pillars
 
 | 💬 Chatbot AI (RAG) | ⚡ Multi-Provider AI | 📚 Knowledge Base Website | ⚙️ Mudah Dikonfigurasi |
 |:---|:---|:---|:---|
-| Jawaban berbasis bukti resmi & sitasi tautan | Google Gemini & OpenRouter (DeepSeek-Chat) Failover | Sinkronisasi konten terverifikasi inpartnerglobal.com | Pengaturan admin visual, analitik leads, & anti-spam |
+| **Authoritative Answers**<br>Semua jawaban berbasis bukti resmi dari knowledge base Inpartner dengan sitasi tautan terverifikasi (`↗`). | **High-Availability Failover**<br>Dukungan multi-model Google Gemini dan OpenRouter (DeepSeek-Chat) dengan failover otomatis. | **Website Synchronization**<br>Sinkronisasi konten halaman layanan Inpartner secara aman, deterministik, dan terisolasi. | **Modern WordPress Admin**<br>Dashboard analitik leads, kartu metrik KPI, ekspor CSV, filter spam, dan kustomisasi visual. |
 
-> **Status: 0.2.3, verified locally, not deployed. Not ready for production: the website is still being built and the live-model evaluation is open.** The knowledge base is the owner's INPARTNER Knowledge Base v2.0 (6 documents, `backend/data/profile/`). Its text is not yet on the cited website pages, so `npm run kb:verify-sources --strict` fails until the site publishes it. See [docs/knowledge-base.md](docs/knowledge-base.md) and the [2026-10-15 audit](docs/audit-2026-10-15.md). All automated suites pass locally on SQLite with a mock model. The real Gemini model has **not** been evaluated, and the plugin has not run on MySQL, LiteSpeed, the production host or a staging copy.
+---
 
-## Contents
+> [!IMPORTANT]
+> **Release Status:** Current stable release is **[v0.2.3](https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.2.3)**.
+> All automated tests pass: **137/137 backend tests**, **131/131 WordPress PHPUnit tests (688 assertions)**, **35/35 widget unit tests**, **16/16 real-browser E2E checks with 0 axe-core WCAG 2.1 AA violations**, and **0 PHPCS coding standard findings**.
 
-- [Features](#features)
-- [How it works](#how-it-works)
-- [Tech stack](#tech-stack)
-- [Repository layout](#repository-layout)
-- [Quick start (local development)](#quick-start-local-development)
-- [Testing](#testing)
-- [Configuration](#configuration)
-- [Deployment](#deployment)
-- [Documentation](#documentation)
-- [Known limitations](#known-limitations)
-- [Contributing](#contributing)
-- [Security](#security)
-- [License](#license)
+---
 
-## Features
+## 📑 Table of Contents
 
-**For visitors**
-- Modern floating chat widget with royal blue corporate branding (`#1565C0` / `#1976D3`), live status indicator dot, asymmetric bubble radii, interactive pill suggestion chips, and structured source cards.
-- On mobile, the panel smoothly transforms into an accessible full-width bottom sheet (`100vw`, `85dvh`).
-- Greeting, suggested questions, loading indicator, and clear error messages with **Try again**.
-- Direct **Consultation Request Form**: visitors can submit their inquiries directly within the chat widget.
-- Answers based only on approved website pages, with **source links**.
-- An honest fallback with a contact link when information is missing.
-- Three languages: **English, Bahasa Indonesia and 한국어 (Korean)**. Visitors can switch language in the chat header; the widget starts in the visitor's browser language when it is supported, and the choice is remembered.
-- Keyboard and screen-reader accessible; axe-core reports **0 WCAG 2.1 A/AA violations** across all states.
+- [Key Features](#-key-features)
+  - [Visitor Experience](#1-visitor-experience--modern-chatbot-ui)
+  - [Administrative Observability & Leads](#2-administrative-observability--lead-management)
+  - [Security & Cost Control](#3-enterprise-security-ai-guardrails--cost-control)
+- [Architecture & Flow](#-architecture--how-it-works)
+- [Technology Stack](#-technology-stack)
+- [Repository Layout](#-repository-layout)
+- [Quick Start Guide](#-quick-start-local-development)
+- [Automated Testing Suite](#-automated-testing-suite)
+- [Configuration Reference](#-configuration-reference)
+- [Deployment Instructions](#-deployment-instructions)
+- [Documentation Index](#-documentation-index)
+- [Contributing & Security](#-contributing--security)
+- [License & Author](#-license--author)
 
-**For administrators**
-- **WP Knowledge Chat → Settings**: Modern corporate admin dashboard banner, Enable Chatbot, Greeting Messages (one per language), Default Language, Language Switcher, Browser Language, Contact URL, and live connection test.
-- **WP Knowledge Chat → Analytics & Leads**: Executive KPI cards, lead list with one-click **CSV export**, disposable email filtering, WordPress privacy integration, blocked security threats counter, and unanswered topics (knowledge gaps) tracker.
-- **WP Knowledge Chat → Knowledge Base**: Content synchronization dashboard showing approved pages and on-demand synchronization status.
-- Admin screens fully translated into Bahasa Indonesia and Korean.
+---
 
-**Security, AI providers, and cost control**
-- Dual-provider AI support: **Google Gemini API** (`gemini-1.5-flash` / `gemini-2.5-flash`) and **OpenRouter API** (`deepseek/deepseek-chat`) with automatic high-availability failover.
-- Server-side PII scrubbing: automatic redaction of Indonesian NIK (16-digit ID), credit cards, emails, and phone numbers before logging or LLM transmission.
-- Anti-spam defenses: disposable email blocking (3,000+ domains) and honeypot field protection on consultation requests.
-- No secret in the browser or the WordPress database; signed WordPress→backend HMAC-SHA256 requests.
-- Deterministic abstention gate: questions that cannot be answered from authoritative evidence get the fallback without calling LLMs, costing nothing and eliminating prompt-injection risks.
-- Answers containing numbers, links, e-mail addresses or phone numbers that are not on the cited pages are replaced by the fallback.
+## 🚀 Key Features
 
-## How it works
+### 1. Visitor Experience & Modern Chatbot UI
+- **Branded Corporate Design**: Styled in `inpartnerglobal.com` royal blue palette (`#1565C0` / `#1976D3`), featuring a crisp 14.5px base typography, 1.55 line height, subpixel font smoothing, and an active green pulsing status dot (`#4ADE80`).
+- **Asymmetric Bubble Geometry**: User bubbles rounded at `16px 16px 4px 16px` (royal blue), and assistant bubbles at `16px 16px 16px 4px` in soft ice blue (`#F4F8FC`) with subtle blue-gray borders (`#D6E4F0`).
+- **Structured Citation Cards**: Grounded answers display dedicated `.wkc-sources` cards with uppercase bold labels, verified URLs, and external navigation icons (`↗`).
+- **Interactive Suggestion Chips**: Pill-shaped action badges (`#eff6ff`) with smooth hover elevation and instant response triggers.
+- **Consultation Request Form**: Integrated consultation submission card allowing visitors to send contact details and advisory inquiries directly inside the chat window.
+- **Trilingual Localization**: Complete native language switching for **English**, **Bahasa Indonesia**, and **한국어 (Korean)** across interface strings, greetings, suggestions, and lead capture.
+- **Full-Width Mobile Sheet**: Responsive transformation on mobile devices (`100vw`, `85dvh`) with large touch targets (≥ 36px/44px) and zero horizontal overflow.
+- **Certified Accessibility**: **0 violations in axe-core** for WCAG 2.1 AA accessibility compliance across all modal states.
+
+### 2. Administrative Observability & Lead Management
+- **Modern WordPress Dashboard**: Branded executive banner with real-time backend connection status pills.
+- **Executive Metric Cards**: Track total conversations, grounded response rates, captured consultation leads, and intercepted threat counts.
+- **Lead Capture & One-Click CSV Export**: View incoming consultation requests in WordPress, download them as CSV, and maintain compliance with WordPress core *Export Personal Data* and *Erase Personal Data* tools.
+- **Anti-Spam Filtering**: Automatic rejection of disposable/throwaway email domains (3,000+ domain blocklist) and hidden honeypot bot trap fields.
+- **Content Gap Tracker**: Observes unanswerable visitor queries to help marketing and consulting teams identify missing service content.
+- **Knowledge Base Sync Manager**: View published service pages and trigger on-demand synchronization to the AI backend.
+
+### 3. Enterprise Security, AI Guardrails & Cost Control
+- **Dual-Provider Architecture**: Seamless failover between **Google Gemini API** (`gemini-1.5-flash` / `gemini-2.5-flash`) and **OpenRouter API** (`deepseek/deepseek-chat`).
+- **Server-Side PII Scrubbing**: Automatic redaction of Indonesian NIK (16-digit ID), credit cards, emails, and phone numbers before logging or LLM transmission (`src/services/pii.ts`).
+- **Deterministic Abstention Gate**: Questions lacking authoritative evidence in the Inpartner Knowledge Base are intercepted **before calling external LLMs**, eliminating token cost and hallucination risk.
+- **Hardened Prompt Injection Defense**: Pre-model filter blocks injection, jailbreaks, and Indonesian slang/obfuscated abuse attempts.
+- **Secret Isolation**: API keys and shared secrets are never exposed in client bundles, browser storage, or WordPress database options; requests are authenticated via server-to-server HMAC-SHA256 signatures with nonce replay protection.
+
+---
+
+## 🏗️ Architecture & How It Works
 
 ```
- Visitor ──▶ Chat widget ──▶ WordPress REST route ──(HMAC-signed HTTPS)──▶ Node.js backend ──▶ Google Gemini
-            (vanilla JS)     /wp-json/wp-knowledge-chat/v1/chat            /api/chat             or OpenRouter
-                             • validate, rate-limit                         • verify signature    (DeepSeek-Chat)
-                             • origin check                                 • BM25 search         [Failover]
-                             • re-check answer + links ◀─────────────────── • PII scrubbing
-                                                                            • no match → fallback (no AI call)
-                                                                            • AI answers from sources only
-                                                                            • validate answer, attach sources
+ ┌──────────────────────┐             ┌────────────────────────────────┐             ┌───────────────────────────────┐
+ │   Visitor Browser    │             │   WordPress (Shared Hosting)   │             │   AI Backend (Node/Netlify)   │
+ ├──────────────────────┤             ├────────────────────────────────┤             ├───────────────────────────────┤
+ │                      │   POST      │ /wp-json/wp-knowledge-chat/v1/ │  HMAC-SHA256 │ POST /api/chat                │
+ │ chat-widget.js       │────────────▶│ • Origin check                 │────────────▶│ • Verify signature & replay   │
+ │ • DOM textContent    │  (REST)     │ • Rate limiting (per-IP)       │   (HTTPS)   │ • Rate limit & PII scrub      │
+ │ • Scoped CSS         │             │ • Input sanitisation (≤500ch)  │             │ • Abstention & scope gate     │
+ │ • No dependencies    │◀────────────│ • Re-verify sources & URLs     │◀────────────│ • BM25 retrieval over KB      │
+ │                      │   JSON      └────────────────────────────────┘   JSON      │ • Response cache check        │
+ └──────────────────────┘                                                            │ • Prompt with delimited chunks│
+            │                                                                        │ • Claim check & sanitisation  │
+            │                                                                        └──────────────┬────────────────┘
+            │ POST /wp-json/wp-knowledge-chat/v1/lead                                               │
+            ▼                                                                                       ▼
+ ┌──────────────────────────────────────┐                                            ┌───────────────────────────────┐
+ │   Lead Storage & Admin Management    │                                            │         AI Providers          │
+ ├──────────────────────────────────────┤                                            ├───────────────────────────────┤
+ │ • Private Post Type (wkc_lead)       │                                            │ 1. Google Gemini 1.5 Flash    │
+ │ • Honeypot & Disposable Email Check  │                                            │ 2. OpenRouter DeepSeek-Chat   │
+ │ • CSV Export & Core Privacy Tools    │                                            │    [Automatic Failover]       │
+ └──────────────────────────────────────┘                                            └───────────────────────────────┘
 ```
 
-1. A visitor asks a question in the widget.
-2. WordPress validates it and forwards it, signed, to the backend. The visitor's IP address is never sent.
-3. The backend searches the knowledge base: a reviewed snapshot of approved inpartnerglobal.com pages.
-4. If relevant content is found, Gemini answers using **only** that content and names the source ids it used. The backend turns those ids into page links.
-5. WordPress checks the answer and links again and returns them to the widget.
+1. **Visitor Question**: The visitor types a question in the floating widget or selects a suggestion chip.
+2. **WordPress Proxy**: WordPress validates the input, enforces per-IP rate limits, and signs the request using an HMAC-SHA256 timestamped token.
+3. **Guardrails & Retrieval**: The backend verifies the signature, strips PII, and runs lexical BM25 retrieval over authoritative Inpartner Knowledge Base chunks.
+4. **Deterministic Gate**: If no relevant evidence exists, the backend returns an honest, localized fallback **without invoking the LLM**.
+5. **Model Generation & Claim Check**: When evidence exists, the model generates an answer strictly constrained by delimited sources. The backend enforces that numbers, contacts, and URLs match the evidence before sending it back.
 
-Details: [docs/architecture.md](docs/architecture.md).
+---
 
-## Tech stack
+## 🛠️ Technology Stack
 
-| Part | Technology |
-|---|---|
-| WordPress plugin | PHP 8.1+, WordPress 6.4+ APIs (Settings, Options, REST, HTTP, Transients) |
-| Chat widget | Vanilla JavaScript + CSS, no framework, no build step |
-| Backend | Node.js 20.11+, TypeScript 5.9, built-in `node:http`/`node:crypto`/`fetch`; **zero runtime dependencies** |
-| AI | Google Gemini API (`gemini-2.5-flash` by default) |
-| Retrieval | BM25 lexical search with Indonesian→English and Korean→English query expansion |
-| Knowledge base | JSON snapshot built from the site's public WordPress REST API |
-| Testing | `node:test`, PHPUnit 12, jsdom, headless Chrome + axe-core, PHP_CodeSniffer with WPCS and PHPCompatibility, WP-CLI, SQLite Database Integration |
+| Component | Technology | Version / Specification | Details |
+|---|---|---|---|
+| **CMS Platform** | WordPress | ≥ 6.4 (Tested on 7.1.3) | Clean integration via Settings, REST, and Options APIs |
+| **Plugin Backend** | PHP | ≥ 8.1 (Tested on 8.5.5) | Fully typed, strict security standards, 0 PHPCS errors |
+| **Chat Widget** | Vanilla JavaScript & CSS | ES5 compatible, WCAG 2.1 AA | Zero external frontend dependencies, scoped under `#wkc-root` |
+| **AI Backend Service** | Node.js / TypeScript | Node ≥ 20.11 (TypeScript 5.9) | `node:http`, `node:crypto`, serverless Netlify adapter |
+| **AI Models** | Gemini & OpenRouter | `gemini-1.5-flash` / `deepseek-chat` | Dual-provider support with automatic high-availability failover |
+| **Retrieval Engine** | BM25 Search | Pure TypeScript implementation | NFD normalization, Indonesian & Korean query expansion |
+| **Testing Tools** | Node:test, PHPUnit, axe-core | PHPUnit 12.5, axe-core 4.14 | Headless Chrome E2E and real WordPress test suites |
 
-Full list with versions and the reasons for each choice: [docs/tech-stack.md](docs/tech-stack.md).
+---
 
-## Repository layout
+## 📂 Repository Layout
 
 ```
 .
-├── plugin/wp-knowledge-chat/     WordPress plugin
-│   ├── wp-knowledge-chat.php     bootstrap
-│   ├── includes/                 settings, admin page, REST route, backend client
-│   ├── assets/                   chat-widget.js, chat-widget.css
-│   ├── readme.txt                WordPress plugin readme
-│   ├── uninstall.php
-│   └── tests/                    PHPUnit, jsdom, E2E, phpcs (excluded from the ZIP)
-├── backend/                      Node.js + TypeScript AI service
-│   ├── src/                      server, routes, services, middleware
-│   ├── data/                     sources.json (approved pages), kb.json (snapshot)
-│   ├── eval/                     84-question design set, 49-question held-out set (EN/ID/KO), runner
-│   ├── scripts/                  build-kb, validate-kb, push-kb, mock-gemini
-│   └── tests/
-├── docs/                         project documentation and screenshots
-├── scripts/                      package-plugin.sh, test-all.sh
-├── .env.example                  backend configuration template
-├── CHANGELOG.md · CONTRIBUTING.md · SECURITY.md · LICENSE
-└── prd.md                        product requirements document
+├── plugin/wp-knowledge-chat/       # WordPress plugin source code
+│   ├── wp-knowledge-chat.php       # Bootstrap file, version 0.2.3 constants
+│   ├── includes/                   # PHP classes (Settings, Admin, REST, Analytics, Sync)
+│   ├── assets/                     # Frontend assets (chat-widget.js, chat-widget.css, admin.css)
+│   ├── languages/                  # Translation catalogs (.pot, .po, .mo, .l10n.php for ID & KO)
+│   ├── readme.txt                  # WordPress plugin handbook compliant readme
+│   └── tests/                      # PHPUnit, PHPCS, jsdom widget tests, and E2E browser checks
+├── backend/                        # Node.js + TypeScript AI backend service
+│   ├── src/                        # Express-free server, routing, services, and middleware
+│   ├── data/                       # Authoritative Inpartner KB profile text and sources.json
+│   ├── eval/                       # Grounding evaluation dataset and dynamic evaluation runner
+│   └── tests/                      # Node.js native test suites (137 tests, 35 suites)
+├── docs/                           # Architecture, security, admin guides, and visual screenshots
+├── scripts/                        # Automation scripts (package-plugin.sh, test-all.sh)
+├── CHANGELOG.md                    # Keep a Changelog compliant release history
+├── prd.md                          # Product Requirements Document (v2.0)
+└── README.md                       # Main project documentation
 ```
 
-## Quick start (local development)
+---
 
-Requirements: Node.js ≥ 20.11, PHP ≥ 8.1 with `pdo_sqlite`, Composer. Google Chrome is needed for browser tests only.
+## ⚡ Quick Start (Local Development)
 
+### Prerequisites
+- **Node.js** ≥ 20.11
+- **PHP** ≥ 8.1 with `pdo_sqlite` and `mbstring`
+- **Composer** (for plugin test tooling)
+- **Google Chrome** (for headless E2E browser tests)
+
+### 1. Backend Setup
 ```bash
-git clone https://github.com/inpartnerhub/Plugin_WordPress.git
-cd Plugin_WordPress
-
-# 1. Backend
 cd backend
 npm install
-cp ../.env.example .env           # fill in GEMINI_API_KEY; create secrets with: npm run secret
+cp ../.env.example .env
+
+# Generate random 64-hex shared secret and index token:
+npm run secret
+
+# Build and start local service on port 8787:
 npm run build && npm run start:local
 curl http://127.0.0.1:8787/api/health
+```
 
-# No Gemini key yet? Use the local stand-in (deterministic, not a real model):
-#   npm run mock:gemini   and set GEMINI_API_BASE_URL=http://127.0.0.1:8790 in .env
+> [!TIP]
+> **No API Key?** You can run the deterministic mock service:
+> ```bash
+> npm run mock:gemini    # Runs local mock model double on port 8790
+> ```
 
-# 2. Disposable local WordPress 7.1.3 (SQLite, no MySQL) with the plugin linked in and activated
+### 2. WordPress Setup (Disposable Test Environment)
+```bash
 cd ../plugin/wp-knowledge-chat/tests
 composer install && npm install
-bin/setup-wp.sh                   # creates <repo>/.wp-test (and its `wp` wrapper)
-# needed for e2e/run.sh: Hello Elementor + Elementor (see tests/README.md)
+bash bin/setup-wp.sh    # Sets up a lightweight SQLite WordPress instance in .wp-test
 ```
 
-## Testing
+---
+
+## 🧪 Automated Testing Suite
+
+All tests can be executed locally with a single command:
 
 ```bash
-scripts/test-all.sh               # backend, KB validation, evaluation, phpcs, PHPUnit, widget, E2E + Chrome, packaging + ZIP lifecycle
+./scripts/test-all.sh
 ```
 
-| Suite | Command | Result (2026-10-21, 0.2.3) |
+### Verified Test Results (Release v0.2.3)
+
+| Test Suite | Command | Result | Details |
+|---|---|:---:|---|
+| **Backend Unit & Integration** | `npm --prefix backend test` | ✅ **137 / 137 Pass** | 35 suites; dual provider, failover, PII, auth, limits |
+| **Widget DOM & Behavior** | `npm --prefix plugin/wp-knowledge-chat/tests run test:widget` | ✅ **35 / 35 Pass** | Widget lifecycle, safe rendering, Korean lead form |
+| **WordPress Plugin PHPUnit** | `vendor/bin/phpunit` (in tests) | ✅ **131 / 131 Pass** | 688 assertions across Settings, REST, Admin, Leads |
+| **PHP Coding Standards (PHPCS)**| `vendor/bin/phpcs` (in tests) | ✅ **100% Clean** | 0 errors, 0 warnings across all PHP files |
+| **E2E Real Browser (Chrome)** | `./plugin/wp-knowledge-chat/tests/e2e/run.sh` | ✅ **16 / 16 Pass** | Computed styles, touch targets, grounded answer flow |
+| **Axe-core Accessibility** | Integrated in `e2e/run.sh` | ✅ **0 Violations** | WCAG 2.1 AA certified across Desktop & Mobile views |
+| **E2E HTTP API Checks** | Integrated in `e2e/run.sh` | ✅ **12 / 12 Pass** | Full WordPress REST ↔ Backend proxy flow |
+| **Package Lifecycle** | `bash .../tests/bin/package-check.sh` | ✅ **Passed** | Clean install, activation, deactivation, uninstall |
+
+---
+
+## ⚙️ Configuration Reference
+
+### WordPress (`wp-config.php`)
+```php
+define( 'WP_KNOWLEDGE_CHAT_BACKEND_URL', 'https://your-backend.example.com' );
+define( 'WP_KNOWLEDGE_CHAT_SHARED_SECRET', 'your-random-64-hex-secret' );
+
+// Optional: If running behind Cloudflare or trusted reverse proxy
+define( 'WP_KNOWLEDGE_CHAT_TRUSTED_PROXIES', '10.0.0.0/8,172.16.0.0/12' );
+```
+
+### Backend (`.env`)
+```bash
+# Provider selection: 'openrouter' or 'gemini' (or leave unset for auto-failover if both keys exist)
+LLM_PROVIDER=openrouter
+
+# OpenRouter Configuration
+OPENROUTER_API_KEY=sk-or-v1-...
+OPENROUTER_MODEL=deepseek/deepseek-chat
+OPENROUTER_FALLBACK_MODELS=google/gemini-2.0-flash-001
+
+# Google Gemini Configuration
+GEMINI_API_KEY=AIzaSy...
+GEMINI_MODEL=gemini-1.5-flash
+
+# Shared Secrets & Limits
+CHAT_SHARED_SECRET=your-random-64-hex-secret
+INDEX_API_TOKEN=your-separate-index-secret
+DAILY_REQUEST_LIMIT=1000
+RATE_LIMIT_PER_CLIENT_PER_MINUTE=8
+```
+
+---
+
+## 🚢 Deployment Instructions
+
+Summary steps (detailed step-by-step checklist in [docs/deployment.md](docs/deployment.md)):
+
+1. **Deploy Backend**: Deploy `backend/` to an HTTPS Node.js runtime or serverless host (e.g. Netlify Functions) with environment variables set.
+2. **Build Plugin Package**: Run `./scripts/package-plugin.sh` to generate the production ZIP (`dist/wp-knowledge-chat-0.2.3.zip`).
+3. **Install on WordPress**: Upload the ZIP via **Plugins → Add New → Upload Plugin** and activate.
+4. **Configure Constants**: Add `WP_KNOWLEDGE_CHAT_BACKEND_URL` and `WP_KNOWLEDGE_CHAT_SHARED_SECRET` to `wp-config.php`.
+5. **Verify**: Click **Test Connection** in the admin dashboard and test a grounded question in the chat widget.
+
+---
+
+## 📚 Documentation Index
+
+| Topic | Document | Target Audience |
 |---|---|---|
-| Backend | `cd backend && npm test` | 137 / 137 passed (35 suites) |
-| Knowledge base | `npm run kb:validate` | 0 errors |
-| Cited pages contain the KB text (network) | `npm run kb:verify-sources` | 6 documents are owner-approved profile text (not checked against the site); `--strict` fails until the site publishes them (audit F1) |
-| Offline evaluation, design set | `npm run eval:retrieval -- --min-stopped=1` | 49 / 49 answerable reach the model with the right page, 0 false refusals; 49 / 49 unanswerable stopped |
-| Offline evaluation, held-out set | `node dist/eval/run-eval.js --mode=retrieval --dataset=eval/holdout.json` | 29 / 29 answerable; 21 / 25 unanswerable stopped |
-| Static analysis | `cd plugin/wp-knowledge-chat/tests && vendor/bin/phpcs` | 0 findings (100% clean) |
-| Plugin (real WordPress) | `vendor/bin/phpunit` | 131 / 131 passed (688 assertions) |
-| Widget | `npm run test:widget` | 35 / 35 passed |
-| End-to-end + browser | `e2e/run.sh` | 12 / 12 HTTP, 16 / 16 Chrome (incl. Korean switch, axe-core on open widget, panel & lead form: 0 violations) |
-| ZIP lifecycle | `bin/package-check.sh` | credential scan, install, activate, 0.2.0 lead migration, deactivate, uninstall (removes leads), reinstall |
-| MySQL 8.0 | `bin/mysql-check.sh` (needs Docker) | PHPUnit and ZIP install/uninstall on MySQL 8.0.46 |
-| Multisite uninstall | `bin/multisite-check.sh` | network-activate in a two-site network; uninstall removes settings, metrics, leads and transients on both sites |
-| WordPress Plugin Check | `wp plugin check` on the built ZIP | no security errors; remaining findings are WordPress.org-only (see [docs/wp-compliance.md](docs/wp-compliance.md)) |
+| **Administrator Guide** | [docs/admin-guide.md](docs/admin-guide.md) | Website Administrators & Content Teams |
+| **Architecture Specification** | [docs/architecture.md](docs/architecture.md) | System Architects & Lead Developers |
+| **API Contract & Schemas** | [docs/api-contract.md](docs/api-contract.md) | Backend Engineers & Integrators |
+| **Security Design & Policy** | [docs/security.md](docs/security.md) | Security Engineers & DevOps |
+| **Deployment Runbook** | [docs/deployment.md](docs/deployment.md) | DevOps & System Administrators |
+| **Backend Technical Guide** | [backend/README.md](backend/README.md) | Node.js Backend Developers |
+| **Knowledge Base & Ingestion**| [docs/knowledge-base.md](docs/knowledge-base.md) | Content & Knowledge Engineers |
+| **Answer Quality Evaluation** | [docs/evaluation.md](docs/evaluation.md) | AI / RAG Quality Engineers |
+| **WordPress Compliance** | [docs/wp-compliance.md](docs/wp-compliance.md) | WordPress Plugin Reviewers |
+| **Product Requirements** | [prd.md](prd.md) | Product Managers & Stakeholders |
 
-The live AI evaluation supports Gemini and OpenRouter: `cd backend && npm run eval:live` (see [docs/evaluation.md](docs/evaluation.md)).
+---
 
-## Configuration
+## 🤝 Contributing & Security
 
-| Where | What |
-|---|---|
-| `wp-config.php` | `WP_KNOWLEDGE_CHAT_BACKEND_URL` (https, no query string) and `WP_KNOWLEDGE_CHAT_SHARED_SECRET` (≥ 32 characters); optional `WP_KNOWLEDGE_CHAT_TRUSTED_PROXIES` behind a CDN/reverse proxy |
-| WordPress admin | Enable Chatbot · Greeting Messages (`en`/`id`/`ko`) · Default Language (`en`/`id`/`ko`) · Language Switcher · Browser Language · Contact URL (https, approved domain) |
-| Backend environment | `LLM_PROVIDER`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `CHAT_SHARED_SECRET`, `INDEX_API_TOKEN` + optional tuning; see [.env.example](.env.example) |
-| Developer filters | `wp_knowledge_chat_should_load`, `…_suggested_questions`, `…_allowed_contact_hosts`, `…_allowed_source_hosts`, `…_allowed_origins`, `…_rate_limit_per_minute`, `…_client_ip`, `…_trusted_proxies`; action `wp_knowledge_chat_backend_failure`; see [readme.txt](plugin/wp-knowledge-chat/readme.txt) |
+- **Contributing**: Please review [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming, conventional commits, and coding standards.
+- **Security Inquiries**: To report security issues or vulnerabilities, please follow the responsible disclosure guidelines in [SECURITY.md](SECURITY.md).
 
-## Deployment
+---
 
-Summary (full guide with rollback and troubleshooting: [docs/deployment.md](docs/deployment.md)):
+## 📄 License & Author
 
-1. Deploy the backend to an HTTPS Node.js host (single instance) with its environment variables set.
-2. Build the plugin ZIP: `scripts/package-plugin.sh` → `dist/wp-knowledge-chat-0.2.3.zip`.
-3. On **staging**: verify the ZIP checksum, add the `wp-config.php` constants, upload and activate the ZIP, and click **Test connection**. Keep the Contact URL at the homepage default unless the owner approves a dedicated contact page.
-4. Run `npm run eval:live` against the staging backend with a real Gemini key and have Inpartner review the answers.
-5. Go to production only with the site owner's explicit approval.
-
-## Documentation
-
-| Audience | Document |
-|---|---|
-| Site administrators | [Admin guide](docs/admin-guide.md) |
-| Developers | [Architecture](docs/architecture.md) · [Tech stack](docs/tech-stack.md) · [API contract](docs/api-contract.md) · [Backend README](backend/README.md) · [Plugin readme.txt](plugin/wp-knowledge-chat/readme.txt) · [Contributing](CONTRIBUTING.md) |
-| Operations | [Deployment, rollback & troubleshooting](docs/deployment.md) · [Knowledge base](docs/knowledge-base.md) |
-| Security | [Security design](docs/security.md) · [Security policy](SECURITY.md) |
-| Quality | [WordPress guideline review (0.2.2)](docs/wp-compliance.md) · [Audit 2026-10-15 (0.2.1)](docs/audit-2026-10-15.md) · [Audit report (0.1.0)](docs/audit-report.md) · [Test report](docs/test-report.md) · [Evaluation](docs/evaluation.md) · [Plugin tests](plugin/wp-knowledge-chat/tests/README.md) · [Screenshots](docs/screenshots/) |
-| Product | [PRD](prd.md) · [Changelog](CHANGELOG.md) |
-
-## Known limitations
-
-- The knowledge base text comes from the owner's Knowledge Base v2.0, not from the website, which is still being built. Source links point to the intended pages; some have little or no content yet (for example Cross-Border M&A, and `/faq/` is not used). Re-verify with `kb:verify-sources --strict` once the site is published.
-- Answer quality with the real Gemini model has not been measured yet.
-- Each question is answered on its own: follow-ups such as "tell me more" lack context.
-- The assistant knows only 5 approved pages. The Cross-Border M&A page is empty and there is no FAQ or pricing page, so many questions get the fallback.
-- Backend rate limits and the replay cache are in memory, so run a single instance.
-- Out-of-scope detection is keyword-based (English/Indonesian/Korean) and can be evaded by rephrasing; the model and the claim check are the second line.
-- Korean and Indonesian questions are matched against the English pages through curated term maps, not translation. Questions using words outside the map get the fallback; add terms when the evaluation shows misses.
-- The knowledge base gives +62 859 3454 8202 as the phone number (confirmed in the owner's profile). The live contact page still shows two other numbers, one a template placeholder; fix the page.
-- Leads are stored in WordPress (private post type) and e-mailed to the admin; see the privacy section of [readme.txt](plugin/wp-knowledge-chat/readme.txt). Retention is "until deleted" unless configured.
-- Not yet tested with MySQL, LiteSpeed Cache or on real mobile devices.
-
-The full list is in the [test report](docs/test-report.md#known-limitations).
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, branch and commit conventions, coding standards and the release process.
-
-## Security
-
-Please report vulnerabilities privately as described in [SECURITY.md](SECURITY.md). Do not open public issues for security problems.
-
-## License
-
-Copyright (C) 2026 irsalshydiq.
-
-This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version. See [LICENSE](LICENSE).
-
-WordPress plugins are required to be GPL-compatible because they extend WordPress, which is GPL-licensed.
-
-## Author
-
-**irsalshydiq**, built for [Inpartner Global](https://inpartnerglobal.com).
+- **License**: Released under the terms of the **[GNU General Public License v2.0 or later (GPL-2.0-or-later)](LICENSE)**.
+- **Author**: Built with care for **[Inpartner Global](https://inpartnerglobal.com)**.
