@@ -153,11 +153,11 @@ try {
 			const l = cs('.wkc-launcher');
 			return { launcherBg: l.backgroundColor, launcherRadius: l.borderRadius, launcherBorder: l.borderTopColor };
 		})()`);
-		assert.equal(styles.launcherBg, 'rgb(6, 50, 50)');
+		assert.equal(styles.launcherBg, 'rgb(21, 101, 192)');
 		assert.equal(styles.launcherRadius, '50%');
 		assert.equal(styles.launcherBorder, 'rgb(249, 214, 124)');
 		await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 1366 - 16 - 29, y: 900 - 16 - 29 });
-		assert.equal(await evaluate("getComputedStyle(document.querySelector('.wkc-launcher')).backgroundColor"), 'rgb(6, 50, 50)', 'hover keeps brand colour');
+		assert.equal(await evaluate("getComputedStyle(document.querySelector('.wkc-launcher')).backgroundColor"), 'rgb(21, 101, 192)', 'hover keeps brand colour');
 		await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 10, y: 400 });
 	});
 
@@ -185,7 +185,7 @@ try {
 			const cs = (sel) => getComputedStyle(document.querySelector(sel));
 			return { send: cs('.wkc-send').backgroundColor, sendColor: cs('.wkc-send').color, close: cs('.wkc-close').borderTopColor, chipWrap: cs('.wkc-chip').whiteSpace, input: cs('#wkc-input').borderTopColor };
 		})()`);
-		assert.equal(st.send, 'rgb(6, 50, 50)');
+		assert.equal(st.send, 'rgb(21, 101, 192)');
 		assert.equal(st.sendColor, 'rgb(255, 255, 255)');
 		assert.equal(st.close, 'rgba(255, 255, 255, 0.4)');
 		assert.equal(st.chipWrap, 'normal');
