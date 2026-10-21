@@ -134,7 +134,9 @@
 			leadSubmit: '요청 보내기',
 			leadCancel: '취소',
 			leadSuccess: '감사합니다! Inpartner 자문팀으로 상담 요청이 전송되었습니다.',
-			leadError: '올바른 성함과 이메일 주소를 입력해 주세요.'
+			leadError: '올바른 성함과 이메일 주소를 입력해 주세요.',
+			leadFailed: '요청을 보낼 수 없습니다. 잠시 후 다시 시도하시거나 연락처 링크를 이용해 주세요.',
+			leadPrivacy: '입력하신 정보는 본 상담 문의에 답변하기 위한 목적으로만 Inpartner 자문팀에 전달됩니다.'
 		}
 	};
 

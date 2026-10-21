@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- Chat widget: added missing Korean strings `leadFailed` and `leadPrivacy` in `STRINGS.ko` to prevent `undefined` error messages and ensure privacy consent disclosure on the consultation form.
+- Eval runner: supported dynamic `OpenRouterClient` in `backend/eval/run-eval.ts` when `llmProvider` is `openrouter`, and ensured `openrouterApiKey` is scrubbed from evaluation logs and reports.
+
 ## [0.2.2] - 2026-10-16
 
 WordPress plugin-guideline pass. Details: [docs/wp-compliance.md](docs/wp-compliance.md).
