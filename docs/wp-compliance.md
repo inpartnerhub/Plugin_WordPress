@@ -1,12 +1,12 @@
-# WordPress plugin-guideline review (v0.2.3)
+# WordPress plugin-guideline review (v0.5.0)
 
-Scope: `plugin/wp-knowledge-chat`, distributed **privately** to Inpartner (ZIP upload), not through WordPress.org. The reference is the WordPress Plugin Handbook (security, enqueueing, i18n, uninstall), the WordPress Coding Standards sniffs in `tests/phpcs.xml.dist`, and the WordPress **Plugin Check** tool. Reviewed 2026-10-21 against WordPress 7.1.3 / PHP 8.5.
+Scope: `plugin/wp-knowledge-chat`, distributed **privately** to Inpartner (ZIP upload), not through WordPress.org. The reference is the WordPress Plugin Handbook (security, enqueueing, i18n, uninstall), the WordPress Coding Standards sniffs in `tests/phpcs.xml.dist`, and the WordPress **Plugin Check** tool. Reviewed 2026-10-22 against WordPress 7.1.3 / PHP 8.5.
 
 ## Already compliant
 
 Capability and nonce checks on every admin action, escaped output, sanitised input, prepared SQL, `defined( 'ABSPATH' )` in every file, assets enqueued with a version, `wp_remote_*` for HTTP, secrets in `wp-config.php`, `uninstall.php`, privacy exporter/eraser, no development files in the ZIP.
 
-## Changed in 0.2.3
+## Changed in 0.5.0
 
 | # | Finding | Change |
 |---|---|---|

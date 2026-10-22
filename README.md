@@ -7,7 +7,7 @@
 **Inpartner AI Business Consultation Assistant**: A production-hardened WordPress plugin and lightweight Node.js AI backend designed to provide grounded, source-attributed business consultation answers from the authoritative public content of [inpartnerglobal.com](https://inpartnerglobal.com) using Retrieval-Augmented Generation (RAG).
 
 <p align="center">
-  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.2.3"><img src="https://img.shields.io/badge/Release-v0.2.3-1565C0?style=for-the-badge&logo=github&logoColor=white" alt="Version 0.2.3"></a>
+  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.5.0"><img src="https://img.shields.io/badge/Release-v0.5.0-0076db?style=for-the-badge&logo=github&logoColor=white" alt="Version 0.5.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--2.0--or--later-blue?style=for-the-badge" alt="License"></a>
   <img src="https://img.shields.io/badge/WordPress-6.4%2B%20(tested%207.1.3)-21759b?style=for-the-badge&logo=wordpress&logoColor=white" alt="WordPress">
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777bb4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
@@ -26,7 +26,7 @@
 ---
 
 > [!IMPORTANT]
-> **Release Status:** Current stable release is **[v0.2.3](https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.2.3)**.
+> **Release Status:** Current stable release is **[v0.5.0](https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.5.0)**.
 > All automated tests pass: **137/137 backend tests**, **131/131 WordPress PHPUnit tests (688 assertions)**, **35/35 widget unit tests**, **16/16 real-browser E2E checks with 0 axe-core WCAG 2.1 AA violations**, and **0 PHPCS coding standard findings**.
 
 ---
@@ -134,7 +134,7 @@
 ```
 .
 ├── plugin/wp-knowledge-chat/       # WordPress plugin source code
-│   ├── wp-knowledge-chat.php       # Bootstrap file, version 0.2.3 constants
+│   ├── wp-knowledge-chat.php       # Bootstrap file, version 0.5.0 constants
 │   ├── includes/                   # PHP classes (Settings, Admin, REST, Analytics, Sync)
 │   ├── assets/                     # Frontend assets (chat-widget.js, chat-widget.css, admin.css)
 │   ├── languages/                  # Translation catalogs (.pot, .po, .mo, .l10n.php for ID & KO)
@@ -199,7 +199,7 @@ All tests can be executed locally with a single command:
 ./scripts/test-all.sh
 ```
 
-### Verified Test Results (Release v0.2.3)
+### Verified Test Results (Release v0.5.0)
 
 | Test Suite | Command | Result | Details |
 |---|---|:---:|---|
@@ -253,7 +253,7 @@ RATE_LIMIT_PER_CLIENT_PER_MINUTE=8
 Summary steps (detailed step-by-step checklist in [docs/deployment.md](docs/deployment.md)):
 
 1. **Deploy Backend**: Deploy `backend/` to an HTTPS Node.js runtime or serverless host (e.g. Netlify Functions) with environment variables set.
-2. **Build Plugin Package**: Run `./scripts/package-plugin.sh` to generate the production ZIP (`dist/wp-knowledge-chat-0.2.3.zip`).
+2. **Build Plugin Package**: Run `./scripts/package-plugin.sh` to generate the production ZIP (`dist/wp-knowledge-chat-0.5.0.zip`).
 3. **Install on WordPress**: Upload the ZIP via **Plugins → Add New → Upload Plugin** and activate.
 4. **Configure Constants**: Add `WP_KNOWLEDGE_CHAT_BACKEND_URL` and `WP_KNOWLEDGE_CHAT_SHARED_SECRET` to `wp-config.php`.
 5. **Verify**: Click **Test Connection** in the admin dashboard and test a grounded question in the chat widget.

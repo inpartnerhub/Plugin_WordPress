@@ -1,13 +1,13 @@
-# Test report: WP Knowledge Chat (v0.2.3 Production Release)
+# Test report: WP Knowledge Chat (v0.5.0 Production Release)
 
-> **v0.2.3 Verification Update (2026-10-21):** Full automated release qualification passed across all test layers:
+> **v0.5.0 Verification Update (2026-10-22):** Full automated release qualification passed across all test layers:
 > - **Backend tests (`npm test`)**: 137 / 137 tests passed across 35 test suites (covering OpenRouter, Gemini, Failover, PII scrubbing, BM25 Korean/Indonesian/English retrieval, answerability gates, and security payloads).
 > - **Widget unit tests (`npm run test:widget`)**: 35 / 35 passed across 7 test suites (structure, accessibility, error states, Korean lead form, safe rendering).
 > - **WordPress plugin tests (`vendor/bin/phpunit`)**: 131 tests, 688 assertions passed (100%).
 > - **Coding standards (`vendor/bin/phpcs`)**: 100% clean (0 errors, 0 warnings across all PHP files).
 > - **End-to-End browser checks (`tests/e2e/run.sh`)**: 16 / 16 passed, 0 axe-core WCAG 2.1 AA violations on both Desktop and Mobile viewports.
 > - **End-to-End HTTP checks**: 12 / 12 passed.
-> - **Package lifecycle check (`scripts/package-plugin.sh` + `package-check.sh`)**: passed for `wp-knowledge-chat-0.2.3.zip` with verified SHA-256.
+> - **Package lifecycle check (`scripts/package-plugin.sh` + `package-check.sh`)**: passed for `wp-knowledge-chat-0.5.0.zip` with verified SHA-256.
 
 > **Superseded for 0.2.1:** current results, environment and evaluation are in [audit-2026-10-15.md §4–5](audit-2026-10-15.md#4-tests-executed-this-branch-2026-10-15). This file records the historical 0.1.0/0.2.0 runs.
 

@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 ## Inpartner AI Business Consultation Assistant
 
-**Versi:** 2.0 (Release v0.2.3 Production-Hardened)  
-**Status:** Released (v0.2.3 Staging/Production Ready)  
+**Versi:** 2.0 (Release v0.5.0 Production-Hardened)  
+**Status:** Released (v0.5.0 Staging/Production Ready)  
 **Target Website:** https://inpartnerglobal.com  
 **Platform:** WordPress Plugin  
 **Nama Plugin:** WP Knowledge Chat  
@@ -59,7 +59,7 @@ Pengunjung yang ingin mengetahui layanan Inpartner dan mencari cara untuk memula
 
 Persona tersebut merupakan asumsi awal yang perlu divalidasi dengan tim Inpartner dan data pengguna aktual.
 
-## 5. Scope dan Status Implementasi (v0.2.3)
+## 5. Scope dan Status Implementasi (v0.5.0)
 
 ### Fitur Utama yang Telah Selesai (Delivered)
 
