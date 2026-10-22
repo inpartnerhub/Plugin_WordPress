@@ -1,10 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/**/*.ts": {
+    "api/*.js": {
       "includeFiles": "data/kb.json",
       "maxDuration": 60
     }
   }
 }
-
