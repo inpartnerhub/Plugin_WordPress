@@ -2058,7 +2058,7 @@ var kb_default = {
   ]
 };
 
-// backend/api/_app.ts
+// backend/src/vercel/_app.ts
 var appPromise = null;
 async function getApp() {
   if (appPromise) return appPromise;
@@ -2195,7 +2195,7 @@ async function handleWebRequest(webRequest, listener) {
   });
 }
 
-// backend/api/health.ts
+// backend/src/vercel/health.ts
 var config = {
   api: {
     bodyParser: false
@@ -2208,17 +2208,30 @@ async function handler(req, res) {
       const nodeReq = req;
       const qs = nodeReq.url && nodeReq.url.includes("?") ? nodeReq.url.slice(nodeReq.url.indexOf("?")) : "";
       nodeReq.url = `/api/health${qs}`;
-      return app(nodeReq, res);
+      return await new Promise((resolve, reject) => {
+        res.on("finish", resolve);
+        res.on("close", resolve);
+        res.on("error", reject);
+        try {
+          app(nodeReq, res);
+        } catch (e) {
+          reject(e);
+        }
+      });
     }
     return await handleWebRequest(req, app);
   } catch (err) {
+    console.error("Vercel Function Error (/api/health):", err);
+    const msg = err instanceof Error ? err.message : String(err);
     if (res && typeof res.setHeader === "function") {
-      res.statusCode = 500;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ error: { code: "internal_error", message: "Internal server error" } }));
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ error: { code: "internal_error", message: msg } }));
+      }
       return;
     }
-    return new Response(JSON.stringify({ error: { code: "internal_error", message: "Internal server error" } }), {
+    return new Response(JSON.stringify({ error: { code: "internal_error", message: msg } }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
