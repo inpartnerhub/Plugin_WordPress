@@ -1,16 +1,43 @@
+"use strict";
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// backend/src/vercel/health.ts
+var health_exports = {};
+__export(health_exports, {
+  config: () => config,
+  default: () => handler
+});
+module.exports = __toCommonJS(health_exports);
+
 // backend/src/lib/auth.ts
-import { createHmac, timingSafeEqual } from "node:crypto";
+var import_node_crypto = require("node:crypto");
 function computeSignature(secret, timestamp, nonce, clientId, rawBody) {
-  return createHmac("sha256", secret).update(`${timestamp}.${nonce}.${clientId}.${rawBody}`).digest("hex");
+  return (0, import_node_crypto.createHmac)("sha256", secret).update(`${timestamp}.${nonce}.${clientId}.${rawBody}`).digest("hex");
 }
 function safeEqual(a, b) {
   const left = Buffer.from(a, "utf8");
   const right = Buffer.from(b, "utf8");
   if (left.length !== right.length) {
-    timingSafeEqual(left, left);
+    (0, import_node_crypto.timingSafeEqual)(left, left);
     return false;
   }
-  return timingSafeEqual(left, right);
+  return (0, import_node_crypto.timingSafeEqual)(left, right);
 }
 var SignatureVerifier = class {
   constructor(secret, maxSkewSeconds, now = () => Date.now(), maxEntries = 5e4) {
@@ -1174,10 +1201,10 @@ function handleHealth(req, res, deps) {
 }
 
 // backend/src/services/knowledge-base.ts
-import { createHash } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+var import_node_crypto2 = require("node:crypto");
+var import_promises = require("node:fs/promises");
+var import_node_os = require("node:os");
+var import_node_path = require("node:path");
 var DOCUMENT_CATEGORIES = ["home", "about", "service", "contact", "faq", "article"];
 var LIMITS = {
   idMax: 128,
@@ -1255,7 +1282,7 @@ function validateDocument(input, allowedHosts) {
   };
 }
 function documentFingerprint(doc) {
-  return createHash("sha256").update(JSON.stringify([doc.title, doc.url, doc.text, doc.category, doc.updated_at])).digest("hex");
+  return (0, import_node_crypto2.createHash)("sha256").update(JSON.stringify([doc.title, doc.url, doc.text, doc.category, doc.updated_at])).digest("hex");
 }
 function splitLongLine(line, maxLen) {
   const pieces = [];
@@ -1373,7 +1400,7 @@ var KnowledgeBaseStore = class {
     return { version: 1, generated_at: now.toISOString(), documents: this.all() };
   }
 };
-var FALLBACK_TMP_PATH = join(tmpdir(), "wkc-kb.json");
+var FALLBACK_TMP_PATH = (0, import_node_path.join)((0, import_node_os.tmpdir)(), "wkc-kb.json");
 function isMissingFile(err) {
   return typeof err === "object" && err !== null && err.code === "ENOENT";
 }
@@ -1381,10 +1408,10 @@ async function readKnowledgeBaseFile(path) {
   const candidatePaths = [
     .../* @__PURE__ */ new Set([
       path,
-      join(process.cwd(), path),
-      join(process.cwd(), "backend", path),
-      join(process.cwd(), "data/kb.json"),
-      join(process.cwd(), "backend/data/kb.json"),
+      (0, import_node_path.join)(process.cwd(), path),
+      (0, import_node_path.join)(process.cwd(), "backend", path),
+      (0, import_node_path.join)(process.cwd(), "data/kb.json"),
+      (0, import_node_path.join)(process.cwd(), "backend/data/kb.json"),
       FALLBACK_TMP_PATH
     ])
   ];
@@ -1392,7 +1419,7 @@ async function readKnowledgeBaseFile(path) {
   for (const candidate of candidatePaths) {
     let raw;
     try {
-      raw = await readFile(candidate, "utf8");
+      raw = await (0, import_promises.readFile)(candidate, "utf8");
     } catch (err) {
       lastError = err;
       if (isMissingFile(err)) continue;
@@ -1403,10 +1430,10 @@ async function readKnowledgeBaseFile(path) {
   throw lastError;
 }
 async function writeAtomic(path, data) {
-  await mkdir(dirname(path), { recursive: true });
+  await (0, import_promises.mkdir)((0, import_node_path.dirname)(path), { recursive: true });
   const tmp = `${path}.${process.pid}.${Date.now()}.tmp`;
-  await writeFile(tmp, JSON.stringify(data, null, 2) + "\n", { encoding: "utf8", mode: 416 });
-  await rename(tmp, path);
+  await (0, import_promises.writeFile)(tmp, JSON.stringify(data, null, 2) + "\n", { encoding: "utf8", mode: 416 });
+  await (0, import_promises.rename)(tmp, path);
 }
 async function writeKnowledgeBaseFile(path, data) {
   try {
@@ -1996,8 +2023,93 @@ function createLogger(level, sink = (line) => process.stdout.write(line + "\n"))
   return { debug: log("debug"), info: log("info"), warn: log("warn"), error: log("error") };
 }
 
+// backend/data/kb.json
+var kb_default = {
+  version: 1,
+  generated_at: "2026-10-16T07:53:22.563Z",
+  documents: [
+    {
+      id: "page-1052-cross-border-ma",
+      title: "Cross-Border & Technology Advisory",
+      url: "https://inpartnerglobal.com/cross-border-ma-advisory/",
+      text: "Official Service Portfolio: Cross-Border & Technology Advisory, Human Capital & Organization, industry expertise and geographic coverage.\nGroup 4: Cross-Border & Technology Advisory\n- Cross-Border Partnership\n- Joint Venture (JV)\n- Technology Transfer\n- Knowledge Transfer\n- International Business Development\nGroup 5: Human Capital & Organization\n- Executive Search / Head Hunting\n- Organization Development\n- Talent & Leadership Advisory\n- Training & Capacity Building\nExecutive Search / Head Hunting is a client-facing service for sourcing leadership for client organizations.\nIndustry expertise:\nINPARTNER combines 20+ years of strategic advisory experience with expertise across these sectors. This describes strategic advisory experience, not the age of the current legal entity.\n- Banking & Other Financial Services\n- Capital Markets\n- Manufacturing & Industrial Engineering\n- Natural Resources: Plantation, Mining, Oil & Gas, and related services\n- Technology Development: AI, Data Center, Semiconductor, Biotechnology\n- Pharmaceutical & Healthcare\n- Consumer Staples to Consumer Discretionary, including Tourism\n- Renewable Energy & Sustainability Business\nThematic project and market experience (industries we serve; a theme is not a separate service):\nRegional Bank Equity; Information Technology & Data Center; Alternative Investment; Energy Security; Oil, Gas, Mining and Renewable Energy; Healthcare & Wellness; Sustainability & Transportation in Urban Mobility; Company Restructuring; Pre-IPO, IPO, M&A and Rights Issue; ESG Strategy, ESG Rating and Carbon Economic Value; Investment & Property Development; Food & Water Security.\nGeographic coverage: Indonesia, Belgium, Australia, China, South Korea, Malaysia, United Arab Emirates (including Abu Dhabi), South Africa, Switzerland, Turkey, Spain, Singapore, Qatar, and Saudi Arabia.",
+      category: "service",
+      status: "publish",
+      updated_at: "2026-10-16T00:00:00.000Z"
+    },
+    {
+      id: "page-196-home",
+      title: "INPARTNER \u2014 PT Inpartner Optima Integra",
+      url: "https://inpartnerglobal.com/",
+      text: "INPARTNER \u2014 PT Inpartner Optima Integra\nLegal name: PT Inpartner Optima Integra.\nBrand: INPARTNER. Public name: Inpartner Consulting. Country: Indonesia.\nPrimary industry and positioning: Business & Management Consulting.\nTagline: Unleash The Power Of Your Business.\nVision: The Most Trusted Consulting Partner To help create positive and endure changes in Local and Global Coverage.\nPositioning statement: Bridging Markets, Investment & Business Opportunities.\nINPARTNER is a Business & Management Consulting firm that helps businesses navigate markets, identify opportunities, build strategic partnerships, and expand across markets and industries.\nShort description: INPARTNER is a Business & Management Consulting firm that bridges markets, investment, and business opportunities.\nClient-facing description: PT Inpartner Optima Integra, operating under the INPARTNER / Inpartner Consulting brand, is a Business & Management Consulting firm supporting businesses through Strategy & Corporate Advisory, Investment & Project Advisory, Market Access & Business Expansion, Cross-Border & Technology Advisory, and Human Capital & Organization.\nExpanded description: INPARTNER helps businesses navigate opportunities, overcome complexities, and build meaningful growth across markets and industries. Its capabilities cover corporate strategy, business transformation, M&A, IPO and capital market advisory, corporate restructuring, investment advisory, feasibility studies, commercial and financial analysis, market research, market entry, business matching, cross-border partnerships, joint ventures, technology and knowledge transfer, executive search, organization development, talent and leadership advisory, and training and capacity building.\nCompany history:\nThe business originated in 2009, with an initial focus on market access, financing, technology, productivity and capacity building for MSMEs in East Java.\nIn 2019 it transformed into business and management consulting services for middle-sized and large corporations. The current consulting model was established and transformed in 2019.\nCompany values:\n- Integrity: Building trust through transparency.\n- Connectivity: Bridging businesses, markets and opportunities.\n- Client-Centric: Delivering solutions that create value.\n- Global-Local: Combining global perspective with local insight.\n- Sustainable Impact: Creating long-term growth and value.\nCompetitive advantages (what makes INPARTNER different):\n- Local Insight: Deep understanding of Indonesia's business landscape.\n- Strategic Network: Access to corporate, government, and institutional stakeholders.\n- Cross-Border Bridge: Connecting international companies with local opportunities.\n- Proven Delivery: Quality consulting and advisory track record since 2019.\n- Industry Expertise: 20+ years of strategic advisory experience across key sectors. This describes strategic advisory experience, not the age of the current legal entity.\n- Strong Talent: Business, strategy, and financial analysis capabilities.",
+      category: "home",
+      status: "publish",
+      updated_at: "2026-10-16T00:00:00.000Z"
+    },
+    {
+      id: "page-223-about",
+      title: "About INPARTNER (PT Inpartner Optima Integra)",
+      url: "https://inpartnerglobal.com/about-us/",
+      text: "About INPARTNER (PT Inpartner Optima Integra)\nA Strategic Partner for Growth, Market Expansion, and Transformation.\nINPARTNER is a Business & Management Consulting firm that supports businesses in market access, financing, technology, productivity, capacity building, business transformation, market expansion, investment, and strategic partnerships.\nINPARTNER 5-Stage Consulting Approach:\nStage 1: Understand. Understand client objectives, challenges, and requirements.\nStage 2: Analyze. Assess market, industry, financial, and regulatory context.\nStage 3: Identify. Identify opportunities, partners, investors, and solutions.\nStage 4: Connect. Facilitate introductions, negotiations, and strategic partnerships.\nStage 5: Execute & Grow. Support implementation, market entry, and business expansion.\nThe approach starts from the client's business problem, then identifies the relevant capability and next step.\nClient and project track record (company-stated figures from the 2026 company profile):\n- Project portfolio: 90+ projects.\n- Corporate, private and state-owned clients: 70+ clients.\n- Foreign-related clients: 10+ clients.\nThese are company-stated figures, not exact counts.\nBusiness & Investment content topics:\nINPARTNER's content covers Business & Investment topics with global and local (Indonesia) scope: macroeconomics, stock market, cryptocurrency, commodities, IPO, M&A, monetary policy, fiscal policy and geopolitical developments. A content topic is not an official service. For example, cryptocurrency can be a content topic without INPARTNER offering cryptocurrency investment services.",
+      category: "about",
+      status: "publish",
+      updated_at: "2026-10-16T00:00:00.000Z"
+    },
+    {
+      id: "page-445-contact",
+      title: "Contact INPARTNER",
+      url: "https://inpartnerglobal.com/contact/",
+      text: "Official Contact Information: PT Inpartner Optima Integra (INPARTNER / Inpartner Consulting)\n- Website: https://inpartner.id/\n- Email: corporatesecretary@inpartner.id\n- Phone: +62 859 3454 8202\n- Office: Pakuwon Tower Unit J 10th Floor, Raya Casablanca Street, Kav. 88, South Jakarta, Indonesia\n- LinkedIn: Inpartner Consulting / INPARTNER\nFor a specific advisory proposal or consultation, contact INPARTNER through these official channels.\nWhich service fits which need:\n- Business strategy or corporate direction: Strategy & Corporate Advisory.\n- Business transformation: Strategy & Corporate Advisory.\n- M&A: Strategy & Corporate Advisory.\n- IPO or capital market: Strategy & Corporate Advisory.\n- Corporate restructuring: Strategy & Corporate Advisory.\n- Investment opportunity assessment: Investment & Project Advisory.\n- Feasibility study: Investment & Project Advisory.\n- Commercial or financial analysis: Investment & Project Advisory.\n- Market research or intelligence: Market Access & Business Expansion.\n- Market entry or expansion: Market Access & Business Expansion.\n- Business matching or partner identification: Market Access & Business Expansion.\n- Cross-border partnership or JV: Cross-Border & Technology Advisory.\n- Technology or knowledge transfer: Cross-Border & Technology Advisory.\n- Executive search or leadership: Human Capital & Organization.\n- Organization development or training: Human Capital & Organization.",
+      category: "contact",
+      status: "publish",
+      updated_at: "2026-10-16T00:00:00.000Z"
+    },
+    {
+      id: "page-628-cross-border-market-entry",
+      title: "Cross Border Market Entry Advisor",
+      url: "https://inpartnerglobal.com/cross-border-market-entry-advisor/",
+      text: "Official Service Portfolio: Strategy & Corporate Advisory, and Market Access & Business Expansion.\nGroup 1: Strategy & Corporate Advisory\n- Corporate Strategy\n- Business Transformation\n- M&A Advisory\n- IPO / Capital Market Advisory\n- Corporate Restructuring\nGroup 3: Market Access & Business Expansion\n- Market Research & Intelligence\n- Market Entry Strategy\n- Business Matching\n- Partner / Distributor Identification\n- Market Expansion\nCross Border Market Entry Advisor\nNavigate New Markets. Enter with Confidence.\nEntering a new market requires more than identifying an opportunity. It requires a clear understanding of the market, regulatory environment, competitive landscape, and the right path to entry.\nInpartner Global works with companies to evaluate, structure, and execute cross-border market entry strategies with greater clarity and confidence.\nMarket Assessment: Evaluate market attractiveness, demand, competition, and growth opportunities.\nEntry Strategy: Identify the right market entry model, from partnerships and distribution to direct investment.\nLocal Partnership: Identify and assess potential local partners, distributors, and strategic relationships.\nMarket Expansion: Develop strategies to establish, scale, and strengthen your presence in the new market.\nOur approach to cross border expansion: Research & Mapping, Evaluation & Shortlisting, Engagement & Negotiation, Onboarding & Growth.\nWho we support: companies entering new international markets, businesses expanding across Southeast Asia, foreign companies entering Indonesia, companies seeking local strategic partners, and investors evaluating new market opportunities.\nMarket focus: Indonesia, a gateway to Southeast Asia's growing consumer and business economy; Southeast Asia; and cross-border opportunities.",
+      category: "service",
+      status: "publish",
+      updated_at: "2026-10-16T00:00:00.000Z"
+    },
+    {
+      id: "page-918-distribution-partner-sourcing",
+      title: "Distribution Partner Sourcing Advisory",
+      url: "https://inpartnerglobal.com/distribution-partner-sourcing-advisory/",
+      text: "Official Service Portfolio: Investment & Project Advisory, and Distribution Partner Sourcing Advisory.\nGroup 2: Investment & Project Advisory\n- Feasibility Studies (FS)\n- Investment Advisory\n- Commercial & Financial Analysis\n- Investment Opportunity Assessment\n- Project Development\nDistribution Partner Sourcing Advisory\nFind the Right Partners. Build a Stronger Presence.\nThe right distribution partner can shorten your time to market, reduce operational risks, and create long-term value. INPARTNER brings market insight and a structured approach to help you find partners that align with your business goals.\nPartner Identification: Source and shortlist relevant distributors, resellers, and channel partners.\nDue Diligence: Assess credibility, capabilities, and commercial alignment with your goals.\nNegotiation Support: Support commercial terms, agreements, and partnership structure.\nOngoing Support: Monitor performance and provide guidance for a successful partnership.\nOur approach, from search to strong partnerships: Assess (understand the market, opportunity, and potential risks), Strategize (define the right entry model and strategic priorities), Connect (identify relevant local partners and business opportunities), Execute (support the transition from market strategy to market presence).\nBuilt for companies entering new markets, businesses expanding across Southeast Asia, foreign companies entering Indonesia, companies seeking local distribution partners, and investors evaluating new market opportunities.",
+      category: "service",
+      status: "publish",
+      updated_at: "2026-10-16T00:00:00.000Z"
+    }
+  ]
+};
+
+// backend/src/vercel/_app.ts
+var appPromise = null;
+async function getApp() {
+  if (appPromise) return appPromise;
+  appPromise = (async () => {
+    const config2 = loadConfig();
+    const logger = createLogger(config2.logLevel);
+    const store = new KnowledgeBaseStore(config2.allowedSourceHosts);
+    try {
+      const data = await readKnowledgeBaseFile(config2.kbPath);
+      const result = store.loadFrom(data);
+      logger.info("kb_loaded", { documents: result.loaded, rejected: result.rejected });
+    } catch (err) {
+      logger.warn("kb_load_failed_using_bundled_kb", { error: err instanceof Error ? err.name : "unknown" });
+      const result = store.loadFrom(kb_default);
+      logger.info("kb_loaded_from_bundle", { documents: result.loaded, rejected: result.rejected });
+    }
+    const llm = createLlmClient(config2);
+    return createApp({ config: config2, store, llm, logger, indexingEnabled: false });
+  })();
+  return appPromise;
+}
+
 // backend/src/netlify/adapter.ts
-import { Readable, Writable } from "node:stream";
+var import_node_stream = require("node:stream");
 async function handleWebRequest(webRequest, listener) {
   const urlObj = new URL(webRequest.url);
   let pathname = urlObj.pathname;
@@ -2010,7 +2122,7 @@ async function handleWebRequest(webRequest, listener) {
     rawHeaders[key.toLowerCase()] = val;
   });
   const bodyBuffer = Buffer.from(await webRequest.arrayBuffer());
-  const reqStream = new Readable({
+  const reqStream = new import_node_stream.Readable({
     read() {
       this.push(bodyBuffer.length > 0 ? bodyBuffer : null);
       if (bodyBuffer.length > 0) {
@@ -2028,7 +2140,7 @@ async function handleWebRequest(webRequest, listener) {
     const responseHeaders = new Headers();
     const chunks = [];
     let headersSent = false;
-    const resStream = new Writable({
+    const resStream = new import_node_stream.Writable({
       write(chunk, _encoding, callback) {
         chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
         callback();
@@ -2110,49 +2222,49 @@ async function handleWebRequest(webRequest, listener) {
   });
 }
 
-// backend/src/netlify/api.ts
-var appPromise = null;
-async function getApp() {
-  if (appPromise) return appPromise;
-  appPromise = (async () => {
-    const config2 = loadConfig();
-    const logger = createLogger(config2.logLevel);
-    const store = new KnowledgeBaseStore(config2.allowedSourceHosts);
-    try {
-      const data = await readKnowledgeBaseFile(config2.kbPath);
-      const result = store.loadFrom(data);
-      logger.info("kb_loaded", { documents: result.loaded, rejected: result.rejected });
-    } catch (err) {
-      logger.warn("kb_load_failed", { error: err instanceof Error ? err.name : "unknown" });
-    }
-    const llm = createLlmClient(config2);
-    logger.warn("serverless_single_instance_assumptions", { index: "disabled" });
-    return createApp({ config: config2, store, llm, logger, indexingEnabled: false });
-  })();
-  return appPromise;
-}
-async function handler(req) {
+// backend/src/vercel/health.ts
+var config = {
+  api: {
+    bodyParser: false
+  }
+};
+async function handler(req, res) {
   try {
-    const listener = await getApp();
-    return await handleWebRequest(req, listener);
-  } catch (err) {
-    if (err instanceof ConfigError) {
-      return new Response(JSON.stringify({ error: { code: "config_error", message: err.message } }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
+    const app = await getApp();
+    if (res && typeof res.setHeader === "function") {
+      const nodeReq = req;
+      const qs = nodeReq.url && nodeReq.url.includes("?") ? nodeReq.url.slice(nodeReq.url.indexOf("?")) : "";
+      nodeReq.url = `/api/health${qs}`;
+      return await new Promise((resolve, reject) => {
+        res.on("finish", resolve);
+        res.on("close", resolve);
+        res.on("error", reject);
+        try {
+          app(nodeReq, res);
+        } catch (e) {
+          reject(e);
+        }
       });
     }
-    return new Response(JSON.stringify({ error: { code: "internal_error", message: "Internal server error" } }), {
+    return await handleWebRequest(req, app);
+  } catch (err) {
+    console.error("Vercel Function Error (/api/health):", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    if (res && typeof res.setHeader === "function") {
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ error: { code: "internal_error", message: msg } }));
+      }
+      return;
+    }
+    return new Response(JSON.stringify({ error: { code: "internal_error", message: msg } }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
   }
 }
-var config = {
-  path: ["/api/*", "/.netlify/functions/api/*"],
-  preferStatic: true
-};
-export {
-  config,
-  handler as default
-};
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  config
+});

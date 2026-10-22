@@ -1,16 +1,43 @@
+"use strict";
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// backend/src/vercel/health.ts
+var health_exports = {};
+__export(health_exports, {
+  config: () => config,
+  default: () => handler
+});
+module.exports = __toCommonJS(health_exports);
+
 // backend/src/lib/auth.ts
-import { createHmac, timingSafeEqual } from "node:crypto";
+var import_node_crypto = require("node:crypto");
 function computeSignature(secret, timestamp, nonce, clientId, rawBody) {
-  return createHmac("sha256", secret).update(`${timestamp}.${nonce}.${clientId}.${rawBody}`).digest("hex");
+  return (0, import_node_crypto.createHmac)("sha256", secret).update(`${timestamp}.${nonce}.${clientId}.${rawBody}`).digest("hex");
 }
 function safeEqual(a, b) {
   const left = Buffer.from(a, "utf8");
   const right = Buffer.from(b, "utf8");
   if (left.length !== right.length) {
-    timingSafeEqual(left, left);
+    (0, import_node_crypto.timingSafeEqual)(left, left);
     return false;
   }
-  return timingSafeEqual(left, right);
+  return (0, import_node_crypto.timingSafeEqual)(left, right);
 }
 var SignatureVerifier = class {
   constructor(secret, maxSkewSeconds, now = () => Date.now(), maxEntries = 5e4) {
@@ -1174,10 +1201,10 @@ function handleHealth(req, res, deps) {
 }
 
 // backend/src/services/knowledge-base.ts
-import { createHash } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+var import_node_crypto2 = require("node:crypto");
+var import_promises = require("node:fs/promises");
+var import_node_os = require("node:os");
+var import_node_path = require("node:path");
 var DOCUMENT_CATEGORIES = ["home", "about", "service", "contact", "faq", "article"];
 var LIMITS = {
   idMax: 128,
@@ -1255,7 +1282,7 @@ function validateDocument(input, allowedHosts) {
   };
 }
 function documentFingerprint(doc) {
-  return createHash("sha256").update(JSON.stringify([doc.title, doc.url, doc.text, doc.category, doc.updated_at])).digest("hex");
+  return (0, import_node_crypto2.createHash)("sha256").update(JSON.stringify([doc.title, doc.url, doc.text, doc.category, doc.updated_at])).digest("hex");
 }
 function splitLongLine(line, maxLen) {
   const pieces = [];
@@ -1373,7 +1400,7 @@ var KnowledgeBaseStore = class {
     return { version: 1, generated_at: now.toISOString(), documents: this.all() };
   }
 };
-var FALLBACK_TMP_PATH = join(tmpdir(), "wkc-kb.json");
+var FALLBACK_TMP_PATH = (0, import_node_path.join)((0, import_node_os.tmpdir)(), "wkc-kb.json");
 function isMissingFile(err) {
   return typeof err === "object" && err !== null && err.code === "ENOENT";
 }
@@ -1381,10 +1408,10 @@ async function readKnowledgeBaseFile(path) {
   const candidatePaths = [
     .../* @__PURE__ */ new Set([
       path,
-      join(process.cwd(), path),
-      join(process.cwd(), "backend", path),
-      join(process.cwd(), "data/kb.json"),
-      join(process.cwd(), "backend/data/kb.json"),
+      (0, import_node_path.join)(process.cwd(), path),
+      (0, import_node_path.join)(process.cwd(), "backend", path),
+      (0, import_node_path.join)(process.cwd(), "data/kb.json"),
+      (0, import_node_path.join)(process.cwd(), "backend/data/kb.json"),
       FALLBACK_TMP_PATH
     ])
   ];
@@ -1392,7 +1419,7 @@ async function readKnowledgeBaseFile(path) {
   for (const candidate of candidatePaths) {
     let raw;
     try {
-      raw = await readFile(candidate, "utf8");
+      raw = await (0, import_promises.readFile)(candidate, "utf8");
     } catch (err) {
       lastError = err;
       if (isMissingFile(err)) continue;
@@ -1403,10 +1430,10 @@ async function readKnowledgeBaseFile(path) {
   throw lastError;
 }
 async function writeAtomic(path, data) {
-  await mkdir(dirname(path), { recursive: true });
+  await (0, import_promises.mkdir)((0, import_node_path.dirname)(path), { recursive: true });
   const tmp = `${path}.${process.pid}.${Date.now()}.tmp`;
-  await writeFile(tmp, JSON.stringify(data, null, 2) + "\n", { encoding: "utf8", mode: 416 });
-  await rename(tmp, path);
+  await (0, import_promises.writeFile)(tmp, JSON.stringify(data, null, 2) + "\n", { encoding: "utf8", mode: 416 });
+  await (0, import_promises.rename)(tmp, path);
 }
 async function writeKnowledgeBaseFile(path, data) {
   try {
@@ -2082,7 +2109,7 @@ async function getApp() {
 }
 
 // backend/src/netlify/adapter.ts
-import { Readable, Writable } from "node:stream";
+var import_node_stream = require("node:stream");
 async function handleWebRequest(webRequest, listener) {
   const urlObj = new URL(webRequest.url);
   let pathname = urlObj.pathname;
@@ -2095,7 +2122,7 @@ async function handleWebRequest(webRequest, listener) {
     rawHeaders[key.toLowerCase()] = val;
   });
   const bodyBuffer = Buffer.from(await webRequest.arrayBuffer());
-  const reqStream = new Readable({
+  const reqStream = new import_node_stream.Readable({
     read() {
       this.push(bodyBuffer.length > 0 ? bodyBuffer : null);
       if (bodyBuffer.length > 0) {
@@ -2113,7 +2140,7 @@ async function handleWebRequest(webRequest, listener) {
     const responseHeaders = new Headers();
     const chunks = [];
     let headersSent = false;
-    const resStream = new Writable({
+    const resStream = new import_node_stream.Writable({
       write(chunk, _encoding, callback) {
         chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
         callback();
@@ -2237,7 +2264,7 @@ async function handler(req, res) {
     });
   }
 }
-export {
-  config,
-  handler as default
-};
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  config
+});
