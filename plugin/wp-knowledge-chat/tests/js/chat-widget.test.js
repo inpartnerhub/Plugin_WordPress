@@ -121,7 +121,7 @@ describe('safe rendering', () => {
 		assert.ok($('.wkc-msg--bot .wkc-bubble').textContent.includes('<img src=x'));
 	});
 
-	it('renders answers as text and filters unsafe source links', async () => {
+	it('renders answers as text and does not render source cards to users', async () => {
 		const { $, $$, flush, type, pressEnter, window } = await setup({
 			responses: [
 				jsonResponse(200, {
@@ -147,12 +147,7 @@ describe('safe rendering', () => {
 		assert.equal($$('.wkc script, .wkc img, .wkc b').length, 0);
 		assert.equal(window.pwned, undefined);
 		assert.ok($$('.wkc-msg--bot')[1].textContent.includes('<script>'));
-		const links = $$('.wkc-sources a');
-		assert.equal(links.length, 1);
-		assert.equal(links[0].getAttribute('href'), 'https://inpartnerglobal.com/about-us/');
-		assert.equal(links[0].getAttribute('target'), '_blank');
-		assert.equal(links[0].getAttribute('rel'), 'noopener noreferrer');
-		assert.ok(links[0].textContent.includes('(opens in a new tab)'));
+		assert.equal($$('.wkc-sources').length, 0, 'sources are not rendered in user view');
 	});
 
 	it('hides the contact link when the configured URL is not approved', async () => {
@@ -345,7 +340,7 @@ describe('session history', () => {
 
 		const second = await setup({ storage: stored });
 		assert.ok(second.$$('.wkc-msg--user')[0].textContent.includes('Keep me'));
-		assert.equal(second.$$('.wkc-sources a')[0].getAttribute('href'), 'https://inpartnerglobal.com/');
+		assert.ok(second.$$('.wkc-msg--bot')[1].textContent.includes('Kept answer'));
 		assert.equal(second.$('.wkc-suggestions').hidden, true);
 	});
 
