@@ -53,12 +53,14 @@
 ## 🚀 Key Features
 
 ### 1. Visitor Experience & Modern Chatbot UI
-- **Branded Corporate Design**: Styled in `inpartnerglobal.com` royal blue palette (`#1565C0` / `#0D47A1`), featuring crisp typography, 1.55 line height, subpixel font smoothing, and friendly Inpartner Assistant robot branding (`🤖`).
-- **Asymmetric Bubble Geometry**: User bubbles rounded at `16px 16px 4px 16px` in soft ice blue (`#EBF3FE`) with subtle border (`#D0E1F9`), and assistant bubbles at `16px 16px 16px 4px` in pure white (`#FFFFFF`) with clean borders (`#E5E7EB`).
+- **Branded Corporate Design**: Styled in `inpartnerglobal.com` corporate blue palette (`#0076db`), featuring crisp 13.5px/14px typography hierarchy, 1.55 line height, subpixel font smoothing, and modern sparkle bot avatar (`✦`).
+- **Globe Dropdown Language Switcher**: Compact header trigger button (`🌐 EN ▾`) with floating card menu, seamlessly switching interface strings across **English**, **Bahasa Indonesia**, and **한국어 (Korean)** without screen-reader text leakage.
+- **Aerodynamic Send Action**: Circular 36px blue send button with interactive paper plane icon, smooth hover lift, and dynamic glow states when typing.
+- **Collapsible Suggestion Chips**: Recommendation drawer starts closed by default for maximum screen real estate; opens and closes with smooth animation via the `+` action button.
+- **Asymmetric Bubble Geometry**: User bubbles rounded at `18px 18px 4px 18px` in soft ice blue (`#eaf4fd`) with subtle border, and assistant bubbles at `18px 18px 18px 4px` in pure white (`#ffffff`) with clean borders (`#e2e8f0`).
 - **Structured Citation Cards**: Grounded answers display dedicated `.wkc-sources` cards with uppercase bold labels, verified URLs, and external navigation icons (`↗`).
-- **Interactive Suggestion Chips**: Pill-shaped action badges with smooth hover elevation and chevron indicators (`›`).
 - **Consultation Request Form**: Integrated consultation submission card allowing visitors to send contact details and advisory inquiries directly inside the chat window.
-- **Trilingual Localization**: Complete native language switching for **English**, **Bahasa Indonesia**, and **한국어 (Korean)** across interface strings, greetings, suggestions, and lead capture.
+- **Centered Disclaimer & Expectations**: Centered footer disclaimer ("AI can make mistakes. Please verify important information.") and direct contact link to ensure clear user expectations.
 - **Full-Width Mobile Sheet**: Responsive transformation on mobile devices (`100vw`, `85dvh`) with large touch targets (≥ 36px/44px) and zero horizontal overflow.
 - **Certified Accessibility**: **0 violations in axe-core** for WCAG 2.1 AA accessibility compliance across all modal states.
 

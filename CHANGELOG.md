@@ -7,11 +7,13 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [0.2.3] - 2026-10-21
 
 ### Added
-- Admin theme: modern branded corporate header banner, elevated stat metric cards with hover elevation, glowing status indicators, and styled table layouts following the inpartnerglobal.com design language.
+- Admin theme: modern branded corporate header banner, elevated stat metric cards with hover elevation, glowing status indicators, and styled table layouts following the inpartnerglobal.com corporate blue design language (`#0076db`).
+- UI Redesign: Option 3 globe dropdown language switcher (`🌐 EN ▾`) with accessible hidden labels, aerodynamic paper airplane send button with typing active states, and collapsible suggestion chips drawer triggered by the `+` action button.
+- Comprehensive production audit suite: 10 in-depth reports covering architecture, security, RAG evaluation, hosting readiness, runbooks, and UX/accessibility in `docs/audit/`.
 
 ### Changed
-- Chat widget visual hierarchy & typography: modernized typography hierarchy with 14.5px base font, 1.55 line height, subpixel antialiasing, 16.5px bold header with active online status indicator dot, asymmetric bubble radii (user `16px 16px 4px 16px`, bot `16px 16px 16px 4px`), structured source citation cards with external indicators, interactive pill suggestion chips, modern input field with focus glow, and full-width responsive mobile sheet.
-- Chat widget palette: updated primary brand color to inpartnerglobal.com Elementor royal blue (`#1565C0` / `#1976D3`), soft ice blue bot bubble background (`#F4F8FC`), and crisp blue-grey borders (`#D6E4F0`), maintaining full WCAG 2.1 AA accessibility contrast (5.96:1).
+- Chat widget visual hierarchy & typography: modernized typography hierarchy with 13.5px base font, 1.55 line height, subpixel antialiasing, 14px bold header with active online status indicator, asymmetric bubble radii (user `18px 18px 4px 18px`, bot `18px 18px 18px 4px`), structured source citation cards with external indicators, centered AI expectation disclaimer, and full-width responsive mobile sheet.
+- Chat widget palette: updated primary brand color to inpartnerglobal.com corporate blue (`#0076db`), soft ice blue user bubble background (`#eaf4fd`), and clean slate borders (`#e2e8f0`), maintaining full WCAG 2.1 AA accessibility contrast (5.96:1).
 
 ### Fixed
 - Chat widget: added missing Korean strings `leadFailed` and `leadPrivacy` in `STRINGS.ko` to prevent `undefined` error messages and ensure privacy consent disclosure on the consultation form.

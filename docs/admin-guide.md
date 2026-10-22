@@ -24,14 +24,14 @@ The plugin provides three dedicated administration screens under the **WP Knowle
 
 ### 1. Settings Screen
 
-Contains the general chatbot behavior, language settings, and AI backend connectivity test. Styled with Inpartner's corporate royal blue banner and real-time connection status pill.
+Contains the general chatbot behavior, language settings, and AI backend connectivity test. Styled with Inpartner's corporate blue banner (`#0076db`) and real-time connection status pill.
 
 | Setting | What it does | Tips |
 |---|---|---|
 | **Enable Chatbot** | Turns the chat button on or off for the whole site | Untick it to switch the assistant off immediately |
 | **Greeting Messages** | The first message visitors see when they open the chat, one field per language (English, Bahasa Indonesia, 한국어) | Plain text only, max 500 characters each. Leave a field empty to restore that language's default greeting |
 | **Default Language** | Language of the buttons and messages (English, Bahasa Indonesia or 한국어) when the visitor has not chosen one, and the language the assistant answers in | Content on the website stays in its original language; service names are not translated |
-| **Language Switcher** | Shows EN · ID · 한국어 buttons in the chat header | The visitor's choice is remembered in their browser |
+| **Language Switcher** | Shows a globe dropdown (`🌐 EN ▾`) in the chat header | The visitor's choice is remembered in their browser |
 | **Browser Language** | Starts the chat in the visitor's browser language if it is English, Indonesian or Korean | Otherwise *Default Language* is used |
 | **Contact URL** | Where "Contact the Inpartner team" links go | Default: the homepage, `https://inpartnerglobal.com`. Switching to a dedicated contact page (for example `/contact/`) needs the site owner's approval first. Only https links on inpartnerglobal.com (or this site) are accepted |
 

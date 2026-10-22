@@ -11,10 +11,11 @@ Capability and nonce checks on every admin action, escaped output, sanitised inp
 | # | Finding | Change |
 |---|---|---|
 | 1 | Missing Korean lead form strings in `chat-widget.js` caused `undefined` error messages upon submission failure | Added `leadFailed` and `leadPrivacy` to `STRINGS.ko` |
-| 2 | Widget styling lacked visual hierarchy and corporate branding alignment | Modernized typography hierarchy (14.5px base, 1.55 line height), added live pulsing status indicator, asymmetric bubble radii (16px), and structured citation cards |
-| 3 | Admin dashboard styling lacked branded identity and visual polish | Modernized admin pages with corporate royal blue banner, elevated KPI cards with hover effects, and clean table layouts without breaking CSP |
+| 2 | Widget styling lacked visual hierarchy and corporate branding alignment | Modernized typography hierarchy (13.5px base, 1.55 line height), corporate blue palette (`#0076db`), asymmetric bubble radii (18px), aerodynamic paper airplane send button, collapsible suggestion chips, and structured citation cards |
+| 3 | Admin dashboard styling lacked branded identity and visual polish | Modernized admin pages with corporate blue banner (`#0076db`), elevated KPI cards with hover effects, and clean table layouts without breaking CSP |
 | 4 | Mobile touch targets and responsive bottom sheet sizing | Optimized mobile viewport bottom sheet (`100vw`, `85dvh`) with touch targets ≥ 36px/44px and zero horizontal overflow |
 | 5 | Axe-core accessibility qualification | Verified 0 WCAG 2.1 AA violations on all states across English, Indonesian, and Korean interfaces |
+| 6 | Language switcher and disclaimer refinement | Replaced horizontal language buttons with compact globe dropdown (`🌐 EN ▾`) and centered AI disclaimer without screen-reader leakage |
 
 ## Changed in 0.2.2
 

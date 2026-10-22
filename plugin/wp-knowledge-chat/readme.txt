@@ -164,9 +164,9 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 == Changelog ==
 
 = 0.2.3 =
-* UI/UX polish: modernized chat typography (14.5px base, 1.55 line height), live status indicator dot, asymmetric bubble radii (16px), pill suggestion chips, and structured source citation cards.
-* Corporate theme: royal blue brand theme (#1565C0 / #1976D3) aligned with inpartnerglobal.com, with a modernized WordPress admin dashboard and stat cards.
-* Internationalization: added missing Korean consultation form translations (leadFailed and leadPrivacy) to prevent undefined errors.
+* Corporate theme: aligned with inpartnerglobal.com corporate blue palette (#0076db), with modernized WordPress admin dashboard and stat cards.
+* UI/UX redesign: Option 3 globe dropdown language switcher (🌐 EN ▾), aerodynamic paper airplane send button with dynamic typing states, collapsible suggestion chips (+), centered AI disclaimer, and refined 13.5px/14px typography hierarchy.
+* Internationalization: complete native translations (EN, ID, KO) with localized consultation form and disclaimer.
 * AI Evaluation: added dynamic OpenRouter eval test runner and log scrubbing.
 
 = 0.2.2 =
