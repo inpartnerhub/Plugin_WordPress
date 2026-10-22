@@ -96,3 +96,70 @@ export function createApp({ config, store, llm, logger, now = () => Date.now(), 
     });
   };
 }
+
+let defaultAppPromise: Promise<RequestListener> | null = null;
+
+async function getDefaultApp(): Promise<RequestListener> {
+  if (defaultAppPromise) return defaultAppPromise;
+  defaultAppPromise = (async () => {
+    const { loadConfig } = await import('./config/env.js');
+    const { createLogger } = await import('./lib/logger.js');
+    const { KnowledgeBaseStore, readKnowledgeBaseFile } = await import('./services/knowledge-base.js');
+    const { createLlmClient } = await import('./services/llm.js');
+    const defaultKb = (await import('../data/kb.json', { with: { type: 'json' } })).default;
+
+    const config = loadConfig();
+    const logger = createLogger(config.logLevel);
+    const store = new KnowledgeBaseStore(config.allowedSourceHosts);
+
+    try {
+      const data = await readKnowledgeBaseFile(config.kbPath);
+      store.loadFrom(data);
+    } catch {
+      store.loadFrom(defaultKb);
+    }
+
+    const llm = createLlmClient(config);
+    return createApp({ config, store, llm, logger, indexingEnabled: false });
+  })();
+  return defaultAppPromise;
+}
+
+export default async function defaultHandler(
+  req: IncomingMessage | Request,
+  res?: ServerResponse,
+): Promise<Response | void> {
+  try {
+    const app = await getDefaultApp();
+    if (res && typeof res.setHeader === 'function') {
+      const nodeReq = req as IncomingMessage;
+      return await new Promise((resolve, reject) => {
+        res.on('finish', resolve);
+        res.on('close', resolve);
+        res.on('error', reject);
+        try {
+          app(nodeReq, res);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }
+    const { handleWebRequest } = await import('./netlify/adapter.js');
+    return await handleWebRequest(req as Request, app);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (res && typeof res.setHeader === 'function') {
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ error: { code: 'internal_error', message: msg } }));
+      }
+      return;
+    }
+    return new Response(JSON.stringify({ error: { code: 'internal_error', message: msg } }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
