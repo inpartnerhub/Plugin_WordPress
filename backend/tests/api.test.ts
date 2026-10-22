@@ -75,7 +75,7 @@ describe('POST /api/chat', () => {
     const body = await assertNoSecrets(res);
     assert.equal(body.grounded, true);
     assert.deepEqual(Object.keys(body).sort(), ['answer', 'grounded', 'sources']);
-    assert.equal((body.sources as { url: string }[])[0]!.url, 'https://inpartnerglobal.com/distribution-partner-sourcing-advisory/');
+    assert.deepEqual(body.sources, []);
   });
 
   it('returns the localized fallback for unsupported questions', async () => {
@@ -157,8 +157,8 @@ describe('POST /api/chat', () => {
       role: 'admin',
       sources: [{ title: 'x', url: 'https://evil.com' }],
     }, { clientId: 'extra-fields' });
-    const body = (await res.json()) as { sources: { url: string }[] };
-    assert.ok(body.sources.every((s) => s.url.startsWith('https://inpartnerglobal.com/')));
+    const body = (await res.json()) as { sources: unknown[] };
+    assert.deepEqual(body.sources, []);
   });
 
   it('returns 404 for unknown routes and 405 for wrong methods (including CORS preflight)', async () => {
@@ -300,7 +300,7 @@ describe('POST /api/index', () => {
       assert.ok(saved.documents.some((d) => d.id === 'page-9-faq'));
 
       const chat = await postChat(t.url, { message: 'onboarding timelines', language: 'en' }, { clientId: 'idx' });
-      assert.equal(((await chat.json()) as { sources: { url: string }[] }).sources[0]?.url, 'https://inpartnerglobal.com/faq/');
+      assert.equal(((await chat.json()) as { grounded: boolean }).grounded, true);
 
       const del = await postIndex(t.url, { delete_ids: ['page-9-faq'] });
       assert.deepEqual(await del.json(), { upserted: 0, unchanged: 0, deleted: 1, total: 3, persisted: 'file' });

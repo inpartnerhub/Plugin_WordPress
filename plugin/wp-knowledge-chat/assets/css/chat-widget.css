@@ -610,17 +610,9 @@
 }
 
 
-/* Sources / Citations */
+/* Sources / Citations - hidden from user view per consultation assistant design */
 #wkc-root .wkc-sources {
-	margin-top: 8px;
-	padding: 10px 14px;
-	background: #ffffff;
-	border: 1px solid rgba(226, 232, 240, 0.9);
-	border-left: 3px solid var(--wkc-brand);
-	border-radius: 12px;
-	font-size: 12px;
-	width: 100%;
-	box-shadow: var(--wkc-bubble-shadow);
+	display: none !important;
 }
 
 #wkc-root .wkc-sources-label {

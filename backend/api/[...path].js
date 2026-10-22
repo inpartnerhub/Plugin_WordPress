@@ -1765,7 +1765,7 @@ async function handleChat(req, res, deps) {
       sources: result.sources.length,
       latency_ms: Date.now() - started
     });
-    sendJson(res, 200, { answer: result.answer, sources: result.sources, grounded: result.grounded });
+    sendJson(res, 200, { answer: result.answer, sources: [], grounded: result.grounded });
   } catch (err) {
     if (err instanceof BudgetExceededError) {
       deps.logger.warn("rate_limited", { scope: "daily" });
