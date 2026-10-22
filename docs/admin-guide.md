@@ -7,7 +7,7 @@ For Inpartner website administrators. No technical background needed. Technical 
 - Answers visitor questions about Inpartner using **only** the approved pages of inpartnerglobal.com.
 - Shows the page(s) it used as clickable sources under each answer.
 - When it is not sure, says so and offers a link to the contact page instead of guessing.
-- Identifies itself as an AI assistant and shows a short disclaimer ("Not professional or investment advice").
+- Identifies itself as an AI assistant and shows a short disclaimer ("AI can make mistakes. Please verify important information.").
 - Does **not** give prices, client names, guarantees or personal investment advice unless they are published on the approved pages. Most of these are not.
 
 ## Where to find the settings

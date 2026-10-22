@@ -53,10 +53,10 @@
 ## 🚀 Key Features
 
 ### 1. Visitor Experience & Modern Chatbot UI
-- **Branded Corporate Design**: Styled in `inpartnerglobal.com` royal blue palette (`#1565C0` / `#1976D3`), featuring a crisp 14.5px base typography, 1.55 line height, subpixel font smoothing, and an active green pulsing status dot (`#4ADE80`).
-- **Asymmetric Bubble Geometry**: User bubbles rounded at `16px 16px 4px 16px` (royal blue), and assistant bubbles at `16px 16px 16px 4px` in soft ice blue (`#F4F8FC`) with subtle blue-gray borders (`#D6E4F0`).
+- **Branded Corporate Design**: Styled in `inpartnerglobal.com` royal blue palette (`#1565C0` / `#0D47A1`), featuring crisp typography, 1.55 line height, subpixel font smoothing, and friendly Inpartner Assistant robot branding (`🤖`).
+- **Asymmetric Bubble Geometry**: User bubbles rounded at `16px 16px 4px 16px` in soft ice blue (`#EBF3FE`) with subtle border (`#D0E1F9`), and assistant bubbles at `16px 16px 16px 4px` in pure white (`#FFFFFF`) with clean borders (`#E5E7EB`).
 - **Structured Citation Cards**: Grounded answers display dedicated `.wkc-sources` cards with uppercase bold labels, verified URLs, and external navigation icons (`↗`).
-- **Interactive Suggestion Chips**: Pill-shaped action badges (`#eff6ff`) with smooth hover elevation and instant response triggers.
+- **Interactive Suggestion Chips**: Pill-shaped action badges with smooth hover elevation and chevron indicators (`›`).
 - **Consultation Request Form**: Integrated consultation submission card allowing visitors to send contact details and advisory inquiries directly inside the chat window.
 - **Trilingual Localization**: Complete native language switching for **English**, **Bahasa Indonesia**, and **한국어 (Korean)** across interface strings, greetings, suggestions, and lead capture.
 - **Full-Width Mobile Sheet**: Responsive transformation on mobile devices (`100vw`, `85dvh`) with large touch targets (≥ 36px/44px) and zero horizontal overflow.
@@ -262,6 +262,8 @@ Summary steps (detailed step-by-step checklist in [docs/deployment.md](docs/depl
 
 | Topic | Document | Target Audience |
 |---|---|---|
+| **Production Readiness Master Report** | [docs/audit/production-readiness-report.md](docs/audit/production-readiness-report.md) | Leadership, PMs & Lead Architects |
+| **Complete Audit Suite (10 Reports)** | [docs/audit/](docs/audit/) | Security, QA, DevOps & Engineering Teams |
 | **Administrator Guide** | [docs/admin-guide.md](docs/admin-guide.md) | Website Administrators & Content Teams |
 | **Architecture Specification** | [docs/architecture.md](docs/architecture.md) | System Architects & Lead Developers |
 | **API Contract & Schemas** | [docs/api-contract.md](docs/api-contract.md) | Backend Engineers & Integrators |
