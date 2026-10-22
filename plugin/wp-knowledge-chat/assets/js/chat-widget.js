@@ -662,57 +662,6 @@
 			});
 
 			if (msg.role === 'bot') {
-				if (!msg.isGreeting) {
-					var audioCard = el('div', { class: 'wkc-audio-card' });
-					var waves = el('div', { class: 'wkc-audio-waves', 'aria-hidden': 'true' });
-					var heights = [8, 14, 20, 16, 12, 18, 22, 16, 12, 20, 14, 18, 10, 14, 6];
-					heights.forEach(function (h) {
-						var bar = el('span', { class: 'wkc-wave-bar' });
-						bar.style.height = h + 'px';
-						waves.appendChild(bar);
-					});
-					var time = el('span', { class: 'wkc-audio-time' }, '00:05');
-					var playBtn = el('button', { type: 'button', class: 'wkc-audio-play', 'aria-label': 'Play voice note' });
-					var playSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-					playSvg.setAttribute('viewBox', '0 0 24 24');
-					playSvg.setAttribute('width', '14');
-					playSvg.setAttribute('height', '14');
-					playSvg.setAttribute('fill', 'currentColor');
-					var playPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-					playPath.setAttribute('d', 'M8 5v14l11-7z');
-					playSvg.appendChild(playPath);
-					playBtn.appendChild(playSvg);
-
-					var playing = false;
-					playBtn.addEventListener('click', function () {
-						playing = !playing;
-						if (playing) {
-							audioCard.classList.add('wkc--playing');
-							playPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-							if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-								window.speechSynthesis.cancel();
-								var utterance = new window.SpeechSynthesisUtterance(msg.text);
-								utterance.lang = lang === 'id' ? 'id-ID' : (lang === 'ko' ? 'ko-KR' : 'en-US');
-								utterance.onend = function () {
-									playing = false;
-									audioCard.classList.remove('wkc--playing');
-									playPath.setAttribute('d', 'M8 5v14l11-7z');
-								};
-								window.speechSynthesis.speak(utterance);
-							}
-						} else {
-							audioCard.classList.remove('wkc--playing');
-							playPath.setAttribute('d', 'M8 5v14l11-7z');
-							if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-								window.speechSynthesis.cancel();
-							}
-						}
-					});
-					audioCard.appendChild(waves);
-					audioCard.appendChild(time);
-					audioCard.appendChild(playBtn);
-					item.appendChild(audioCard);
-				}
 				var sources = (Array.isArray(msg.sources) ? msg.sources : [])
 					.map(function (s) {
 						return s && typeof s.title === 'string' ? { title: s.title, url: safeUrl(s.url, sourceHosts) } : null;
