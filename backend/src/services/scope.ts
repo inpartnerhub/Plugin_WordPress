@@ -295,7 +295,10 @@ const COMMON_CAPITALISED = new Set(
     'ai assistant inpartner inpartner’s inpartner\'s english indonesian bahasa indonesia korean 한국어 ' +
     'monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december ' +
     'tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat ' +
-    'layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga'
+    'layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga ' +
+    'asisten konsultasi bisnis global optima integra pt cv mitra solusi strategi strategis transformasi perusahaan klien penasihat manajemen ' +
+    'advisor advisory corporate expansion market partner partners service services jakarta selatan indonesia pakuwon tower casablanca kav ' +
+    'financing technology productivity restructuring investment investor distribution sourcing deal transaction'
   ).split(/\s+/),
 );
 

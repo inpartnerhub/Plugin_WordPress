@@ -662,25 +662,6 @@
 			});
 
 			if (msg.role === 'bot') {
-				var sources = (Array.isArray(msg.sources) ? msg.sources : [])
-					.map(function (s) {
-						return s && typeof s.title === 'string' ? { title: s.title, url: safeUrl(s.url, sourceHosts) } : null;
-					})
-					.filter(function (s) {
-						return s && s.url;
-					});
-				if (sources.length) {
-					var wrap = el('div', { class: 'wkc-sources' });
-					wrap.appendChild(el('p', { class: 'wkc-sources-label' }, t.sources));
-					var list = el('ul');
-					sources.forEach(function (s) {
-						var li = el('li');
-						li.appendChild(externalLink(s.url, s.title));
-						list.appendChild(li);
-					});
-					wrap.appendChild(list);
-					item.appendChild(wrap);
-				}
 				if (!msg.grounded && !msg.isGreeting) {
 					var botActions = el('div', { class: 'wkc-bot-actions' });
 					var consultBtn = el('button', { type: 'button', class: 'wkc-lead-btn' }, t.requestConsult);

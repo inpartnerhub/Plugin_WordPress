@@ -21,6 +21,23 @@ const STOPWORDS = new Set(
 /** Indonesian (and colloquial English) terms mapped to English stems present in the corpus. */
 const QUERY_EXPANSIONS: Record<string, string[]> = {
   // Indonesian
+  halo: ['about', 'service'],
+  hai: ['about', 'service'],
+  hello: ['about', 'service'],
+  hi: ['about', 'service'],
+  selamat: ['about', 'service'],
+  pagi: ['about', 'service'],
+  siang: ['about', 'service'],
+  sore: ['about', 'service'],
+  malam: ['about', 'service'],
+  bantu: ['service', 'advisory'],
+  bantuan: ['service', 'advisory'],
+  dibantu: ['service', 'advisory'],
+  membantu: ['service', 'advisory'],
+  tolong: ['service', 'advisory'],
+  help: ['service', 'advisory'],
+  kamu: ['about', 'company'],
+  anda: ['about', 'company'],
   layanan: ['service', 'advisory'],
   jasa: ['service', 'advisory'],
   servis: ['service', 'advisory'],
@@ -64,7 +81,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   pendekatan: ['approach'],
   proses: ['approach', 'process'],
   langkah: ['approach', 'step'],
-  siapa: ['who', 'about'],
+  siapa: ['who', 'about', 'company'],
   eksekutif: ['executive', 'search', 'talent'],
   rekrutmen: ['executive', 'search', 'talent'],
   talenta: ['talent', 'leadership'],
@@ -149,6 +166,9 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
  * the NFC-normalised question rather than as whole tokens.
  */
 const KOREAN_EXPANSIONS: [string, string[]][] = [
+  ['안녕', ['about', 'service']],
+  ['도와', ['service', 'advisory']],
+  ['도움', ['service', 'advisory']],
   ['인파트너', ['inpartner']],
   ['서비스', ['service', 'advisory']],
   ['제공', ['service', 'advisory']],

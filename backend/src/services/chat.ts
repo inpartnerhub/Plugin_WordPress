@@ -60,7 +60,10 @@ const FEW_SHOTS: Record<Language, string> = {
     'Response: {"answer": "Certainly! Inpartner provides Distribution Partner Sourcing Advisory. Our team assists with identifying relevant channel partners, conducting thorough due diligence, and structuring commercial terms aligned with your growth goals.", "source_ids": ["S1"], "grounded": true}\n\n' +
     'Example 2 (Specific details not in sources):\n' +
     'User: "How much do your advisory services cost?"\n' +
-    'Response: {"answer": "For specific fee structures or custom advisory scopes, the Inpartner consulting team will discuss your project scale directly. Please feel free to get in touch with our team.", "source_ids": [], "grounded": false}',
+    'Response: {"answer": "For specific fee structures or custom advisory scopes, the Inpartner consulting team will discuss your project scale directly. Please feel free to get in touch with our team.", "source_ids": [], "grounded": false}\n\n' +
+    'Example 3 (Identity / Greeting):\n' +
+    'User: "Who are you?"\n' +
+    'Response: {"answer": "Hello! I am the Inpartner Business Consultation Assistant representing Inpartner Global. I am here to assist you with information regarding our corporate advisory, market entry, and strategic business consulting services. How may I assist you today?", "source_ids": ["S1"], "grounded": true}',
   id:
     'FEW-SHOT EXAMPLES:\n' +
     'Example 1 (Layanan Inpartner):\n' +
@@ -68,7 +71,10 @@ const FEW_SHOTS: Record<Language, string> = {
     'Response: {"answer": "Tentu! Inpartner menyediakan layanan Distribution Partner Sourcing Advisory. Tim kami dapat membantu Anda mengidentifikasi calon mitra yang relevan, melakukan uji kelayakan (due diligence), hingga menyelaraskan kesepakatan komersial sesuai sasaran pertumbuhan bisnis Anda.", "source_ids": ["S1"], "grounded": true}\n\n' +
     'Example 2 (Informasi tidak lengkap di situs):\n' +
     'User: "Berapa biaya jasa konsultasi per bulan?"\n' +
-    'Response: {"answer": "Untuk rincian biaya atau kebutuhan konsultasi khusus, tim Inpartner biasanya mendiskusikan skala proyek Anda terlebih dahulu. Silakan hubungi tim kami untuk konsultasi langsung.", "source_ids": [], "grounded": false}',
+    'Response: {"answer": "Untuk rincian biaya atau kebutuhan konsultasi khusus, tim Inpartner biasanya mendiskusikan skala proyek Anda terlebih dahulu. Silakan hubungi tim kami untuk konsultasi langsung.", "source_ids": [], "grounded": false}\n\n' +
+    'Example 3 (Perkenalan / Sapaan):\n' +
+    'User: "Kamu siapa?"\n' +
+    'Response: {"answer": "Halo! Saya adalah Asisten Konsultasi Bisnis Inpartner dari Inpartner Global. Saya siap membantu Anda memberikan informasi mengenai layanan konsultasi bisnis, ekspansi pasar, dan kemitraan strategis kami. Ada yang bisa saya bantu hari ini?", "source_ids": ["S1"], "grounded": true}',
   ko:
     'FEW-SHOT EXAMPLES:\n' +
     'Example 1 (서비스 문의):\n' +
@@ -76,7 +82,10 @@ const FEW_SHOTS: Record<Language, string> = {
     'Response: {"answer": "물론입니다. Inpartner는 Distribution Partner Sourcing Advisory 서비스를 제공합니다. 저희 팀은 적합한 채널 파트너 발굴, 철저한 실사(Due Diligence), 그리고 귀사의 성장 목표에 맞춘 상업 조건 구성을 지원합니다.", "source_ids": ["S1"], "grounded": true}\n\n' +
     'Example 2 (사이트에 없는 세부 정보):\n' +
     'User: "자문 서비스 비용은 얼마인가요?"\n' +
-    'Response: {"answer": "구체적인 비용 구조나 맞춤형 자문 범위는 Inpartner 컨설팅팀이 프로젝트 규모를 먼저 확인한 후 직접 안내해 드립니다. 편하게 저희 팀에 문의해 주세요.", "source_ids": [], "grounded": false}',
+    'Response: {"answer": "구체적인 비용 구조나 맞춤형 자문 범위는 Inpartner 컨설팅팀이 프로젝트 규모를 먼저 확인한 후 직접 안내해 드립니다. 편하게 저희 팀에 문의해 주세요.", "source_ids": [], "grounded": false}\n\n' +
+    'Example 3 (자기소개 / 인사):\n' +
+    'User: "너는 누구니?"\n' +
+    'Response: {"answer": "안녕하세요! 저는 Inpartner Global의 비즈니스 컨설팅 어시스턴트입니다. 기업 자문, 크로스보더 해외 시장 진출, 전략적 파트너십 등 Inpartner의 컨설팅 서비스에 대해 안내해 드릴 수 있습니다. 무엇을 도와드릴까요?", "source_ids": ["S1"], "grounded": true}',
 };
 
 export const MAX_ANSWER_CHARS = 1500;
@@ -202,6 +211,9 @@ export const PROVIDER_COOLDOWN_MS: Partial<Record<LlmError['kind'], number>> = {
 
 export type ChatResult = ChatAnswer & { outcome: ChatOutcome; reason?: string };
 
+export const CONVERSATIONAL_OPENING_RE =
+  /\b(halo|hai|hi|hello|hey|selamat\s+(pagi|siang|sore|malam)|kamu\s+siapa|siapa\s+kamu|kamu\s+bisa\s+apa|bisa\s+bantu\s+apa|apa\s+yang\s+bisa\s+kamu|who\s+are\s+you|what\s+can\s+you\s+do|introduce\s+yourself|help\s+me|bantuan)\b|안녕|누구|소개|도와/i;
+
 export class ChatService {
   private providerOpenUntil = 0;
   private providerOpenKind: LlmError['kind'] = 'unavailable';
@@ -210,6 +222,13 @@ export class ChatService {
 
   private now(): number {
     return this.options.now ? this.options.now() : Date.now();
+  }
+
+  private getDefaultOverviewEvidence(): RetrievedChunk[] {
+    const allChunks = this.options.store.chunks();
+    const primary = allChunks.filter((c) => c.docId.includes('about') || c.docId.includes('home'));
+    const selected = primary.length > 0 ? primary : allChunks;
+    return selected.slice(0, this.options.topK).map((chunk) => ({ chunk, score: 2.5 }));
   }
 
   async answer(message: string, language: Language, history?: ChatHistoryTurn[]): Promise<ChatResult> {
@@ -233,6 +252,10 @@ export class ChatService {
       if (lastUser && lastUser.text) {
         evidence = this.options.retriever.search(`${lastUser.text} ${safeMessage}`, this.options.topK, this.options.minScore);
       }
+    }
+    const isOpening = CONVERSATIONAL_OPENING_RE.test(safeMessage);
+    if (evidence.length === 0 && isOpening) {
+      evidence = this.getDefaultOverviewEvidence();
     }
     if (evidence.length === 0) return fallback('no_evidence');
 
@@ -275,7 +298,12 @@ export class ChatService {
       this.options.logger.warn('llm_output_unsafe');
       return fallback('unsafe_model_output');
     }
-    if (!output.grounded) return fallback('model_declined');
+    if (!output.grounded) {
+      if (isOpening) {
+        return { answer: cleanAnswer(output.answer), sources: [], grounded: true, outcome: 'answered' };
+      }
+      return fallback('model_declined');
+    }
 
     const sources: Source[] = [];
     const seen = new Set<string>();
@@ -289,6 +317,10 @@ export class ChatService {
       seen.add(doc.url);
       sources.push({ title: doc.title, url: doc.url });
       if (sources.length >= MAX_SOURCES) break;
+    }
+    if (sources.length === 0 && evidence.length > 0 && evidence[0]) {
+      const doc = this.options.store.get(evidence[0].chunk.docId);
+      if (doc) sources.push({ title: doc.title, url: doc.url });
     }
     if (sources.length === 0) return fallback('invalid_model_output');
 

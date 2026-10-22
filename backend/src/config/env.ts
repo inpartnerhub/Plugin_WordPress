@@ -159,7 +159,7 @@ export function loadConfig(env: Env = process.env): Config {
     geminiApiKey,
     geminiModel,
     geminiApiBaseUrl,
-    geminiTimeoutMs: int('GEMINI_TIMEOUT_MS', 12000, 1000, 60000),
+    geminiTimeoutMs: int('GEMINI_TIMEOUT_MS', 25000, 1000, 60000),
     geminiMaxOutputTokens: int('GEMINI_MAX_OUTPUT_TOKENS', 600, 64, 4096),
     chatSharedSecret,
     indexApiToken,
