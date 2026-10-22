@@ -4,7 +4,7 @@ import { ConfigError, loadConfig, type Config } from '../config/env.js';
 import { createLogger, type Logger } from '../lib/logger.js';
 import { KnowledgeBaseStore, readKnowledgeBaseFile } from '../services/knowledge-base.js';
 import { createLlmClient } from '../services/llm.js';
-import defaultKb from '../../data/kb.json';
+import defaultKb from '../../data/kb.json' with { type: 'json' };
 
 let appPromise: Promise<RequestListener> | null = null;
 
