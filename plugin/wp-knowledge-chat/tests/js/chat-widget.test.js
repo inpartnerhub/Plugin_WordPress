@@ -422,7 +422,7 @@ describe('languages', () => {
 		assert.equal($('.wkc-langs').getAttribute('aria-label'), '언어');
 		assert.equal($('#wkc-title').textContent, 'Inpartner AI 어시스턴트');
 		assert.equal($('.wkc-send-label').textContent, '보내기');
-		assert.match($('.wkc-disclaimer').textContent, /자동 답변/);
+		assert.match($('.wkc-disclaimer').textContent, /실수/);
 		assert.equal($$('.wkc-msg--bot .wkc-bubble')[0].textContent, '안녕하세요!', 'greeting follows the language');
 		assert.equal($$('.wkc-msg--user').length, 1, 'conversation is kept');
 		assert.equal(window.localStorage.getItem('wkc-lang'), 'ko');

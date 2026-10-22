@@ -17,12 +17,12 @@
 	var STRINGS = {
 		en: {
 			title: 'Inpartner AI Assistant',
-			subtitle: 'AI assistant · answers from inpartnerglobal.com',
+			subtitle: 'Inpartner Assistant',
 			open: 'Open the Inpartner AI assistant',
 			close: 'Close chat',
 			language: 'Language',
 			inputLabel: 'Type your question',
-			placeholder: 'Ask a question…',
+			placeholder: 'Ask something…',
 			send: 'Send',
 			suggestions: 'Suggested questions',
 			you: 'You said:',
@@ -35,7 +35,7 @@
 			contactPrompt: 'Need a specific answer? Contact the Inpartner team',
 			errorLabel: 'Error:',
 			retry: 'Try again',
-			disclaimer: 'Automated answers based on public website content. Not professional or investment advice.',
+			disclaimer: 'AI can make mistakes. Please verify important information.',
 			tooLong: 'Your question is too long. Please keep it under {max} characters.',
 			empty: 'Please type a question first.',
 			errNetwork: 'The assistant could not be reached. Please check your connection and try again.',
@@ -54,16 +54,20 @@
 			leadSuccess: 'Thank you! Your consultation request has been sent to the Inpartner team.',
 			leadError: 'Please provide a valid name and email address.',
 			leadFailed: 'Your request could not be sent. Please try again later or use the contact link.',
-			leadPrivacy: 'Your details are sent to the Inpartner team only to answer this request.'
+			leadPrivacy: 'Your details are sent to the Inpartner team only to answer this request.',
+			online: 'Online',
+			launcherBadge: 'Chat with Inpartner',
+			quickTitle: 'What would you like to do?',
+			viewDetails: 'View Service Details'
 		},
 		id: {
 			title: 'Asisten AI Inpartner',
-			subtitle: 'Asisten AI · jawaban dari inpartnerglobal.com',
+			subtitle: 'Inpartner Assistant',
 			open: 'Buka asisten AI Inpartner',
 			close: 'Tutup obrolan',
 			language: 'Bahasa',
 			inputLabel: 'Tulis pertanyaan Anda',
-			placeholder: 'Tulis pertanyaan…',
+			placeholder: 'Tanyakan sesuatu…',
 			send: 'Kirim',
 			suggestions: 'Pertanyaan yang disarankan',
 			you: 'Anda:',
@@ -76,7 +80,7 @@
 			contactPrompt: 'Butuh jawaban spesifik? Hubungi tim Inpartner',
 			errorLabel: 'Galat:',
 			retry: 'Coba lagi',
-			disclaimer: 'Jawaban otomatis berdasarkan konten publik situs. Bukan nasihat profesional atau investasi.',
+			disclaimer: 'AI dapat membuat kesalahan. Harap periksa kembali informasi penting.',
 			tooLong: 'Pertanyaan terlalu panjang. Maksimal {max} karakter.',
 			empty: 'Silakan tulis pertanyaan terlebih dahulu.',
 			errNetwork: 'Asisten tidak dapat dihubungi. Periksa koneksi Anda lalu coba lagi.',
@@ -85,7 +89,7 @@
 			errGeneric: 'Asisten sedang tidak tersedia. Silakan coba lagi nanti atau hubungi kami secara langsung.',
 			counter: '{n} dari {max} karakter',
 			clear: 'Hapus obrolan',
-			requestConsult: 'Minta Konsultasi',
+			requestConsult: 'Jadwalkan Konsultasi',
 			leadName: 'Nama Anda',
 			leadEmail: 'Email Kerja',
 			leadCompany: 'Perusahaan (Opsional)',
@@ -95,11 +99,15 @@
 			leadSuccess: 'Terima kasih! Permintaan konsultasi Anda telah dikirim ke tim Inpartner.',
 			leadError: 'Silakan isi nama dan alamat email yang valid.',
 			leadFailed: 'Permintaan Anda tidak dapat dikirim. Silakan coba lagi nanti atau gunakan tautan kontak.',
-			leadPrivacy: 'Data Anda hanya dikirim ke tim Inpartner untuk menanggapi permintaan ini.'
+			leadPrivacy: 'Data Anda hanya dikirim ke tim Inpartner untuk menanggapi permintaan ini.',
+			online: 'Online',
+			launcherBadge: 'Chat dengan Inpartner',
+			quickTitle: 'Apa yang ingin Anda lakukan?',
+			viewDetails: 'Lihat Detail Layanan'
 		},
 		ko: {
 			title: 'Inpartner AI 어시스턴트',
-			subtitle: 'AI 어시스턴트 · inpartnerglobal.com 기반 답변',
+			subtitle: 'Inpartner Assistant',
 			open: 'Inpartner AI 어시스턴트 열기',
 			close: '채팅 닫기',
 			language: '언어',
@@ -117,7 +125,7 @@
 			contactPrompt: '구체적인 답변이 필요하신가요? Inpartner 팀에 문의하세요',
 			errorLabel: '오류:',
 			retry: '다시 시도',
-			disclaimer: '웹사이트 공개 콘텐츠를 바탕으로 한 자동 답변입니다. 전문적인 조언이나 투자 자문이 아닙니다.',
+			disclaimer: 'AI는 실수를 할 수 있습니다. 중요한 정보를 재확인하세요.',
 			tooLong: '질문이 너무 깁니다. {max}자 이내로 입력해 주세요.',
 			empty: '먼저 질문을 입력해 주세요.',
 			errNetwork: '어시스턴트에 연결할 수 없습니다. 인터넷 연결을 확인한 후 다시 시도해 주세요.',
@@ -136,7 +144,11 @@
 			leadSuccess: '감사합니다! Inpartner 자문팀으로 상담 요청이 전송되었습니다.',
 			leadError: '올바른 성함과 이메일 주소를 입력해 주세요.',
 			leadFailed: '요청을 보낼 수 없습니다. 잠시 후 다시 시도하시거나 연락처 링크를 이용해 주세요.',
-			leadPrivacy: '입력하신 정보는 본 상담 문의에 답변하기 위한 목적으로만 Inpartner 자문팀에 전달됩니다.'
+			leadPrivacy: '입력하신 정보는 본 상담 문의에 답변하기 위한 목적으로만 Inpartner 자문팀에 전달됩니다.',
+			online: '온라인',
+			launcherBadge: 'Inpartner와 채팅하기',
+			quickTitle: '어떤 도움이 필요하신가요?',
+			viewDetails: '서비스 상세 보기'
 		}
 	};
 
@@ -245,6 +257,17 @@
 		/* ---------- DOM ---------- */
 		var root = el('div', { id: 'wkc-root', class: 'wkc', lang: lang });
 
+		var launcherWrap = el('div', { class: 'wkc-launcher-wrap' });
+		var launcherBadge = el('button', {
+			type: 'button',
+			class: 'wkc-launcher-badge',
+			'aria-hidden': 'true',
+			tabindex: '-1'
+		}, t.launcherBadge || 'Chat dengan Inpartner');
+		launcherBadge.addEventListener('click', function () {
+			launcher.click();
+		});
+
 		var launcher = el('button', {
 			type: 'button',
 			class: 'wkc-launcher',
@@ -253,39 +276,15 @@
 			'aria-label': t.open
 		});
 		launcher.appendChild(chatIcon());
+		launcherWrap.appendChild(launcherBadge);
+		launcherWrap.appendChild(launcher);
 
 		var panel = el('section', { id: 'wkc-panel', class: 'wkc-panel', role: 'dialog', 'aria-modal': 'false', 'aria-labelledby': 'wkc-title', 'aria-describedby': 'wkc-subtitle' });
 		panel.hidden = true;
 
 		var header = el('div', { class: 'wkc-header' });
-		var headings = el('div', { class: 'wkc-headings' });
-		var title = el('h2', { id: 'wkc-title', class: 'wkc-title' }, t.title);
-		var subtitle = el('p', { id: 'wkc-subtitle', class: 'wkc-subtitle' }, t.subtitle);
-		headings.appendChild(title);
-		headings.appendChild(subtitle);
-		var closeBtn = el('button', { type: 'button', class: 'wkc-close', 'aria-label': t.close });
-		closeBtn.appendChild(el('span', { 'aria-hidden': 'true' }, '×'));
-		header.appendChild(headings);
-
-		var switcher = null;
-		if (config.switcher && languages.length > 1) {
-			switcher = el('div', { class: 'wkc-langs', role: 'group', 'aria-label': t.language });
-			languages.forEach(function (code) {
-				var labels = LANGUAGE_LABELS[code] || { short: code.toUpperCase(), name: '' };
-				var btn = el('button', { type: 'button', class: 'wkc-lang', lang: code, 'data-lang': code, 'aria-pressed': 'false' }, labels.short);
-				if (labels.name) btn.appendChild(el('span', { class: 'wkc-sr-only' }, ' ' + labels.name));
-				btn.addEventListener('click', function () {
-					if (code === lang) return;
-					saveLanguageChoice(code);
-					applyLanguage(code);
-				});
-				switcher.appendChild(btn);
-			});
-			header.appendChild(switcher);
-		}
-
 		var clearBtn = el('button', { type: 'button', class: 'wkc-clear', 'aria-label': t.clear, title: t.clear });
-		clearBtn.appendChild(el('span', { 'aria-hidden': 'true' }, '↺'));
+		clearBtn.appendChild(el('span', { 'aria-hidden': 'true' }, '←'));
 		clearBtn.addEventListener('click', function () {
 			history = [];
 			persist();
@@ -294,16 +293,98 @@
 			renderSuggestions();
 			input.value = '';
 			updateCounter();
+			updateSendIcon();
 			formError.textContent = '';
 			input.focus();
 		});
+
+		var brand = el('div', { class: 'wkc-brand' });
+		var headings = el('div', { class: 'wkc-headings' });
+		var title = el('h2', { id: 'wkc-title', class: 'wkc-title' }, t.title);
+		var subtitle = el('p', { id: 'wkc-subtitle', class: 'wkc-subtitle wkc-sr-only' }, t.subtitle || '');
+		headings.appendChild(title);
+		headings.appendChild(subtitle);
+		brand.appendChild(headings);
+
+		var closeBtn = el('button', { type: 'button', class: 'wkc-close', 'aria-label': t.close });
+		closeBtn.appendChild(el('span', { 'aria-hidden': 'true' }, '×'));
+
+		var switcherWrap = null;
+		var switcher = null;
+		var toggleBtn = null;
+		var toggleCur = null;
+		if (config.switcher && languages.length > 1) {
+			switcherWrap = el('div', { class: 'wkc-switcher-wrap' });
+			toggleBtn = el('button', {
+				type: 'button',
+				class: 'wkc-lang-toggle',
+				'aria-haspopup': 'true',
+				'aria-expanded': 'false',
+				'aria-label': t.language,
+				title: t.language
+			});
+			toggleBtn.appendChild(globeIcon());
+			toggleCur = el('span', { class: 'wkc-lang-cur' }, lang === 'ko' ? 'KO' : lang.toUpperCase());
+			toggleBtn.appendChild(toggleCur);
+			var chevron = el('span', { class: 'wkc-lang-chevron', 'aria-hidden': 'true' }, '▾');
+			toggleBtn.appendChild(chevron);
+
+			switcher = el('div', { class: 'wkc-langs', role: 'group', 'aria-label': t.language });
+			languages.forEach(function (code) {
+				var labels = LANGUAGE_LABELS[code] || { short: code.toUpperCase(), name: '' };
+				var btn = el('button', { type: 'button', class: 'wkc-lang', lang: code, 'data-lang': code, 'aria-pressed': 'false', title: labels.name || labels.short }, labels.short);
+				if (labels.name) btn.appendChild(el('span', { class: 'wkc-lang-name' }, ' ' + labels.name));
+				btn.addEventListener('click', function () {
+					if (code !== lang) {
+						saveLanguageChoice(code);
+						applyLanguage(code);
+					}
+					closeDropdown();
+				});
+				switcher.appendChild(btn);
+			});
+
+			function openDropdown() {
+				switcherWrap.classList.add('wkc--open');
+				toggleBtn.setAttribute('aria-expanded', 'true');
+			}
+
+			function closeDropdown() {
+				if (switcherWrap) {
+					switcherWrap.classList.remove('wkc--open');
+					toggleBtn.setAttribute('aria-expanded', 'false');
+				}
+			}
+
+			toggleBtn.addEventListener('click', function (e) {
+				e.stopPropagation();
+				if (switcherWrap.classList.contains('wkc--open')) {
+					closeDropdown();
+				} else {
+					openDropdown();
+				}
+			});
+
+			document.addEventListener('click', function (e) {
+				if (switcherWrap && !switcherWrap.contains(e.target)) {
+					closeDropdown();
+				}
+			});
+
+			switcherWrap.appendChild(toggleBtn);
+			switcherWrap.appendChild(switcher);
+		}
+
 		header.appendChild(clearBtn);
+		header.appendChild(brand);
+		if (switcherWrap) header.appendChild(switcherWrap);
 		header.appendChild(closeBtn);
 
 		var log = el('div', { class: 'wkc-log', role: 'log', 'aria-live': 'polite', 'aria-relevant': 'additions', 'aria-label': t.title, tabindex: '0' });
 		var status = el('div', { class: 'wkc-sr-only', role: 'status', 'aria-live': 'polite' });
 
 		var suggestions = el('div', { class: 'wkc-suggestions', role: 'group', 'aria-label': t.suggestions });
+		suggestions.hidden = true;
 
 		var form = el('form', { class: 'wkc-form', novalidate: 'novalidate' });
 		var label = el('label', { for: 'wkc-input', class: 'wkc-sr-only' }, t.inputLabel);
@@ -319,6 +400,15 @@
 		meta.appendChild(counter);
 		form.appendChild(label);
 		var row = el('div', { class: 'wkc-input-row' });
+		var plusBtn = el('button', { type: 'button', class: 'wkc-input-plus', 'aria-label': 'Quick actions', title: 'Quick questions' }, '+');
+		plusBtn.addEventListener('click', function () {
+			suggestions.hidden = !suggestions.hidden;
+			plusBtn.classList.toggle('wkc-plus--open', !suggestions.hidden);
+			if (!suggestions.hidden) {
+				suggestions.scrollIntoView({ behavior: 'smooth' });
+			}
+		});
+		row.appendChild(plusBtn);
 		row.appendChild(input);
 		row.appendChild(sendBtn);
 		form.appendChild(row);
@@ -333,28 +423,77 @@
 		panel.appendChild(form);
 		panel.appendChild(footer);
 		root.appendChild(panel);
-		root.appendChild(launcher);
+		root.appendChild(launcherWrap);
 		document.body.appendChild(root);
 
 		/* ---------- Rendering ---------- */
-		function chatIcon() {
+		function sparkleIcon() {
 			var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			svg.setAttribute('viewBox', '0 0 24 24');
 			svg.setAttribute('aria-hidden', 'true');
 			svg.setAttribute('focusable', 'false');
 			var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-			path.setAttribute('d', 'M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z');
+			path.setAttribute('fill', 'currentColor');
+			path.setAttribute('d', 'M10 2c0 4.418-3.582 8-8 8 4.418 0 8 3.582 8 8 0-4.418 3.582-8 8-8-4.418 0-8-3.582-8-8zm9 10c0 1.657-1.343 3-3 3 1.657 0 3 1.343 3 3 0-1.657 1.343-3 3-3-1.657 0-3-1.343-3-3z');
 			svg.appendChild(path);
+			return svg;
+		}
+
+		function editIcon() {
+			var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			svg.setAttribute('viewBox', '0 0 24 24');
+			svg.setAttribute('aria-hidden', 'true');
+			svg.setAttribute('focusable', 'false');
+			var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			path.setAttribute('fill', 'currentColor');
+			path.setAttribute('d', 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z');
+			svg.appendChild(path);
+			return svg;
+		}
+
+		function chatIcon() {
+			return sparkleIcon();
+		}
+
+		function globeIcon() {
+			var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			svg.setAttribute('viewBox', '0 0 24 24');
+			svg.setAttribute('width', '14');
+			svg.setAttribute('height', '14');
+			svg.setAttribute('fill', 'none');
+			svg.setAttribute('stroke', 'currentColor');
+			svg.setAttribute('stroke-width', '2');
+			svg.setAttribute('stroke-linecap', 'round');
+			svg.setAttribute('stroke-linejoin', 'round');
+			svg.setAttribute('aria-hidden', 'true');
+			svg.setAttribute('focusable', 'false');
+			var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+			circle.setAttribute('cx', '12');
+			circle.setAttribute('cy', '12');
+			circle.setAttribute('r', '10');
+			svg.appendChild(circle);
+			var path1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+			path1.setAttribute('x1', '2');
+			path1.setAttribute('y1', '12');
+			path1.setAttribute('x2', '22');
+			path1.setAttribute('y2', '12');
+			svg.appendChild(path1);
+			var path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			path2.setAttribute('d', 'M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z');
+			svg.appendChild(path2);
 			return svg;
 		}
 
 		function sendIcon() {
 			var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			svg.setAttribute('viewBox', '0 0 24 24');
+			svg.setAttribute('width', '18');
+			svg.setAttribute('height', '18');
 			svg.setAttribute('aria-hidden', 'true');
 			svg.setAttribute('focusable', 'false');
 			var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-			path.setAttribute('d', 'M3 20.5 21 12 3 3.5 3 10l12 2-12 2z');
+			path.setAttribute('fill', 'currentColor');
+			path.setAttribute('d', 'M3.4 20.4l17.45-7.48a1 1 0 0 0 0-1.84L3.4 3.6a.993.993 0 0 0-1.39.91L2 9.12c0 .5.37.93.87.98L17 12 2.87 13.9c-.5.05-.87.48-.87.98l.01 4.51c0 .71.73 1.2 1.39.91z');
 			svg.appendChild(path);
 			return svg;
 		}
@@ -479,15 +618,34 @@
 			var item = el('div', { class: 'wkc-msg wkc-msg--' + msg.role });
 			item.appendChild(el('span', { class: 'wkc-sr-only' }, msg.role === 'user' ? t.you : t.assistant));
 			var bubble = el('div', { class: 'wkc-bubble' });
+			if (msg.role === 'user') {
+				var wrap = el('div', { class: 'wkc-user-wrap' });
+				var editBtn = el('button', { type: 'button', class: 'wkc-user-action', 'aria-label': 'Edit question', title: 'Edit' });
+				editBtn.appendChild(editIcon());
+				editBtn.addEventListener('click', function () {
+					input.value = msg.text;
+					input.focus();
+					updateCounter();
+					updateSendIcon();
+				});
+				wrap.appendChild(editBtn);
+				wrap.appendChild(bubble);
+				item.appendChild(wrap);
+			} else {
+				var botAvatar = el('div', { class: 'wkc-bot-avatar', 'aria-hidden': 'true' });
+				botAvatar.appendChild(sparkleIcon());
+				item.appendChild(botAvatar);
+				item.appendChild(bubble);
+			}
 			String(msg.text).split(/\n{2,}/).forEach(function (para) {
 				var lines = para.split(/\n/);
-				var hasBullets = lines.some(function (l) { return /^[-*•]\s+/.test(l.trim()); });
+				var hasBullets = lines.some(function (l) { return /^[-*•✓]\s+/.test(l.trim()); });
 				if (hasBullets) {
 					var ul = el('ul', { class: 'wkc-bullet-list' });
 					lines.forEach(function (line) {
 						var trimmed = line.trim();
-						if (/^[-*•]\s+/.test(trimmed)) {
-							ul.appendChild(el('li', null, trimmed.replace(/^[-*•]\s+/, '')));
+						if (/^[-*•✓]\s+/.test(trimmed)) {
+							ul.appendChild(el('li', null, trimmed.replace(/^[-*•✓]\s+/, '')));
 						} else if (trimmed) {
 							ul.appendChild(el('li', null, trimmed));
 						}
@@ -502,9 +660,59 @@
 					bubble.appendChild(p);
 				}
 			});
-			item.appendChild(bubble);
 
 			if (msg.role === 'bot') {
+				if (!msg.isGreeting) {
+					var audioCard = el('div', { class: 'wkc-audio-card' });
+					var waves = el('div', { class: 'wkc-audio-waves', 'aria-hidden': 'true' });
+					var heights = [8, 14, 20, 16, 12, 18, 22, 16, 12, 20, 14, 18, 10, 14, 6];
+					heights.forEach(function (h) {
+						var bar = el('span', { class: 'wkc-wave-bar' });
+						bar.style.height = h + 'px';
+						waves.appendChild(bar);
+					});
+					var time = el('span', { class: 'wkc-audio-time' }, '00:05');
+					var playBtn = el('button', { type: 'button', class: 'wkc-audio-play', 'aria-label': 'Play voice note' });
+					var playSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+					playSvg.setAttribute('viewBox', '0 0 24 24');
+					playSvg.setAttribute('width', '14');
+					playSvg.setAttribute('height', '14');
+					playSvg.setAttribute('fill', 'currentColor');
+					var playPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+					playPath.setAttribute('d', 'M8 5v14l11-7z');
+					playSvg.appendChild(playPath);
+					playBtn.appendChild(playSvg);
+
+					var playing = false;
+					playBtn.addEventListener('click', function () {
+						playing = !playing;
+						if (playing) {
+							audioCard.classList.add('wkc--playing');
+							playPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+							if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+								window.speechSynthesis.cancel();
+								var utterance = new window.SpeechSynthesisUtterance(msg.text);
+								utterance.lang = lang === 'id' ? 'id-ID' : (lang === 'ko' ? 'ko-KR' : 'en-US');
+								utterance.onend = function () {
+									playing = false;
+									audioCard.classList.remove('wkc--playing');
+									playPath.setAttribute('d', 'M8 5v14l11-7z');
+								};
+								window.speechSynthesis.speak(utterance);
+							}
+						} else {
+							audioCard.classList.remove('wkc--playing');
+							playPath.setAttribute('d', 'M8 5v14l11-7z');
+							if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+								window.speechSynthesis.cancel();
+							}
+						}
+					});
+					audioCard.appendChild(waves);
+					audioCard.appendChild(time);
+					audioCard.appendChild(playBtn);
+					item.appendChild(audioCard);
+				}
 				var sources = (Array.isArray(msg.sources) ? msg.sources : [])
 					.map(function (s) {
 						return s && typeof s.title === 'string' ? { title: s.title, url: safeUrl(s.url, sourceHosts) } : null;
@@ -525,18 +733,18 @@
 					item.appendChild(wrap);
 				}
 				if (!msg.grounded && !msg.isGreeting) {
-					if (contactUrl) {
-						var cta = el('p', { class: 'wkc-cta' });
-						cta.appendChild(externalLink(contactUrl, t.contactPrompt));
-						item.appendChild(cta);
-					}
-					var leadAction = el('div', { class: 'wkc-lead-trigger' });
+					var botActions = el('div', { class: 'wkc-bot-actions' });
 					var consultBtn = el('button', { type: 'button', class: 'wkc-lead-btn' }, t.requestConsult);
 					consultBtn.addEventListener('click', function () {
 						renderLeadForm(item);
 					});
-					leadAction.appendChild(consultBtn);
-					item.appendChild(leadAction);
+					botActions.appendChild(consultBtn);
+					if (contactUrl) {
+						var cta = el('p', { class: 'wkc-cta' });
+						cta.appendChild(externalLink(contactUrl, t.contactPrompt));
+						botActions.appendChild(cta);
+					}
+					item.appendChild(botActions);
 				}
 			}
 			log.appendChild(item);
@@ -591,7 +799,11 @@
 
 		function renderSuggestions() {
 			while (suggestions.firstChild) suggestions.removeChild(suggestions.firstChild);
-			suggestionsFor(lang).slice(0, 4).forEach(function (q) {
+			var list = suggestionsFor(lang).slice(0, 4);
+			if (list.length) {
+				suggestions.appendChild(el('p', { class: 'wkc-suggestions-title' }, t.quickTitle || 'Apa yang ingin Anda lakukan?'));
+			}
+			list.forEach(function (q) {
 				if (typeof q !== 'string' || !q) return;
 				var chip = el('button', { type: 'button', class: 'wkc-chip' }, q);
 				chip.disabled = pending;
@@ -614,7 +826,8 @@
 			t = STRINGS[code];
 			root.setAttribute('lang', code);
 			title.textContent = t.title;
-			subtitle.textContent = t.subtitle;
+			if (subtitle) subtitle.textContent = t.subtitle || '';
+			launcherBadge.textContent = t.launcherBadge || 'Chat dengan Inpartner';
 			closeBtn.setAttribute('aria-label', t.close);
 			if (clearBtn) {
 				clearBtn.setAttribute('aria-label', t.clear);
@@ -632,6 +845,13 @@
 				Array.prototype.forEach.call(switcher.querySelectorAll('button'), function (b) {
 					b.setAttribute('aria-pressed', b.getAttribute('data-lang') === code ? 'true' : 'false');
 				});
+			}
+			if (toggleCur) {
+				toggleCur.textContent = code === 'ko' ? 'KO' : code.toUpperCase();
+			}
+			if (toggleBtn) {
+				toggleBtn.setAttribute('aria-label', t.language);
+				toggleBtn.setAttribute('title', t.language);
 			}
 			updateCounter();
 			renderFooter();
@@ -698,6 +918,11 @@
 			if (input.scrollHeight > input.clientHeight) input.style.height = Math.min(input.scrollHeight + 2, 120) + 'px';
 			counter.textContent = format(t.counter, { n: n, max: maxLength });
 			counter.classList.toggle('wkc-counter--near', n > maxLength * 0.9);
+		}
+
+		function updateSendIcon() {
+			var hasText = input.value.trim().length > 0;
+			sendBtn.classList.toggle('wkc-send--ready', hasText);
 		}
 
 		/* ---------- Networking ---------- */
@@ -788,8 +1013,10 @@
 				return;
 			}
 			suggestions.hidden = true;
+			if (plusBtn) plusBtn.classList.remove('wkc-plus--open');
 			input.value = '';
 			updateCounter();
+			updateSendIcon();
 			addMessage({ role: 'user', text: question });
 			send(question);
 		}
@@ -836,14 +1063,17 @@
 		input.addEventListener('input', function () {
 			formError.textContent = '';
 			updateCounter();
+			updateSendIcon();
 		});
 
 		/* ---------- Initial state ---------- */
 		applyLanguage(lang);
+		updateSendIcon();
 		var restored = restore();
 		if (restored.length) {
 			history = restored;
 			suggestions.hidden = true;
+			if (plusBtn) plusBtn.classList.remove('wkc-plus--open');
 			restored.forEach(renderMessage);
 		}
 
