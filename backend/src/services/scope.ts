@@ -328,7 +328,8 @@ const COMMON_CAPITALISED = new Set(
     'kemitraan lintas batas negara usaha patungan transfer pengetahuan internasional pencarian rekrutmen eksekutif kepemimpinan talenta pelatihan kapasitas organisasi ' +
     'penilaian analisis komersial peluang proyek akses masuk riset inteligensi pencocokan identifikasi distributor lokal asing cabang dukungan negosiasi evaluasi seleksi pendampingan ' +
     'tahap tahapan langkah awal pertama kedua ketiga keempat kelima proses kerjasama pendekatan pemahaman pelaksanaan pertumbuhan kehadiran ' +
-    'asia tenggara timur tengah eropa amerika afrika pasifik korea jepang tiongkok china malaysia singapura australia belgia uni emirat arab abu dhabi swiss turki spanyol qatar saudi arabia jawa'
+    'asia tenggara timur tengah eropa amerika afrika pasifik korea jepang tiongkok china malaysia singapura australia belgia uni emirat arab abu dhabi swiss turki spanyol qatar saudi arabia jawa ' +
+    'bisa langsung bertemu ketemu pertemuan meeting tatap muka kantor pusat operasional jangan ragu hubungi kontak resmi tersedia lebih lanjut diskusi jadwal penjadwalan kunjungan lokasi alamat melalui telepon email whatsapp tautan berikut siap mendukung kebutuhan spesifik sesuai tujuan saja sangat cocok yuk mari'
   ).split(/\s+/),
 );
 
@@ -363,7 +364,7 @@ export function unsupportedClaims(answer: string, evidenceText: string): string[
   }
 
   // Names of people, companies or places that the evidence never mentions ("Our client PT Maju Jaya", "founded by
-  // John Smith"). A heuristic: every word of a capitalised run must occur in the evidence or be a common word.
+  // John Smith"). A run is flagged when it has 2+ unknown capitalised words, or starts with PT/CV + an unknown word.
   const evidenceWords = new Set(evidenceLower.match(/[\p{L}'’-]+/gu) ?? []);
   for (const run of rest.match(NAME_RUN_RE) ?? []) {
     const words = run.split(/\s+/).filter((w) => !NAME_CONNECTORS.has(w.toLowerCase()));
@@ -371,7 +372,8 @@ export function unsupportedClaims(answer: string, evidenceText: string): string[
       const lower = w.toLowerCase().replace(/['’]s$/, '');
       return !evidenceWords.has(lower) && !COMMON_CAPITALISED.has(lower);
     });
-    if (unknown.length > 0) {
+    const startsWithEntityPrefix = /^(pt|cv)\b/i.test(run.trim());
+    if (unknown.length >= 2 || (startsWithEntityPrefix && unknown.length >= 1)) {
       problems.push('name');
       break;
     }
