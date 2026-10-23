@@ -128,6 +128,9 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse, deps
       language,
       message_chars: message.length,
       sources: result.sources.length,
+      cached: Boolean(result.cached),
+      retrieval_ms: result.timings?.retrieval_ms ?? 0,
+      llm_ms: result.timings?.llm_ms ?? 0,
       latency_ms: Date.now() - started,
     });
     sendJson(res, 200, { answer: result.answer, sources: [], grounded: result.grounded });

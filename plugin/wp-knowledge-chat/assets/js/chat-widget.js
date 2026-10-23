@@ -58,6 +58,10 @@
 			online: 'Online',
 			launcherBadge: 'Chat with Inpartner',
 			quickTitle: 'What would you like to do?',
+			quickActions: 'Quick actions',
+			quickQuestions: 'Quick questions',
+			editQuestion: 'Edit question',
+			edit: 'Edit',
 			viewDetails: 'View Service Details'
 		},
 		id: {
@@ -103,6 +107,10 @@
 			online: 'Online',
 			launcherBadge: 'Chat dengan Inpartner',
 			quickTitle: 'Apa yang ingin Anda lakukan?',
+			quickActions: 'Aksi cepat',
+			quickQuestions: 'Pertanyaan cepat',
+			editQuestion: 'Ubah pertanyaan',
+			edit: 'Ubah',
 			viewDetails: 'Lihat Detail Layanan'
 		},
 		ko: {
@@ -148,6 +156,10 @@
 			online: '온라인',
 			launcherBadge: 'Inpartner와 채팅하기',
 			quickTitle: '어떤 도움이 필요하신가요?',
+			quickActions: '빠른 작업',
+			quickQuestions: '빠른 질문',
+			editQuestion: '질문 수정',
+			edit: '수정',
 			viewDetails: '서비스 상세 보기'
 		}
 	};
@@ -333,6 +345,7 @@
 				class: 'wkc-lang-toggle',
 				'aria-haspopup': 'true',
 				'aria-expanded': 'false',
+				'aria-controls': 'wkc-langs',
 				'aria-label': t.language,
 				title: t.language
 			});
@@ -342,7 +355,7 @@
 			var chevron = el('span', { class: 'wkc-lang-chevron', 'aria-hidden': 'true' }, '▾');
 			toggleBtn.appendChild(chevron);
 
-			switcher = el('div', { class: 'wkc-langs', role: 'group', 'aria-label': t.language });
+			switcher = el('div', { id: 'wkc-langs', class: 'wkc-langs', role: 'group', 'aria-label': t.language });
 			languages.forEach(function (code) {
 				var labels = LANGUAGE_LABELS[code] || { short: code.toUpperCase(), name: '' };
 				var btn = el('button', { type: 'button', class: 'wkc-lang', lang: code, 'data-lang': code, 'aria-pressed': 'false', title: labels.name || labels.short }, labels.short);
@@ -396,7 +409,7 @@
 		var log = el('div', { class: 'wkc-log', role: 'log', 'aria-live': 'polite', 'aria-relevant': 'additions', 'aria-label': t.title, tabindex: '0' });
 		var status = el('div', { class: 'wkc-sr-only', role: 'status', 'aria-live': 'polite' });
 
-		var suggestions = el('div', { class: 'wkc-suggestions', role: 'group', 'aria-label': t.suggestions });
+		var suggestions = el('div', { id: 'wkc-suggestions', class: 'wkc-suggestions', role: 'group', 'aria-label': t.suggestions });
 		suggestions.hidden = true;
 
 		var form = el('form', { class: 'wkc-form', novalidate: 'novalidate' });
@@ -413,11 +426,20 @@
 		meta.appendChild(counter);
 		form.appendChild(label);
 		var row = el('div', { class: 'wkc-input-row' });
-		var plusBtn = el('button', { type: 'button', class: 'wkc-input-plus', 'aria-label': 'Quick actions', title: 'Quick questions' }, '+');
+		var plusBtn = el('button', {
+			type: 'button',
+			class: 'wkc-input-plus',
+			'aria-label': t.quickActions,
+			'aria-expanded': 'false',
+			'aria-controls': 'wkc-suggestions',
+			title: t.quickQuestions
+		}, '+');
 		plusBtn.addEventListener('click', function () {
 			suggestions.hidden = !suggestions.hidden;
-			plusBtn.classList.toggle('wkc-plus--open', !suggestions.hidden);
-			if (!suggestions.hidden) {
+			var isOpen = !suggestions.hidden;
+			plusBtn.classList.toggle('wkc-plus--open', isOpen);
+			plusBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+			if (isOpen && typeof suggestions.scrollIntoView === 'function') {
 				suggestions.scrollIntoView({ behavior: 'smooth' });
 			}
 		});
@@ -511,9 +533,11 @@
 			return svg;
 		}
 
-		function externalLink(href, text, className) {
-			var a = el('a', { href: href, target: '_blank', rel: 'noopener noreferrer', class: className || '' }, text);
-			a.appendChild(el('span', { class: 'wkc-sr-only' }, ' ' + t.newTab));
+		function externalLink(href, text, className, labelKey) {
+			var a = el('a', { href: href, target: '_blank', rel: 'noopener noreferrer', class: className || '' });
+			if (labelKey) a.setAttribute('data-label-key', labelKey);
+			a.appendChild(el('span', { class: 'wkc-link-label' }, text));
+			a.appendChild(el('span', { class: 'wkc-sr-only wkc-new-tab' }, ' ' + t.newTab));
 			return a;
 		}
 
@@ -526,13 +550,15 @@
 			var card = el('form', { class: 'wkc-lead-card', 'aria-labelledby': uid + '-title', novalidate: 'novalidate' });
 			card.appendChild(el('p', { class: 'wkc-lead-title', id: uid + '-title' }, t.requestConsult));
 
-			function field(name, tag, attrs, label) {
+			function field(name, tag, attrs, labelKey) {
+				var labelText = t[labelKey];
 				var id = uid + '-' + name;
 				var wrap = el('div', { class: 'wkc-lead-field' });
-				wrap.appendChild(el('label', { class: 'wkc-sr-only', for: id }, label));
+				wrap.appendChild(el('label', { class: 'wkc-sr-only', for: id, 'data-label-key': labelKey }, labelText));
 				attrs.id = id;
 				attrs.name = name;
-				attrs.placeholder = label;
+				attrs.placeholder = labelText;
+				attrs['data-placeholder-key'] = labelKey;
 				attrs.maxlength = String(LEAD_LIMITS[name]);
 				var control = el(tag, attrs);
 				wrap.appendChild(control);
@@ -540,10 +566,10 @@
 				return control;
 			}
 
-			var nameInput = field('name', 'input', { type: 'text', class: 'wkc-lead-input', autocomplete: 'name', required: 'required' }, t.leadName);
-			var emailInput = field('email', 'input', { type: 'email', class: 'wkc-lead-input', autocomplete: 'email', required: 'required' }, t.leadEmail);
-			var compInput = field('company', 'input', { type: 'text', class: 'wkc-lead-input', autocomplete: 'organization' }, t.leadCompany);
-			var msgInput = field('message', 'textarea', { class: 'wkc-lead-textarea', rows: '2' }, t.leadMessage);
+			var nameInput = field('name', 'input', { type: 'text', class: 'wkc-lead-input', autocomplete: 'name', required: 'required' }, 'leadName');
+			var emailInput = field('email', 'input', { type: 'email', class: 'wkc-lead-input', autocomplete: 'email', required: 'required' }, 'leadEmail');
+			var compInput = field('company', 'input', { type: 'text', class: 'wkc-lead-input', autocomplete: 'organization' }, 'leadCompany');
+			var msgInput = field('message', 'textarea', { class: 'wkc-lead-textarea', rows: '2' }, 'leadMessage');
 
 			// Honeypot: invisible to people and assistive technology, filled in by naive bots.
 			var trap = el('input', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true', class: 'wkc-lead-hp' });
@@ -629,11 +655,11 @@
 
 		function renderMessage(msg) {
 			var item = el('div', { class: 'wkc-msg wkc-msg--' + msg.role });
-			item.appendChild(el('span', { class: 'wkc-sr-only' }, msg.role === 'user' ? t.you : t.assistant));
+			item.appendChild(el('span', { class: 'wkc-sr-only wkc-msg-speaker', 'data-role': msg.role }, msg.role === 'user' ? t.you : t.assistant));
 			var bubble = el('div', { class: 'wkc-bubble' });
 			if (msg.role === 'user') {
 				var wrap = el('div', { class: 'wkc-user-wrap' });
-				var editBtn = el('button', { type: 'button', class: 'wkc-user-action', 'aria-label': 'Edit question', title: 'Edit' });
+				var editBtn = el('button', { type: 'button', class: 'wkc-user-action', 'aria-label': t.editQuestion, title: t.edit });
 				editBtn.appendChild(editIcon());
 				editBtn.addEventListener('click', function () {
 					input.value = msg.text;
@@ -684,7 +710,7 @@
 					botActions.appendChild(consultBtn);
 					if (contactUrl) {
 						var cta = el('p', { class: 'wkc-cta' });
-						cta.appendChild(externalLink(contactUrl, t.contactPrompt));
+						cta.appendChild(externalLink(contactUrl, t.contactPrompt, '', 'contactPrompt'));
 						botActions.appendChild(cta);
 					}
 					item.appendChild(botActions);
@@ -695,12 +721,14 @@
 			return item;
 		}
 
-		function renderError(text, retryable) {
+		function renderError(text, retryable, errorKey) {
 			var item = el('div', { class: 'wkc-msg wkc-msg--error' });
 			var bubble = el('div', { class: 'wkc-bubble' });
 			var p = el('p');
 			p.appendChild(el('strong', { class: 'wkc-error-label' }, '⚠ ' + t.errorLabel + ' '));
-			p.appendChild(document.createTextNode(text));
+			var textNode = el('span', { class: 'wkc-error-text' }, text);
+			if (errorKey) textNode.setAttribute('data-error-key', errorKey);
+			p.appendChild(textNode);
 			bubble.appendChild(p);
 			if (retryable && lastQuestion) {
 				var retry = el('button', { type: 'button', class: 'wkc-retry' }, t.retry);
@@ -712,7 +740,7 @@
 			}
 			if (contactUrl) {
 				var cta = el('p', { class: 'wkc-cta' });
-				cta.appendChild(externalLink(contactUrl, t.contact));
+				cta.appendChild(externalLink(contactUrl, t.contact, '', 'contact'));
 				bubble.appendChild(cta);
 			}
 			item.appendChild(bubble);
@@ -759,7 +787,7 @@
 
 		function renderFooter() {
 			while (footer.firstChild) footer.removeChild(footer.firstChild);
-			if (contactUrl) footer.appendChild(externalLink(contactUrl, t.contact, 'wkc-contact'));
+			if (contactUrl) footer.appendChild(externalLink(contactUrl, t.contact, 'wkc-contact', 'contact'));
 			footer.appendChild(el('p', { class: 'wkc-disclaimer' }, t.disclaimer));
 		}
 
@@ -775,6 +803,10 @@
 			if (clearBtn) {
 				clearBtn.setAttribute('aria-label', t.clear);
 				clearBtn.setAttribute('title', t.clear);
+			}
+			if (plusBtn) {
+				plusBtn.setAttribute('aria-label', t.quickActions);
+				plusBtn.setAttribute('title', t.quickQuestions);
 			}
 			launcher.setAttribute('aria-label', panel.hidden ? t.open : t.close);
 			log.setAttribute('aria-label', t.title);
@@ -796,6 +828,51 @@
 				toggleBtn.setAttribute('aria-label', t.language);
 				toggleBtn.setAttribute('title', t.language);
 			}
+			Array.prototype.forEach.call(log.querySelectorAll('.wkc-msg-speaker'), function (s) {
+				s.textContent = s.getAttribute('data-role') === 'user' ? t.you : t.assistant;
+			});
+			Array.prototype.forEach.call(log.querySelectorAll('.wkc-user-action'), function (b) {
+				b.setAttribute('aria-label', t.editQuestion);
+				b.setAttribute('title', t.edit);
+			});
+			Array.prototype.forEach.call(log.querySelectorAll('.wkc-lead-btn'), function (b) {
+				b.textContent = t.requestConsult;
+			});
+			Array.prototype.forEach.call(log.querySelectorAll('.wkc-retry'), function (b) {
+				b.textContent = t.retry;
+			});
+			Array.prototype.forEach.call(log.querySelectorAll('.wkc-error-label'), function (elLabel) {
+				elLabel.textContent = '⚠ ' + t.errorLabel + ' ';
+			});
+			Array.prototype.forEach.call(log.querySelectorAll('.wkc-error-text[data-error-key]'), function (elErr) {
+				var k = elErr.getAttribute('data-error-key');
+				if (k && t[k]) elErr.textContent = t[k];
+			});
+			Array.prototype.forEach.call(log.querySelectorAll('a[data-label-key]'), function (a) {
+				var k = a.getAttribute('data-label-key');
+				var lbl = a.querySelector('.wkc-link-label');
+				var nt = a.querySelector('.wkc-new-tab');
+				if (lbl && k && t[k]) lbl.textContent = t[k];
+				if (nt) nt.textContent = ' ' + t.newTab;
+			});
+			Array.prototype.forEach.call(log.querySelectorAll('.wkc-lead-card'), function (card) {
+				var cardTitle = card.querySelector('.wkc-lead-title');
+				if (cardTitle) cardTitle.textContent = t.requestConsult;
+				var cardPriv = card.querySelector('.wkc-lead-privacy');
+				if (cardPriv) cardPriv.textContent = t.leadPrivacy;
+				var cardSub = card.querySelector('.wkc-lead-submit');
+				if (cardSub) cardSub.textContent = t.leadSubmit;
+				var cardCan = card.querySelector('.wkc-lead-cancel');
+				if (cardCan) cardCan.textContent = t.leadCancel;
+				Array.prototype.forEach.call(card.querySelectorAll('label[data-label-key]'), function (l) {
+					var k = l.getAttribute('data-label-key');
+					if (k && t[k]) l.textContent = t[k];
+				});
+				Array.prototype.forEach.call(card.querySelectorAll('[data-placeholder-key]'), function (inp) {
+					var k = inp.getAttribute('data-placeholder-key');
+					if (k && t[k]) inp.setAttribute('placeholder', t[k]);
+				});
+			});
 			updateCounter();
 			renderFooter();
 			renderSuggestions();
@@ -925,14 +1002,16 @@
 						status.textContent = t.received;
 					} else {
 						var serverMsg = d && typeof d.message === 'string' && result.status >= 400 && result.status < 500 && result.status !== 403 ? d.message : null;
-						renderError(serverMsg || errorMessageFor(result.status), result.status !== 400);
+						var errKey = serverMsg ? null : (result.status === 429 ? 'errRate' : 'errGeneric');
+						renderError(serverMsg || errorMessageFor(result.status), result.status !== 400, errKey);
 						status.textContent = t.errorLabel + ' ' + (serverMsg || errorMessageFor(result.status));
 					}
 				})
 				.catch(function (err) {
 					typing.remove();
-					var msg = err && err.name === 'AbortError' ? t.errTimeout : t.errNetwork;
-					renderError(msg, true);
+					var isTimeout = err && err.name === 'AbortError';
+					var msg = isTimeout ? t.errTimeout : t.errNetwork;
+					renderError(msg, true, isTimeout ? 'errTimeout' : 'errNetwork');
 					status.textContent = t.errorLabel + ' ' + msg;
 				})
 				.then(function () {
@@ -956,7 +1035,10 @@
 				return;
 			}
 			suggestions.hidden = true;
-			if (plusBtn) plusBtn.classList.remove('wkc-plus--open');
+			if (plusBtn) {
+				plusBtn.classList.remove('wkc-plus--open');
+				plusBtn.setAttribute('aria-expanded', 'false');
+			}
 			input.value = '';
 			updateCounter();
 			updateSendIcon();
@@ -1016,7 +1098,10 @@
 		if (restored.length) {
 			history = restored;
 			suggestions.hidden = true;
-			if (plusBtn) plusBtn.classList.remove('wkc-plus--open');
+			if (plusBtn) {
+				plusBtn.classList.remove('wkc-plus--open');
+				plusBtn.setAttribute('aria-expanded', 'false');
+			}
 			restored.forEach(renderMessage);
 		}
 

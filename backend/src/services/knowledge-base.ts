@@ -205,6 +205,13 @@ export class KnowledgeBaseStore {
     return this.all().flatMap((doc) => chunkDocument(doc));
   }
 
+  fingerprint(): string {
+    return createHash('sha256')
+      .update(this.all().map((doc) => `${doc.id}:${documentFingerprint(doc)}`).join('|'))
+      .digest('hex')
+      .slice(0, 16);
+  }
+
   /**
    * Replaces the whole store from raw data, validating every document.
    * Invalid documents are reported and skipped; a repeated id keeps the

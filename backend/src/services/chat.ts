@@ -1,5 +1,5 @@
 import type { Logger } from '../lib/logger.js';
-import type { LimitResult } from '../middleware/rate-limit.js';
+import type { LimitResult, ResponseCache } from '../middleware/rate-limit.js';
 import type { KnowledgeBaseStore } from './knowledge-base.js';
 import { LlmError, type LlmClient } from './llm.js';
 import type { Bm25Retriever, RetrievedChunk } from './retrieval.js';
@@ -50,7 +50,7 @@ export const FALLBACK_MESSAGES: Record<Language, string> = {
   ko: '안녕하세요! 저는 Inpartner Global의 비즈니스 컨설팅 서비스(기업 전략 자문, 해외 시장 진출, 유통 파트너 발굴 등)를 전문적으로 안내해 드리고 있습니다. 귀사의 비즈니스에 맞춘 상담이 필요하시면 아래 연락처 링크를 통해 언제든지 저희 자문팀에 문의해 주세요!',
 };
 
-export const SCOPE_FALLBACK_MESSAGES: Partial<Record<ScopeViolation, Partial<Record<Language, string>>>> = {
+export const SCOPE_FALLBACK_MESSAGES: Record<ScopeViolation, Record<Language, string>> = {
   guarantee: {
     en: 'In business and market expansion, no advisory firm can ethically guarantee 100% outcomes. However, Inpartner helps minimize risks and maximize your success through structured Market Assessment, Due Diligence, and Strategy & Corporate Advisory—feel free to connect with our team via the link below!',
     id: 'Dalam dunia bisnis, tentu tidak ada pihak yang dapat menjamin hasil 100% secara mutlak. Namun, tim Inpartner siap membantu meminimalkan risiko dan memaksimalkan peluang sukses perusahaan Anda lewat layanan Market Assessment, Due Diligence, serta Strategy & Corporate Advisory—yuk diskusikan rencana bisnis Anda melalui tautan kontak berikut!',
@@ -62,13 +62,29 @@ export const SCOPE_FALLBACK_MESSAGES: Partial<Record<ScopeViolation, Partial<Rec
     ko: '구체적인 세무 계산이나 법적 등록 절차는 전문 세무·법률 자문과 함께 진행해야 하지만, Inpartner는 해외 시장 진출 전략, 타당성 조사 및 현지 파트너 발굴 자문을 통해 비즈니스 성공을 지원해 드립니다. 아래 연락처 링크로 문의해 주세요!',
   },
   investment_advice: {
+    en: 'I do not provide personal stock, crypto, or retail financial speculation recommendations. However, if your company requires corporate advisory support, Inpartner is ready to assist through our Investment & Project Advisory, Feasibility Studies, and M&A Advisory services—feel free to contact our team via the link below!',
     id: 'Maaf ya, saya tidak melayani rekomendasi jual-beli saham, kripto, atau spekulasi keuangan pribadi. Namun jika perusahaan Anda membutuhkan pendampingan korporasi, tim Inpartner siap membantu lewat layanan Investment & Project Advisory, Feasibility Studies, maupun M&A Advisory—yuk hubungi kami melalui tautan kontak berikut!',
+    ko: '개인 주식, 암호화폐 또는 금융 투기 추천은 제공하지 않습니다. 다만 기업 차원의 자문이 필요하시다면 Inpartner의 투자 및 프로젝트 자문(Investment & Project Advisory), 타당성 조사(Feasibility Studies), M&A 자문을 통해 지원해 드릴 수 있으니 아래 연락처 링크로 문의해 주세요!',
   },
   profanity_hate: {
+    en: 'Hello! Let us keep our conversation respectful and constructive. If your company needs support with Strategy & Corporate Advisory, market expansion, or distribution partner sourcing, the Inpartner team is always ready to help—please reach out via the contact link below!',
     id: 'Halo! Mari kita berdiskusi dengan nyaman dan santai ya. Jika perusahaan Anda membutuhkan pendampingan seputar Strategy & Corporate Advisory, ekspansi pasar, atau pencarian mitra distribusi, tim Inpartner selalu siap membantu—silakan hubungi kami melalui tautan kontak berikut!',
+    ko: '안녕하세요! 원활하고 정중한 대화를 부탁드립니다. 귀사의 기업 전략 자문, 해외 시장 진출 또는 유통 파트너 발굴이 필요하시다면 언제든 아래 연락처 링크를 통해 Inpartner 자문팀에 문의해 주세요!',
   },
   injection: {
+    en: 'Hello! I operate exclusively as the official Business Consultation Assistant for Inpartner Global. We are ready to support your company’s growth through Strategy & Corporate Advisory, Cross-Border Market Entry, and distribution partner sourcing—please connect with our team via the contact link below!',
     id: 'Halo! Saya tetap beroperasi sebagai Asisten Konsultasi Bisnis resmi dari Inpartner Global. Kami siap mendampingi pertumbuhan perusahaan Anda melalui layanan Strategy & Corporate Advisory, Cross-Border Market Entry, hingga pencarian mitra distribusi—silakan hubungi tim kami lewat tautan kontak berikut ya!',
+    ko: '안녕하세요! 저는 Inpartner Global의 공식 비즈니스 컨설팅 어시스턴트로 운영되고 있습니다. 기업 전략 자문, 해외 시장 진출 및 유통 파트너 발굴을 통해 귀사의 성장을 지원해 드리니 아래 연락처 링크로 문의해 주세요!',
+  },
+  medical: {
+    en: FALLBACK_MESSAGES.en,
+    id: FALLBACK_MESSAGES.id,
+    ko: FALLBACK_MESSAGES.ko,
+  },
+  unrelated: {
+    en: FALLBACK_MESSAGES.en,
+    id: FALLBACK_MESSAGES.id,
+    ko: FALLBACK_MESSAGES.ko,
   },
 };
 
@@ -249,6 +265,8 @@ export interface ChatServiceOptions {
   secrets: readonly string[];
   /** Consumed once per model call (not per request), so questions answered without the model cost no budget. */
   budget?: { consume(): LimitResult };
+  cache?: ResponseCache;
+  cacheNamespace?: string;
   now?: () => number;
 }
 
@@ -260,7 +278,13 @@ export interface ChatServiceOptions {
  */
 export const PROVIDER_COOLDOWN_MS: Partial<Record<LlmError['kind'], number>> = { rate_limited: 30_000, auth: 300_000 };
 
-export type ChatResult = ChatAnswer & { outcome: ChatOutcome; reason?: string };
+export interface ChatTimings {
+  retrieval_ms: number;
+  llm_ms: number;
+  total_ms: number;
+}
+
+export type ChatResult = ChatAnswer & { outcome: ChatOutcome; reason?: string; cached?: boolean; timings?: ChatTimings };
 
 export const CONVERSATIONAL_OPENING_RE =
   /\b(halo+|hai+|hi+|hello|hey|tes|test|ping|p|permisi|selamat\s+(pagi|siang|sore|malam)|terima\s+kasih|makasih|thanks|thank\s+you|oke\s+siap|nanti\s+saya\s+kabari|sampai\s+jumpa|lagi\s+ngapain|kamu\s+siapa|siapa\s+kamu|ini\s+dengan\s+siapa|kamu\s+bisa\s+apa|bisa\s+bantu\s+apa|apa\s+yang\s+bisa\s+kamu|who\s+are\s+you|what\s+can\s+you\s+do|introduce\s+yourself|help\s+me|bantuan)\b|안녕|누구|소개|도와|감사|고마워/i;
@@ -301,6 +325,19 @@ export class ChatService {
   }
 
   async answer(message: string, language: Language, history?: ChatHistoryTurn[]): Promise<ChatResult> {
+    const startTotal = this.now();
+    let retrievalMs = 0;
+    let llmMs = 0;
+
+    const withTimings = (res: ChatResult): ChatResult => ({
+      ...res,
+      timings: {
+        retrieval_ms: retrievalMs,
+        llm_ms: llmMs,
+        total_ms: Math.max(0, this.now() - startTotal),
+      },
+    });
+
     const fallback = (outcome: ChatOutcome, reason?: string): ChatResult => {
       const customAnswer =
         outcome === 'missing_answer_type' && reason
@@ -314,6 +351,7 @@ export class ChatService {
         grounded: false,
         outcome,
         ...(reason ? { reason } : {}),
+        ...(this.options.cache ? { timings: { retrieval_ms: retrievalMs, llm_ms: llmMs, total_ms: Math.max(0, this.now() - startTotal) } } : {}),
       };
     };
 
@@ -321,102 +359,156 @@ export class ChatService {
     if (violation) return fallback('out_of_scope', violation);
 
     const safeMessage = scrubPii(message);
+    const hasRedactedPii = /\[REDACTED_(EMAIL|PHONE|NIK|CARD)\]/.test(safeMessage);
     const safeHistory = history?.filter((h) => !scopeViolation(h.text)).map((h) => ({ role: h.role, text: scrubPii(h.text) }));
+    const isStateless = !safeHistory || safeHistory.length === 0;
+    const canCache = Boolean(this.options.cache && isStateless && !hasRedactedPii && safeMessage === message);
 
-    let evidence = this.options.retriever.search(safeMessage, this.options.topK, this.options.minScore);
-    if (safeHistory && safeHistory.length > 0) {
-      const lastUser = [...safeHistory].reverse().find((h) => h.role === 'user');
-      if (lastUser && lastUser.text) {
-        if (evidence.length === 0) {
-          evidence = this.options.retriever.search(`${lastUser.text} ${safeMessage}`, this.options.topK, this.options.minScore);
-        } else if (FOLLOW_UP_RE.test(safeMessage) || safeMessage.trim().split(/\s+/).length <= 5) {
-          const priorEvidence = this.options.retriever.search(lastUser.text, this.options.topK, this.options.minScore);
-          if (priorEvidence.length > 0) {
-            evidence = mergeRetrievedChunks(priorEvidence.slice(0, 2), evidence, this.options.topK);
+    if (canCache && this.options.cache) {
+      const ns = `${this.options.cacheNamespace ?? 'v1'}:${this.options.store.fingerprint()}:${this.options.topK}:${this.options.minScore}`;
+      this.options.cache.setNamespace(ns);
+      const cached = this.options.cache.get(language, safeMessage);
+      if (cached) {
+        return withTimings({
+          answer: cached.answer,
+          sources: cached.sources.map((s) => ({ ...s })),
+          grounded: cached.grounded,
+          outcome: 'answered',
+          cached: true,
+        });
+      }
+      const inflight = this.options.cache.getInflight<ChatResult>(language, safeMessage);
+      if (inflight) {
+        const res = await inflight;
+        return withTimings({
+          ...res,
+          sources: res.sources.map((s) => ({ ...s })),
+          cached: true,
+        });
+      }
+    }
+
+    const executeQuery = async (): Promise<ChatResult> => {
+      const startRetrieval = this.now();
+      let evidence = this.options.retriever.search(safeMessage, this.options.topK, this.options.minScore);
+      if (safeHistory && safeHistory.length > 0) {
+        const lastUser = [...safeHistory].reverse().find((h) => h.role === 'user');
+        if (lastUser && lastUser.text) {
+          if (evidence.length === 0) {
+            evidence = this.options.retriever.search(`${lastUser.text} ${safeMessage}`, this.options.topK, this.options.minScore);
+          } else if (FOLLOW_UP_RE.test(safeMessage) || safeMessage.trim().split(/\s+/).length <= 5) {
+            const priorEvidence = this.options.retriever.search(lastUser.text, this.options.topK, this.options.minScore);
+            if (priorEvidence.length > 0) {
+              evidence = mergeRetrievedChunks(priorEvidence.slice(0, 2), evidence, this.options.topK);
+            }
           }
         }
       }
-    }
-    if (OVERVIEW_INQUIRY_RE.test(safeMessage)) {
-      evidence = mergeRetrievedChunks(this.getDefaultOverviewEvidence().slice(0, 2), evidence, this.options.topK);
-    }
-    const isOpening = CONVERSATIONAL_OPENING_RE.test(safeMessage);
-    if (evidence.length === 0 && isOpening) {
-      evidence = this.getDefaultOverviewEvidence();
-    }
-    if (evidence.length === 0) return fallback('no_evidence');
+      if (OVERVIEW_INQUIRY_RE.test(safeMessage)) {
+        evidence = mergeRetrievedChunks(this.getDefaultOverviewEvidence().slice(0, 2), evidence, this.options.topK);
+      }
+      const isOpening = CONVERSATIONAL_OPENING_RE.test(safeMessage);
+      if (evidence.length === 0 && isOpening) {
+        evidence = this.getDefaultOverviewEvidence();
+      }
+      retrievalMs = Math.max(0, this.now() - startRetrieval);
+      if (evidence.length === 0) return fallback('no_evidence');
 
-    const evidenceText = evidence.map((e) => `${e.chunk.title}\n${e.chunk.text}`).join('\n');
-    const missing = missingAnswerType(safeMessage, evidenceText);
-    if (missing) return fallback('missing_answer_type', missing);
+      const evidenceText = evidence.map((e) => `${e.chunk.title}\n${e.chunk.text}`).join('\n');
+      const missing = missingAnswerType(safeMessage, evidenceText);
+      if (missing) return fallback('missing_answer_type', missing);
 
-    if (this.now() < this.providerOpenUntil) throw new LlmError(this.providerOpenKind);
+      if (this.now() < this.providerOpenUntil) throw new LlmError(this.providerOpenKind);
 
-    if (this.options.budget) {
-      const budget = this.options.budget.consume();
-      if (!budget.allowed) throw new BudgetExceededError(budget.retryAfterSeconds);
-    }
+      if (this.options.budget) {
+        const budget = this.options.budget.consume();
+        if (!budget.allowed) throw new BudgetExceededError(budget.retryAfterSeconds);
+      }
 
-    let raw: string;
-    try {
-      raw = await this.options.llm.generate({
-        systemInstruction: buildSystemInstruction(language),
-        userContent: buildUserContent(safeMessage, evidence, safeHistory),
+      let raw: string;
+      const startLlm = this.now();
+      try {
+        raw = await this.options.llm.generate({
+          systemInstruction: buildSystemInstruction(language),
+          userContent: buildUserContent(safeMessage, evidence, safeHistory),
+        });
+      } catch (err) {
+        llmMs = Math.max(0, this.now() - startLlm);
+        // A safety block is about this question, not an outage: answer with the fallback.
+        if (err instanceof LlmError && err.kind === 'blocked') return fallback('provider_blocked');
+        const cooldown = err instanceof LlmError ? PROVIDER_COOLDOWN_MS[err.kind] : undefined;
+        if (err instanceof LlmError && cooldown) {
+          this.providerOpenUntil = this.now() + cooldown;
+          this.providerOpenKind = err.kind;
+          this.options.logger.warn('provider_cooldown', { kind: err.kind, seconds: cooldown / 1000 });
+        }
+        // Other LlmErrors propagate to the route, which maps them to 502/504.
+        throw err;
+      }
+      llmMs = Math.max(0, this.now() - startLlm);
+
+      const output = parseModelOutput(raw);
+      if (!output) {
+        this.options.logger.warn('llm_output_invalid', { length: raw.length });
+        return fallback('invalid_model_output');
+      }
+      if (looksUnsafe(output.answer, this.options.secrets)) {
+        this.options.logger.warn('llm_output_unsafe');
+        return fallback('unsafe_model_output');
+      }
+      if (!output.grounded) {
+        if (isOpening) {
+          return withTimings({ answer: cleanAnswer(output.answer), sources: [], grounded: true, outcome: 'answered' });
+        }
+        return fallback('model_declined');
+      }
+
+      const sources: Source[] = [];
+      const seen = new Set<string>();
+      for (const id of output.source_ids) {
+        const match = /^S(\d{1,2})$/.exec(id.trim());
+        const item = match ? evidence[Number(match[1]) - 1] : undefined;
+        if (!item) continue;
+        // Re-resolve through the store so a citation can only point at a current, approved document.
+        const doc = this.options.store.get(item.chunk.docId);
+        if (!doc || seen.has(doc.url)) continue;
+        seen.add(doc.url);
+        sources.push({ title: doc.title, url: doc.url });
+        if (sources.length >= MAX_SOURCES) break;
+      }
+      if (sources.length === 0 && evidence.length > 0 && evidence[0]) {
+        const doc = this.options.store.get(evidence[0].chunk.docId);
+        if (doc) sources.push({ title: doc.title, url: doc.url });
+      }
+      if (sources.length === 0) return fallback('invalid_model_output');
+
+      const claims = unsupportedClaims(output.answer, evidenceText);
+      if (claims.length > 0) {
+        this.options.logger.warn('llm_output_unsupported', { claims });
+        return fallback('unsupported_claims', claims.join(','));
+      }
+
+      const finalResult: ChatResult = withTimings({
+        answer: cleanAnswer(output.answer),
+        sources,
+        grounded: true,
+        outcome: 'answered',
       });
-    } catch (err) {
-      // A safety block is about this question, not an outage: answer with the fallback.
-      if (err instanceof LlmError && err.kind === 'blocked') return fallback('provider_blocked');
-      const cooldown = err instanceof LlmError ? PROVIDER_COOLDOWN_MS[err.kind] : undefined;
-      if (err instanceof LlmError && cooldown) {
-        this.providerOpenUntil = this.now() + cooldown;
-        this.providerOpenKind = err.kind;
-        this.options.logger.warn('provider_cooldown', { kind: err.kind, seconds: cooldown / 1000 });
+
+      if (canCache && this.options.cache && finalResult.grounded) {
+        this.options.cache.set(language, safeMessage, {
+          answer: finalResult.answer,
+          sources: finalResult.sources,
+          grounded: true,
+        });
       }
-      // Other LlmErrors propagate to the route, which maps them to 502/504.
-      throw err;
-    }
 
-    const output = parseModelOutput(raw);
-    if (!output) {
-      this.options.logger.warn('llm_output_invalid', { length: raw.length });
-      return fallback('invalid_model_output');
-    }
-    if (looksUnsafe(output.answer, this.options.secrets)) {
-      this.options.logger.warn('llm_output_unsafe');
-      return fallback('unsafe_model_output');
-    }
-    if (!output.grounded) {
-      if (isOpening) {
-        return { answer: cleanAnswer(output.answer), sources: [], grounded: true, outcome: 'answered' };
-      }
-      return fallback('model_declined');
-    }
+      return finalResult;
+    };
 
-    const sources: Source[] = [];
-    const seen = new Set<string>();
-    for (const id of output.source_ids) {
-      const match = /^S(\d{1,2})$/.exec(id.trim());
-      const item = match ? evidence[Number(match[1]) - 1] : undefined;
-      if (!item) continue;
-      // Re-resolve through the store so a citation can only point at a current, approved document.
-      const doc = this.options.store.get(item.chunk.docId);
-      if (!doc || seen.has(doc.url)) continue;
-      seen.add(doc.url);
-      sources.push({ title: doc.title, url: doc.url });
-      if (sources.length >= MAX_SOURCES) break;
+    if (canCache && this.options.cache) {
+      return await this.options.cache.setInflight(language, safeMessage, executeQuery());
     }
-    if (sources.length === 0 && evidence.length > 0 && evidence[0]) {
-      const doc = this.options.store.get(evidence[0].chunk.docId);
-      if (doc) sources.push({ title: doc.title, url: doc.url });
-    }
-    if (sources.length === 0) return fallback('invalid_model_output');
-
-    const claims = unsupportedClaims(output.answer, evidenceText);
-    if (claims.length > 0) {
-      this.options.logger.warn('llm_output_unsupported', { claims });
-      return fallback('unsupported_claims', claims.join(','));
-    }
-
-    return { answer: cleanAnswer(output.answer), sources, grounded: true, outcome: 'answered' };
+    return await executeQuery();
   }
 }

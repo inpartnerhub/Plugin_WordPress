@@ -149,6 +149,71 @@ describe('ChatService grounding', () => {
     assert.equal(result.sources.length, 1);
     assert.equal(result.sources[0]?.title, 'Distribution Partner Sourcing Advisory');
   });
+
+  it('caches stateless grounded answers, bypasses cache for follow-up history or PII, and invalidates on KB change', async () => {
+    let now = 10_000;
+    const store = new KnowledgeBaseStore(['inpartnerglobal.com']);
+    store.loadFrom({ documents: FIXTURE_DOCS });
+    const retriever = new Bm25Retriever(store.chunks());
+    const { ResponseCache } = await import('../src/middleware/rate-limit.js');
+    const cache = new ResponseCache(300_000, 50, () => now);
+    let callCount = 0;
+    const llm = new FakeLlm(() => {
+      callCount++;
+      return JSON.stringify({ answer: 'Inpartner shortlists distributors and resellers.', source_ids: ['S1'], grounded: true });
+    });
+    const svc = new ChatService({
+      store,
+      retriever,
+      llm,
+      logger: silentLogger,
+      topK: 3,
+      minScore: 1,
+      secrets: [],
+      cache,
+      cacheNamespace: 'gemini:gemini-2.5-flash',
+      now: () => now,
+    });
+
+    // 1. First stateless query misses cache and calls LLM
+    const r1 = await svc.answer(QUESTION, 'en');
+    assert.equal(r1.grounded, true);
+    assert.equal(r1.cached, undefined);
+    assert.equal(callCount, 1);
+
+    // 2. Repeat stateless query (with spacing/case variation) hits cache without calling LLM
+    const r2 = await svc.answer('  can you help shortlist   distributors and resellers? ', 'en');
+    assert.equal(r2.grounded, true);
+    assert.equal(r2.cached, true);
+    assert.equal(r2.answer, r1.answer);
+    assert.equal(callCount, 1);
+
+    // 3. Different language misses cache
+    const rKo = await svc.answer(QUESTION, 'ko');
+    assert.equal(rKo.cached, undefined);
+    assert.equal(callCount, 2);
+
+    // 4. Multi-turn query with history bypasses cache to prevent context leakage across users
+    const rHistory = await svc.answer(QUESTION, 'en', [{ role: 'user', text: 'We are in medical devices' }]);
+    assert.equal(rHistory.cached, undefined);
+    assert.equal(callCount, 3);
+
+    // 5. Query containing PII bypasses cache
+    const rPii = await svc.answer('Can you shortlist distributors? My email is secret@company.com', 'en');
+    assert.equal(rPii.cached, undefined);
+    assert.equal(callCount, 4);
+    assert.equal(cache.get('en', 'Can you shortlist distributors? My email is secret@company.com'), null);
+
+    // 6. Updating KnowledgeBaseStore changes store.fingerprint(), invalidating cached entries automatically
+    store.apply({
+      upserts: [{ ...FIXTURE_DOCS[0]!, text: FIXTURE_DOCS[0]!.text + ' Updated advisory detail.', updated_at: '2026-10-20T00:00:00Z' }],
+      deleteIds: [],
+      replaceAll: false,
+    });
+    const rAfterKbUpdate = await svc.answer(QUESTION, 'en');
+    assert.equal(rAfterKbUpdate.cached, undefined);
+    assert.equal(callCount, 5);
+  });
 });
 
 type FetchFn = typeof fetch;

@@ -161,4 +161,24 @@ describe('ResponseCache', () => {
     cache.clear();
     assert.equal(cache.size, 0);
   });
+
+  it('never caches ungrounded answers, isolates namespaces, and bounds size', () => {
+    let now = 1000;
+    const cache = new ResponseCache(60_000, 2, () => now);
+    cache.set('en', 'ungrounded query', { answer: 'fallback', sources: [], grounded: false });
+    assert.equal(cache.get('en', 'ungrounded query'), null);
+    assert.equal(cache.size, 0);
+
+    cache.set('en', 'q1', { answer: 'a1', sources: [], grounded: true });
+    cache.set('en', 'q2', { answer: 'a2', sources: [], grounded: true });
+    cache.set('en', 'q3', { answer: 'a3', sources: [], grounded: true });
+    assert.equal(cache.size, 2);
+    assert.equal(cache.get('en', 'q1'), null, 'oldest entry evicted when maxSize exceeded');
+    assert.equal(cache.get('en', 'q2')?.answer, 'a2');
+
+    // Namespace change invalidates previous entries
+    cache.setNamespace('v2:new-kb-hash');
+    assert.equal(cache.size, 0);
+    assert.equal(cache.get('en', 'q2'), null);
+  });
 });

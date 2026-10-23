@@ -450,6 +450,68 @@ describe('languages', () => {
 		assert.deepEqual($$('.wkc-lang').map((b) => b.textContent), ['EN English', 'ID Bahasa Indonesia', '한국어']);
 		assert.deepEqual($$('.wkc-lang').map((b) => b.getAttribute('lang')), ['en', 'id', 'ko']);
 	});
+
+	it('dynamically updates rendered CTA buttons, speaker labels, edit buttons, quick actions, and open lead form when switching EN -> ID -> KO', async () => {
+		const { $, $$, flush, type, pressEnter } = await setup({
+			config: { ...MULTI, detectBrowser: false },
+			responses: [jsonResponse(200, { answer: 'Fallback answer', grounded: false, sources: [] })],
+		});
+		$('.wkc-launcher').click();
+
+		// Check initial EN aria attributes on expandable quick-actions (+) button
+		const plusBtn = $('.wkc-input-plus');
+		assert.equal(plusBtn.getAttribute('aria-label'), 'Quick actions');
+		assert.equal(plusBtn.getAttribute('aria-expanded'), 'false');
+		assert.equal(plusBtn.getAttribute('aria-controls'), 'wkc-suggestions');
+		plusBtn.click();
+		assert.equal(plusBtn.getAttribute('aria-expanded'), 'true');
+		assert.equal($('#wkc-suggestions').hidden, false);
+
+		// Submit a message that produces a user bubble + ungrounded bot bubble with CTA and Request Consultation button
+		type('Do you have an office in London?');
+		pressEnter();
+		await flush();
+		await flush();
+		assert.equal(plusBtn.getAttribute('aria-expanded'), 'false');
+
+		// Open the inline consultation request form before switching languages
+		$('.wkc-lead-btn').click();
+		assert.ok($('.wkc-lead-card'));
+		assert.equal($('.wkc-user-action').getAttribute('aria-label'), 'Edit question');
+		assert.equal($('.wkc-lead-btn').textContent, 'Request Consultation');
+
+		// Switch to Indonesian (ID)
+		$('.wkc-lang[data-lang="id"]').click();
+		assert.equal(plusBtn.getAttribute('aria-label'), 'Aksi cepat');
+		assert.equal(plusBtn.getAttribute('title'), 'Pertanyaan cepat');
+		assert.equal($('.wkc-user-action').getAttribute('aria-label'), 'Ubah pertanyaan');
+		assert.equal($('.wkc-user-action').getAttribute('title'), 'Ubah');
+		assert.equal($('.wkc-lead-btn').textContent, 'Jadwalkan Konsultasi');
+		assert.ok($('.wkc-cta a').textContent.includes('Butuh jawaban spesifik? Hubungi tim Inpartner'));
+		assert.ok($('.wkc-cta a').textContent.includes('(terbuka di tab baru)'));
+		assert.equal($('.wkc-msg--user .wkc-msg-speaker').textContent, 'Anda:');
+		assert.equal($$('.wkc-msg--bot .wkc-msg-speaker').at(-1).textContent, 'Asisten:');
+		assert.equal($('.wkc-lead-card .wkc-lead-title').textContent, 'Jadwalkan Konsultasi');
+		assert.equal($('.wkc-lead-card [name="name"]').getAttribute('placeholder'), 'Nama Anda');
+		assert.equal($('.wkc-lead-card .wkc-lead-submit').textContent, 'Kirim Permintaan');
+		assert.equal($('.wkc-lead-card .wkc-lead-cancel').textContent, 'Batal');
+
+		// Switch to Korean (KO)
+		$('.wkc-lang[data-lang="ko"]').click();
+		assert.equal(plusBtn.getAttribute('aria-label'), '빠른 작업');
+		assert.equal(plusBtn.getAttribute('title'), '빠른 질문');
+		assert.equal($('.wkc-user-action').getAttribute('aria-label'), '질문 수정');
+		assert.equal($('.wkc-user-action').getAttribute('title'), '수정');
+		assert.equal($('.wkc-lead-btn').textContent, '상담 요청하기');
+		assert.ok($('.wkc-cta a').textContent.includes('구체적인 답변이 필요하신가요? Inpartner 팀에 문의하세요'));
+		assert.ok($('.wkc-cta a').textContent.includes('(새 탭에서 열림)'));
+		assert.equal($('.wkc-msg--user .wkc-msg-speaker').textContent, '나:');
+		assert.equal($$('.wkc-msg--bot .wkc-msg-speaker').at(-1).textContent, '어시스턴트:');
+		assert.equal($('.wkc-lead-card .wkc-lead-title').textContent, '상담 요청하기');
+		assert.equal($('.wkc-lead-card [name="name"]').getAttribute('placeholder'), '성함');
+		assert.equal($('.wkc-lead-card .wkc-lead-submit').textContent, '요청 보내기');
+		assert.equal($('.wkc-lead-card .wkc-lead-cancel').textContent, '취소');
+	});
 });
 
 describe('consultation request form', () => {

@@ -12,7 +12,7 @@ export class HttpError extends Error {
   }
 }
 
-const SECURITY_HEADERS: Record<string, string> = {
+export const SECURITY_HEADERS: Record<string, string> = {
   'Content-Type': 'application/json; charset=utf-8',
   'Cache-Control': 'no-store',
   'X-Content-Type-Options': 'nosniff',
@@ -40,6 +40,17 @@ export function sendJson(
 
 export function sendError(res: ServerResponse, error: HttpError): void {
   sendJson(res, error.status, { error: { code: error.code, message: error.message } }, error.headers);
+}
+
+export function createErrorResponse(error: HttpError): Response {
+  const payload = JSON.stringify({ error: { code: error.code, message: error.message } });
+  return new Response(payload, {
+    status: error.status,
+    headers: {
+      ...SECURITY_HEADERS,
+      ...error.headers,
+    },
+  });
 }
 
 /**
