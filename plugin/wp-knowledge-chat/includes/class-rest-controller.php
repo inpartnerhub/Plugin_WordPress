@@ -351,11 +351,14 @@ final class Rest_Controller {
 			);
 		}
 
+		$had_sources = count( $body['sources'] ) > 0;
+
 		return array(
 			'answer'   => $answer,
 			'sources'  => $sources,
-			// A "grounded" answer without any verifiable source is not presented as grounded.
-			'grounded' => $body['grounded'] && count( $sources ) > 0,
+			// A "grounded" answer whose supplied sources all failed validation is not presented as grounded.
+			// When the backend intentionally omits sources (consultation mode), preserve the grounded status.
+			'grounded' => $body['grounded'] && ( ! $had_sources || count( $sources ) > 0 ),
 		);
 	}
 

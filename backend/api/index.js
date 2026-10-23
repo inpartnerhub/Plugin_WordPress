@@ -682,7 +682,7 @@ function loadConfig(env = process.env) {
     geminiApiKey,
     geminiModel,
     geminiApiBaseUrl,
-    geminiTimeoutMs: int("GEMINI_TIMEOUT_MS", 12e3, 1e3, 6e4),
+    geminiTimeoutMs: int("GEMINI_TIMEOUT_MS", 25e3, 1e3, 6e4),
     geminiMaxOutputTokens: int("GEMINI_MAX_OUTPUT_TOKENS", 600, 64, 4096),
     chatSharedSecret,
     indexApiToken,
@@ -1407,7 +1407,7 @@ var digitsOnly = (s) => s.replace(/\D/g, "");
 var NAME_RUN_RE = /(?<![\p{L}\d])[A-ZÀ-ÖØ-Þ][\p{Script=Latin}'’-]*(?:\s+(?:(?:&|of|and|de|van|bin|binti)\s+)?[A-ZÀ-ÖØ-Þ][\p{Script=Latin}'’-]*)+/gu;
 var NAME_CONNECTORS = /* @__PURE__ */ new Set(["&", "of", "and", "de", "van", "bin", "binti"]);
 var COMMON_CAPITALISED = new Set(
-  "a an the and or but if so yes no not of in on at to for from by with as is are was were be been this that these those it its we our us you your they their i my he she his her who what when where which why how there here also however certainly sure absolutely great thank thanks please hello hi welcome of course indeed additionally furthermore moreover overall currently generally in general for example such each every all some any many most more other another both either neither one two three first second finally next then ai assistant inpartner inpartner\u2019s inpartner's english indonesian bahasa indonesia korean \uD55C\uAD6D\uC5B4 monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga".split(/\s+/)
+  "a an the and or but if so yes no not of in on at to for from by with as is are was were be been this that these those it its we our us you your they their i my he she his her who what when where which why how there here also however certainly sure absolutely great thank thanks please hello hi welcome of course indeed additionally furthermore moreover overall currently generally in general for example such each every all some any many most more other another both either neither one two three first second finally next then ai assistant inpartner inpartner\u2019s inpartner's english indonesian bahasa indonesia korean \uD55C\uAD6D\uC5B4 monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat halo hai pagi siang sore malam bapak ibu kak layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga asisten konsultasi bisnis global optima integra pt cv mitra solusi strategi strategis transformasi perusahaan klien penasihat manajemen business consultation consulting cross-border cross border human capital organization executive search due diligence feasibility studies study advisor advisory corporate expansion market partner partners service services jakarta selatan indonesia pakuwon tower casablanca kav financing technology productivity restructuring investment investor distribution sourcing deal transaction".split(/\s+/)
 );
 function unsupportedClaims(answer, evidenceText) {
   const problems = [];
@@ -1461,9 +1461,9 @@ var FALLBACK_MESSAGES = {
 };
 var LANGUAGE_NAMES = { en: "English", id: "Bahasa Indonesia", ko: "Korean (\uD55C\uAD6D\uC5B4)" };
 var FEW_SHOTS = {
-  en: 'FEW-SHOT EXAMPLES:\nExample 1 (Service inquiry):\nUser: "Can Inpartner help us find overseas distributors?"\nResponse: {"answer": "Certainly! Inpartner provides Distribution Partner Sourcing Advisory. Our team assists with identifying relevant channel partners, conducting thorough due diligence, and structuring commercial terms aligned with your growth goals.", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (Specific details not in sources):\nUser: "How much do your advisory services cost?"\nResponse: {"answer": "For specific fee structures or custom advisory scopes, the Inpartner consulting team will discuss your project scale directly. Please feel free to get in touch with our team.", "source_ids": [], "grounded": false}',
-  id: 'FEW-SHOT EXAMPLES:\nExample 1 (Layanan Inpartner):\nUser: "Apakah Inpartner bisa membantu saya mencari distributor di luar negeri?"\nResponse: {"answer": "Tentu! Inpartner menyediakan layanan Distribution Partner Sourcing Advisory. Tim kami dapat membantu Anda mengidentifikasi calon mitra yang relevan, melakukan uji kelayakan (due diligence), hingga menyelaraskan kesepakatan komersial sesuai sasaran pertumbuhan bisnis Anda.", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (Informasi tidak lengkap di situs):\nUser: "Berapa biaya jasa konsultasi per bulan?"\nResponse: {"answer": "Untuk rincian biaya atau kebutuhan konsultasi khusus, tim Inpartner biasanya mendiskusikan skala proyek Anda terlebih dahulu. Silakan hubungi tim kami untuk konsultasi langsung.", "source_ids": [], "grounded": false}',
-  ko: 'FEW-SHOT EXAMPLES:\nExample 1 (\uC11C\uBE44\uC2A4 \uBB38\uC758):\nUser: "Inpartner\uAC00 \uD574\uC678 \uC720\uD1B5\uC0AC\uB97C \uCC3E\uB294 \uB370 \uB3C4\uC6C0\uC744 \uC904 \uC218 \uC788\uB098\uC694?"\nResponse: {"answer": "\uBB3C\uB860\uC785\uB2C8\uB2E4. Inpartner\uB294 Distribution Partner Sourcing Advisory \uC11C\uBE44\uC2A4\uB97C \uC81C\uACF5\uD569\uB2C8\uB2E4. \uC800\uD76C \uD300\uC740 \uC801\uD569\uD55C \uCC44\uB110 \uD30C\uD2B8\uB108 \uBC1C\uAD74, \uCCA0\uC800\uD55C \uC2E4\uC0AC(Due Diligence), \uADF8\uB9AC\uACE0 \uADC0\uC0AC\uC758 \uC131\uC7A5 \uBAA9\uD45C\uC5D0 \uB9DE\uCD98 \uC0C1\uC5C5 \uC870\uAC74 \uAD6C\uC131\uC744 \uC9C0\uC6D0\uD569\uB2C8\uB2E4.", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (\uC0AC\uC774\uD2B8\uC5D0 \uC5C6\uB294 \uC138\uBD80 \uC815\uBCF4):\nUser: "\uC790\uBB38 \uC11C\uBE44\uC2A4 \uBE44\uC6A9\uC740 \uC5BC\uB9C8\uC778\uAC00\uC694?"\nResponse: {"answer": "\uAD6C\uCCB4\uC801\uC778 \uBE44\uC6A9 \uAD6C\uC870\uB098 \uB9DE\uCDA4\uD615 \uC790\uBB38 \uBC94\uC704\uB294 Inpartner \uCEE8\uC124\uD305\uD300\uC774 \uD504\uB85C\uC81D\uD2B8 \uADDC\uBAA8\uB97C \uBA3C\uC800 \uD655\uC778\uD55C \uD6C4 \uC9C1\uC811 \uC548\uB0B4\uD574 \uB4DC\uB9BD\uB2C8\uB2E4. \uD3B8\uD558\uAC8C \uC800\uD76C \uD300\uC5D0 \uBB38\uC758\uD574 \uC8FC\uC138\uC694.", "source_ids": [], "grounded": false}'
+  en: 'FEW-SHOT EXAMPLES:\nExample 1 (Service inquiry):\nUser: "Can Inpartner help us find overseas distributors?"\nResponse: {"answer": "Certainly! Inpartner provides Distribution Partner Sourcing Advisory. Our team assists with identifying relevant channel partners, conducting thorough due diligence, and structuring commercial terms aligned with your growth goals.", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (Specific details not in sources):\nUser: "How much do your advisory services cost?"\nResponse: {"answer": "For specific fee structures or custom advisory scopes, the Inpartner consulting team will discuss your project scale directly. Please feel free to get in touch with our team.", "source_ids": [], "grounded": false}\n\nExample 3 (Identity / Greeting):\nUser: "Who are you?"\nResponse: {"answer": "Hello! I am the Inpartner Business Consultation Assistant representing Inpartner Global. I am here to assist you with information regarding our corporate advisory, market entry, and strategic business consulting services. How may I assist you today?", "source_ids": ["S1"], "grounded": true}',
+  id: 'FEW-SHOT EXAMPLES:\nExample 1 (Layanan Inpartner):\nUser: "Apakah Inpartner bisa membantu saya mencari distributor di luar negeri?"\nResponse: {"answer": "Tentu! Inpartner menyediakan layanan Distribution Partner Sourcing Advisory. Tim kami dapat membantu Anda mengidentifikasi calon mitra yang relevan, melakukan uji kelayakan (due diligence), hingga menyelaraskan kesepakatan komersial sesuai sasaran pertumbuhan bisnis Anda.", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (Informasi tidak lengkap di situs):\nUser: "Berapa biaya jasa konsultasi per bulan?"\nResponse: {"answer": "Untuk rincian biaya atau kebutuhan konsultasi khusus, tim Inpartner biasanya mendiskusikan skala proyek Anda terlebih dahulu. Silakan hubungi tim kami untuk konsultasi langsung.", "source_ids": [], "grounded": false}\n\nExample 3 (Perkenalan / Sapaan):\nUser: "Kamu siapa?"\nResponse: {"answer": "Halo! Saya adalah Asisten Konsultasi Bisnis Inpartner dari Inpartner Global. Saya siap membantu Anda memberikan informasi mengenai layanan konsultasi bisnis, ekspansi pasar, dan kemitraan strategis kami. Ada yang bisa saya bantu hari ini?", "source_ids": ["S1"], "grounded": true}',
+  ko: 'FEW-SHOT EXAMPLES:\nExample 1 (\uC11C\uBE44\uC2A4 \uBB38\uC758):\nUser: "Inpartner\uAC00 \uD574\uC678 \uC720\uD1B5\uC0AC\uB97C \uCC3E\uB294 \uB370 \uB3C4\uC6C0\uC744 \uC904 \uC218 \uC788\uB098\uC694?"\nResponse: {"answer": "\uBB3C\uB860\uC785\uB2C8\uB2E4. Inpartner\uB294 Distribution Partner Sourcing Advisory \uC11C\uBE44\uC2A4\uB97C \uC81C\uACF5\uD569\uB2C8\uB2E4. \uC800\uD76C \uD300\uC740 \uC801\uD569\uD55C \uCC44\uB110 \uD30C\uD2B8\uB108 \uBC1C\uAD74, \uCCA0\uC800\uD55C \uC2E4\uC0AC(Due Diligence), \uADF8\uB9AC\uACE0 \uADC0\uC0AC\uC758 \uC131\uC7A5 \uBAA9\uD45C\uC5D0 \uB9DE\uCD98 \uC0C1\uC5C5 \uC870\uAC74 \uAD6C\uC131\uC744 \uC9C0\uC6D0\uD569\uB2C8\uB2E4.", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (\uC0AC\uC774\uD2B8\uC5D0 \uC5C6\uB294 \uC138\uBD80 \uC815\uBCF4):\nUser: "\uC790\uBB38 \uC11C\uBE44\uC2A4 \uBE44\uC6A9\uC740 \uC5BC\uB9C8\uC778\uAC00\uC694?"\nResponse: {"answer": "\uAD6C\uCCB4\uC801\uC778 \uBE44\uC6A9 \uAD6C\uC870\uB098 \uB9DE\uCDA4\uD615 \uC790\uBB38 \uBC94\uC704\uB294 Inpartner \uCEE8\uC124\uD305\uD300\uC774 \uD504\uB85C\uC81D\uD2B8 \uADDC\uBAA8\uB97C \uBA3C\uC800 \uD655\uC778\uD55C \uD6C4 \uC9C1\uC811 \uC548\uB0B4\uD574 \uB4DC\uB9BD\uB2C8\uB2E4. \uD3B8\uD558\uAC8C \uC800\uD76C \uD300\uC5D0 \uBB38\uC758\uD574 \uC8FC\uC138\uC694.", "source_ids": [], "grounded": false}\n\nExample 3 (\uC790\uAE30\uC18C\uAC1C / \uC778\uC0AC):\nUser: "\uB108\uB294 \uB204\uAD6C\uB2C8?"\nResponse: {"answer": "\uC548\uB155\uD558\uC138\uC694! \uC800\uB294 Inpartner Global\uC758 \uBE44\uC988\uB2C8\uC2A4 \uCEE8\uC124\uD305 \uC5B4\uC2DC\uC2A4\uD134\uD2B8\uC785\uB2C8\uB2E4. \uAE30\uC5C5 \uC790\uBB38, \uD06C\uB85C\uC2A4\uBCF4\uB354 \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C, \uC804\uB7B5\uC801 \uD30C\uD2B8\uB108\uC2ED \uB4F1 Inpartner\uC758 \uCEE8\uC124\uD305 \uC11C\uBE44\uC2A4\uC5D0 \uB300\uD574 \uC548\uB0B4\uD574 \uB4DC\uB9B4 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uBB34\uC5C7\uC744 \uB3C4\uC640\uB4DC\uB9B4\uAE4C\uC694?", "source_ids": ["S1"], "grounded": true}'
 };
 var MAX_ANSWER_CHARS = 1500;
 var MAX_SOURCES = 3;
@@ -1556,6 +1556,7 @@ function cleanAnswer(answer) {
   return text;
 }
 var PROVIDER_COOLDOWN_MS = { rate_limited: 3e4, auth: 3e5 };
+var CONVERSATIONAL_OPENING_RE = /\b(halo|hai|hi|hello|hey|selamat\s+(pagi|siang|sore|malam)|kamu\s+siapa|siapa\s+kamu|kamu\s+bisa\s+apa|bisa\s+bantu\s+apa|apa\s+yang\s+bisa\s+kamu|who\s+are\s+you|what\s+can\s+you\s+do|introduce\s+yourself|help\s+me|bantuan)\b|안녕|누구|소개|도와/i;
 var ChatService = class {
   constructor(options) {
     this.options = options;
@@ -1565,6 +1566,12 @@ var ChatService = class {
   providerOpenKind = "unavailable";
   now() {
     return this.options.now ? this.options.now() : Date.now();
+  }
+  getDefaultOverviewEvidence() {
+    const allChunks = this.options.store.chunks();
+    const primary = allChunks.filter((c) => c.docId.includes("about") || c.docId.includes("home"));
+    const selected = primary.length > 0 ? primary : allChunks;
+    return selected.slice(0, this.options.topK).map((chunk) => ({ chunk, score: 2.5 }));
   }
   async answer(message, language, history) {
     const fallback = (outcome, reason) => ({
@@ -1584,6 +1591,10 @@ var ChatService = class {
       if (lastUser && lastUser.text) {
         evidence = this.options.retriever.search(`${lastUser.text} ${safeMessage}`, this.options.topK, this.options.minScore);
       }
+    }
+    const isOpening = CONVERSATIONAL_OPENING_RE.test(safeMessage);
+    if (evidence.length === 0 && isOpening) {
+      evidence = this.getDefaultOverviewEvidence();
     }
     if (evidence.length === 0) return fallback("no_evidence");
     const evidenceText = evidence.map((e) => `${e.chunk.title}
@@ -1620,7 +1631,12 @@ ${e.chunk.text}`).join("\n");
       this.options.logger.warn("llm_output_unsafe");
       return fallback("unsafe_model_output");
     }
-    if (!output.grounded) return fallback("model_declined");
+    if (!output.grounded) {
+      if (isOpening) {
+        return { answer: cleanAnswer(output.answer), sources: [], grounded: true, outcome: "answered" };
+      }
+      return fallback("model_declined");
+    }
     const sources = [];
     const seen = /* @__PURE__ */ new Set();
     for (const id of output.source_ids) {
@@ -1632,6 +1648,10 @@ ${e.chunk.text}`).join("\n");
       seen.add(doc.url);
       sources.push({ title: doc.title, url: doc.url });
       if (sources.length >= MAX_SOURCES) break;
+    }
+    if (sources.length === 0 && evidence.length > 0 && evidence[0]) {
+      const doc = this.options.store.get(evidence[0].chunk.docId);
+      if (doc) sources.push({ title: doc.title, url: doc.url });
     }
     if (sources.length === 0) return fallback("invalid_model_output");
     const claims = unsupportedClaims(output.answer, evidenceText);
@@ -1745,7 +1765,7 @@ async function handleChat(req, res, deps) {
       sources: result.sources.length,
       latency_ms: Date.now() - started
     });
-    sendJson(res, 200, { answer: result.answer, sources: result.sources, grounded: result.grounded });
+    sendJson(res, 200, { answer: result.answer, sources: [], grounded: result.grounded });
   } catch (err) {
     if (err instanceof BudgetExceededError) {
       deps.logger.warn("rate_limited", { scope: "daily" });
@@ -1889,6 +1909,23 @@ var STOPWORDS = new Set(
 );
 var QUERY_EXPANSIONS = {
   // Indonesian
+  halo: ["about", "service"],
+  hai: ["about", "service"],
+  hello: ["about", "service"],
+  hi: ["about", "service"],
+  selamat: ["about", "service"],
+  pagi: ["about", "service"],
+  siang: ["about", "service"],
+  sore: ["about", "service"],
+  malam: ["about", "service"],
+  bantu: ["service", "advisory"],
+  bantuan: ["service", "advisory"],
+  dibantu: ["service", "advisory"],
+  membantu: ["service", "advisory"],
+  tolong: ["service", "advisory"],
+  help: ["service", "advisory"],
+  kamu: ["about", "company"],
+  anda: ["about", "company"],
   layanan: ["service", "advisory"],
   jasa: ["service", "advisory"],
   servis: ["service", "advisory"],
@@ -1932,7 +1969,7 @@ var QUERY_EXPANSIONS = {
   pendekatan: ["approach"],
   proses: ["approach", "process"],
   langkah: ["approach", "step"],
-  siapa: ["who", "about"],
+  siapa: ["who", "about", "company"],
   eksekutif: ["executive", "search", "talent"],
   rekrutmen: ["executive", "search", "talent"],
   talenta: ["talent", "leadership"],
@@ -2011,6 +2048,9 @@ var QUERY_EXPANSIONS = {
   industries: ["industry", "expertise"]
 };
 var KOREAN_EXPANSIONS = [
+  ["\uC548\uB155", ["about", "service"]],
+  ["\uB3C4\uC640", ["service", "advisory"]],
+  ["\uB3C4\uC6C0", ["service", "advisory"]],
   ["\uC778\uD30C\uD2B8\uB108", ["inpartner"]],
   ["\uC11C\uBE44\uC2A4", ["service", "advisory"]],
   ["\uC81C\uACF5", ["service", "advisory"]],
@@ -2246,11 +2286,14 @@ async function getApp() {
     }
     const llm = createLlmClient(config2);
     return createApp({ config: config2, store, llm, logger, indexingEnabled: false });
-  })();
+  })().catch((err) => {
+    appPromise = null;
+    throw err;
+  });
   return appPromise;
 }
 
-// backend/src/vercel/health.ts
+// backend/src/vercel/index.ts
 init_adapter();
 var config = {
   api: {
@@ -2263,7 +2306,7 @@ async function handler(req, res) {
     if (res && typeof res.setHeader === "function") {
       const nodeReq = req;
       const qs = nodeReq.url && nodeReq.url.includes("?") ? nodeReq.url.slice(nodeReq.url.indexOf("?")) : "";
-      nodeReq.url = `/api/health${qs}`;
+      nodeReq.url = `/api/index${qs}`;
       return await new Promise((resolve, reject) => {
         res.on("finish", resolve);
         res.on("close", resolve);
@@ -2277,7 +2320,7 @@ async function handler(req, res) {
     }
     return await handleWebRequest(req, app);
   } catch (err) {
-    console.error("Vercel Function Error (/api/health):", err);
+    console.error("Vercel Function Error (/api/index):", err);
     const msg = err instanceof Error ? err.message : String(err);
     if (res && typeof res.setHeader === "function") {
       if (!res.headersSent) {

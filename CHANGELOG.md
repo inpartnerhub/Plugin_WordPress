@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-23
+
+### Fixed
+- **WordPress REST Grounding Validation (`Rest_Controller::sanitize_backend_response`)**: Preserved `grounded: true` when the AI backend intentionally omits `sources` (`sources: []`) in consultation assistant mode, while still downgrading responses whose supplied sources fail HTTPS/domain validation. Prevents grounded answers from being misclassified as fallbacks in the widget and admin analytics.
+- **Vercel Serverless Routing (`/api/index` & `_app.ts`)**: Added dedicated `src/vercel/index.ts` handler and `/api/index` rewrite in `vercel.json` so index requests return proper `501 index_unsupported` instead of routing to `/api/health`, and added cold-start promise error recovery in `_app.ts`.
+- **Claim Verification (`unsupportedClaims`)**: Added conversational greeting and consultation-assistant terms (`Inpartner Business Consultation Assistant`, `Selamat Pagi`, etc.) to `COMMON_CAPITALISED` to prevent false-positive `name` claim rejections on natural greetings.
+
+### Changed
+- Bumped plugin, backend, and documentation versions to `1.0.0` for production release.
+- Added `npm run build:vercel` script in `backend/package.json` to bundle all Vercel serverless entrypoints (`api/*.js`).
+
+## [0.5.1] - 2026-10-22
+
+### Changed
+- Omitted `sources` array from `/api/chat` response payload and hid citation cards in the chat widget CSS per consultation assistant design.
+- Added conversational opening and identity handling (`CONVERSATIONAL_OPENING_RE`) across English, Bahasa Indonesia, and Korean.
+
 ## [0.5.0] - 2026-10-22
 
 ### Added

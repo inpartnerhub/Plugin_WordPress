@@ -28,7 +28,10 @@ export async function getApp(): Promise<RequestListener> {
 
     const llm = createLlmClient(config);
     return createApp({ config, store, llm, logger, indexingEnabled: false });
-  })();
+  })().catch((err) => {
+    appPromise = null;
+    throw err;
+  });
 
   return appPromise;
 }

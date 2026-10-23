@@ -11,6 +11,10 @@
       "destination": "/api/chat"
     },
     {
+      "source": "/api/index",
+      "destination": "/api/index"
+    },
+    {
       "source": "/api/:match*",
       "destination": "/api/[...path]"
     }
