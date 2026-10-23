@@ -4,6 +4,7 @@
 	<file>../wp-knowledge-chat.php</file>
 	<file>../uninstall.php</file>
 	<file>../includes</file>
+	<exclude-pattern>*/includes/puc/*</exclude-pattern>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
 

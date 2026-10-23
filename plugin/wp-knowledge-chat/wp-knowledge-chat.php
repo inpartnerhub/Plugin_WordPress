@@ -9,7 +9,7 @@
  * Author:            Inpartner
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Update URI:        false
+ * Update URI:        https://github.com/inpartnerhub/Plugin_WordPress/
  * Text Domain:       wp-knowledge-chat
  * Domain Path:       /languages
  *
