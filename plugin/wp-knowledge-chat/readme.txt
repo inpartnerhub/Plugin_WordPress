@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -162,6 +162,11 @@ REST endpoint: `POST /wp-json/wp-knowledge-chat/v1/chat` with `{"message": "..."
 Deactivating keeps the settings, leads and metrics. Deleting the plugin from the Plugins screen runs `uninstall.php`, which removes the `wp_knowledge_chat_settings` option, the metrics, **all stored leads**, the knowledge-base sync state and the plugin's transients. Export leads first (Analytics & Leads → Export CSV) if you need to keep them. Remove the `wp-config.php` constants manually.
 
 == Changelog ==
+
+= 1.0.3 =
+* Grounded Response Caching & Telemetry: Integrated `ResponseCache` with namespace isolation and request coalescing for repeat stateless queries, plus stage-level timing telemetry (`retrieval_ms`, `llm_ms`, `total_ms`).
+* Hardened Serverless Startup: Sanitized cold-start errors, attached `SECURITY_HEADERS` to Web API error responses, and reset rejected promises on transient failures.
+* Retrieval & Localization Fixes: Expanded multilingual WhatsApp query tokens (`wa`, `whatsapp`, `telpon`, `연락처`, `왓츠앱`), completed all Korean and Indonesian scope fallback translations, and enabled in-place dynamic message and lead form re-localization in the widget.
 
 = 1.0.2 =
 * Flexible Contact Destination: Admin Contact URL setting now supports WhatsApp numbers (auto-normalized to `https://wa.me/...`), WhatsApp links (`wa.me` / `api.whatsapp.com`), and admin email addresses (`mailto:`), while preserving the exact same chatbot UI.

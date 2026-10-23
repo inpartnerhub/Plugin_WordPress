@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-10-23
+
 ### Added
 - **Grounded Response Caching & Request Coalescing (`ResponseCache`)**: Wired `ResponseCache` (5-minute TTL, max 500 entries) into `createApp()`, `ChatService.answer()`, and `handleIndex()` for stateless, PII-free grounded queries, with automatic KB-fingerprint namespace isolation and concurrent in-flight request deduplication.
 - **Chat Pipeline Timing Telemetry**: Added `retrieval_ms`, `llm_ms`, `total_ms`, and `cached` instrumentation to `ChatService.answer()` and the structured `chat_completed` log event.
