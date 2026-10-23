@@ -1,8 +1,8 @@
 # PRODUCT REQUIREMENTS DOCUMENT (PRD)
 ## Inpartner AI Business Consultation Assistant
 
-**Versi:** 2.1 (Release v1.0.0 Production)  
-**Status:** Released (v1.0.0 Production Ready)  
+**Versi:** 2.2 (Release v1.0.1 Auto-Update Ready)  
+**Status:** Released (v1.0.1 Production Ready)  
 **Target Website:** https://inpartnerglobal.com  
 **Platform:** WordPress Plugin  
 **Nama Plugin:** WP Knowledge Chat  

@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-23
+
+### Added
+- **WordPress In-Dashboard Auto-Updates (PUC v5.7)**: Integrated YahnisElsts Plugin Update Checker tailored for GitHub Releases (`inpartnerhub/Plugin_WordPress`).
+- **Release Asset Filtering**: Configured automated asset detection for `wp-knowledge-chat-*.zip` release packages with support for `WP_KNOWLEDGE_CHAT_GITHUB_TOKEN` private repository authentication.
+- **Admin Observability & Testing**: Added on-demand "Check for updates" link and "View details" popup modal to the WordPress Plugins dashboard, along with automated PHPUnit unit test coverage.
+
 ## [1.0.0] - 2026-10-23
 
 ### Fixed

@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,9 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 
 == Changelog ==
 
+= 1.0.1 =
+* Native In-Dashboard Auto-Updates: Integrated Plugin Update Checker (PUC v5.7) configured for GitHub Releases, enabling direct one-click updates and manual update checking from WordPress admin dashboard.
+
 = 1.0.0 =
 * Production Release v1.0.0: finalized consultation-mode grounding validation in `Rest_Controller::sanitize_backend_response` when source cards are omitted, ensuring accurate grounded analytics and preventing false-positive fallback prompts in the widget.
 * Vercel Serverless Integration: added dedicated `/api/index` serverless handler, cold-start error recovery in `_app.ts`, and expanded capitalised greeting/service vocabulary in claim verification.
@@ -210,6 +213,9 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 * Initial MVP: chat widget, four admin settings, signed REST proxy to the AI backend, rate limiting, source links, fallback, English and Indonesian interface.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Enables native one-click WordPress admin auto-updates directly from GitHub Releases.
 
 = 1.0.0 =
 Production release 1.0.0. Fixes consultation-mode grounded state handling between the Vercel backend and WordPress REST controller. Purge the page cache after upgrading.
