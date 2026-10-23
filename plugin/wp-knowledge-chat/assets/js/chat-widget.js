@@ -179,6 +179,19 @@
 		return url.href;
 	}
 
+	/** Returns a safe contact destination (mailto: address or approved https:// URL), otherwise null. */
+	function safeContactUrl(value, allowedHosts) {
+		if (typeof value !== 'string' || value.length > 2048) return null;
+		if (/^mailto:/i.test(value)) {
+			var email = value.slice(7).trim();
+			if (email.length <= 254 && /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(email)) {
+				return 'mailto:' + email;
+			}
+			return null;
+		}
+		return safeUrl(value, allowedHosts);
+	}
+
 	function el(tag, attrs, text) {
 		var node = document.createElement(tag);
 		if (attrs) {
@@ -249,7 +262,7 @@
 		var maxLength = Number(config.maxLength) > 0 ? Number(config.maxLength) : 500;
 		var sourceHosts = Array.isArray(config.sourceHosts) ? config.sourceHosts : [];
 		var contactHosts = Array.isArray(config.contactHosts) ? config.contactHosts : [];
-		var contactUrl = safeUrl(config.contactUrl, contactHosts);
+		var contactUrl = safeContactUrl(config.contactUrl, contactHosts);
 		var history = [];
 		var pending = false;
 		var lastQuestion = '';

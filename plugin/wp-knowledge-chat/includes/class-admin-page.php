@@ -191,14 +191,14 @@ final class Admin_Page {
 
 			case 'contact_url':
 				printf(
-					'<input type="url" class="regular-text" id="%1$s" name="%2$s" value="%3$s" required pattern="https://.*" aria-describedby="%1$s-help" /><p class="description" id="%1$s-help">%4$s</p>',
+					'<input type="text" class="regular-text" id="%1$s" name="%2$s" value="%3$s" required aria-describedby="%1$s-help" /><p class="description" id="%1$s-help">%4$s</p>',
 					esc_attr( $id ),
 					esc_attr( $name ),
 					esc_attr( $settings['contact_url'] ),
 					esc_html(
 						sprintf(
 							/* translators: %s: approved hostnames. */
-							__( 'Absolute https:// URL on an approved domain: %s.', 'wp-knowledge-chat' ),
+							__( 'WhatsApp number (e.g. +6281234567890), email address (e.g. info@inpartnerglobal.com), or an absolute https:// URL on an approved domain: %s.', 'wp-knowledge-chat' ),
 							implode( ', ', Settings::approved_contact_hosts() )
 						)
 					)

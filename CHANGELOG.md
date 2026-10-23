@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-10-23
+
+### Added
+- **Flexible Admin Contact Destination**: Extended the Contact URL setting (`Settings::validate_contact_url` and `chat-widget.js`) to support WhatsApp phone numbers (automatically normalized to `https://wa.me/<number>`), WhatsApp links (`wa.me`, `api.whatsapp.com`), and admin email addresses (`mailto:`), while keeping the chatbot UI completely unchanged.
+
 ## [1.0.1] - 2026-10-23
 
 ### Added

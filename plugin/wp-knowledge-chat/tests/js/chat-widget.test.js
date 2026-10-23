@@ -156,6 +156,16 @@ describe('safe rendering', () => {
 		assert.equal($$('.wkc-contact').length, 0);
 	});
 
+	it('renders the contact link for WhatsApp and mailto destinations without changing UI text', async () => {
+		const wa = await setup({ config: { contactUrl: 'https://wa.me/6281234567890', contactHosts: ['inpartnerglobal.com', 'wa.me'] } });
+		assert.equal(wa.$$('.wkc-contact')[0].getAttribute('href'), 'https://wa.me/6281234567890');
+		assert.equal(wa.$$('.wkc-contact')[0].textContent, 'Contact the Inpartner team (opens in a new tab)');
+
+		const mail = await setup({ config: { contactUrl: 'mailto:info@inpartnerglobal.com' } });
+		assert.equal(mail.$$('.wkc-contact')[0].getAttribute('href'), 'mailto:info@inpartnerglobal.com');
+		assert.equal(mail.$$('.wkc-contact')[0].textContent, 'Contact the Inpartner team (opens in a new tab)');
+	});
+
 	it('never assigns innerHTML for content', async () => {
 		assert.ok(!/\.innerHTML\s*=|insertAdjacentHTML|document\.write/.test(SCRIPT));
 	});

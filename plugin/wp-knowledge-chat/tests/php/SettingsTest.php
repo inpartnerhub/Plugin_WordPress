@@ -244,6 +244,15 @@ final class SettingsTest extends TestCase {
 		$this->assertSame( 'https://www.inpartnerglobal.com/contact/?ref=chat', Settings::sanitize( array( 'contact_url' => 'https://www.inpartnerglobal.com:443/contact/?ref=chat' ) )['contact_url'] );
 	}
 
+	public function test_whatsapp_and_email_contact_destinations_are_normalised(): void {
+		$this->assertSame( 'https://wa.me/6281234567890', Settings::sanitize( array( 'contact_url' => '0812-3456-7890' ) )['contact_url'] );
+		$this->assertSame( 'https://wa.me/6281234567890', Settings::sanitize( array( 'contact_url' => '+62 812 3456 7890' ) )['contact_url'] );
+		$this->assertSame( 'https://wa.me/6281234567890', Settings::sanitize( array( 'contact_url' => 'https://wa.me/6281234567890' ) )['contact_url'] );
+		$this->assertSame( 'https://api.whatsapp.com/send?phone=6281234567890', Settings::sanitize( array( 'contact_url' => 'https://api.whatsapp.com/send?phone=6281234567890' ) )['contact_url'] );
+		$this->assertSame( 'mailto:info@inpartnerglobal.com', Settings::sanitize( array( 'contact_url' => 'info@inpartnerglobal.com' ) )['contact_url'] );
+		$this->assertSame( 'mailto:admin@inpartner.id', Settings::sanitize( array( 'contact_url' => 'mailto:admin@inpartner.id' ) )['contact_url'] );
+	}
+
 	public function test_approved_domains_are_filterable(): void {
 		$this->add_filter( 'wp_knowledge_chat_allowed_contact_hosts', fn( $hosts ) => array_merge( $hosts, array( 'contact.example.org' ) ) );
 		$this->assertSame( 'https://contact.example.org/', Settings::sanitize( array( 'contact_url' => 'https://contact.example.org/' ) )['contact_url'] );

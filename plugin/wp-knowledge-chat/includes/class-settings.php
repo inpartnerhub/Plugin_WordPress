@@ -26,6 +26,9 @@ final class Settings {
 	/** Hosts approved for the contact link and for cited sources. Extend with the filters below. */
 	private const DEFAULT_APPROVED_HOSTS = array( 'inpartnerglobal.com', 'www.inpartnerglobal.com', 'inpartner.id', 'www.inpartner.id' );
 
+	/** Additional hosts approved specifically for the contact destination link (WhatsApp). */
+	private const DEFAULT_CONTACT_HOSTS = array( 'wa.me', 'api.whatsapp.com' );
+
 	/** @var array<string,bool> Error codes already reported during this request (WordPress may sanitize twice). */
 	private static array $reported = array();
 
@@ -228,19 +231,50 @@ final class Settings {
 	}
 
 	/**
-	 * Validates the contact URL without fetching it.
+	 * Validates the contact destination (approved https:// URL, WhatsApp number/link, or email).
 	 *
-	 * @param mixed $value Raw URL.
-	 * @return string|\WP_Error Normalised URL or error.
+	 * @param mixed $value Raw URL, phone number, or email.
+	 * @return string|\WP_Error Normalised destination or error.
 	 */
 	public static function validate_contact_url( $value ) {
+		if ( is_string( $value ) ) {
+			$trimmed = trim( $value );
+
+			// 1. Email address or mailto: URI.
+			if ( '' !== $trimmed && ! preg_match( '/[\x00-\x20\x7f\\\\]/', $trimmed ) && strlen( $trimmed ) <= 261 ) {
+				$email_candidate = 0 === stripos( $trimmed, 'mailto:' ) ? substr( $trimmed, 7 ) : $trimmed;
+				if ( false === strpos( $email_candidate, '/' ) && false === strpos( $email_candidate, '?' ) && is_email( $email_candidate ) ) {
+					$clean_email = sanitize_email( $email_candidate );
+					if ( '' !== $clean_email && is_email( $clean_email ) ) {
+						return 'mailto:' . $clean_email;
+					}
+				}
+			}
+
+			// 2. WhatsApp / phone number (e.g. +6281234567890, 6281234567890, 0812-3456-7890).
+			if ( '' !== $trimmed && preg_match( '/^\+?[0-9][0-9\s\-().]{6,22}[0-9]$/', $trimmed ) ) {
+				$digits = preg_replace( '/[^0-9]/', '', $trimmed );
+				if ( is_string( $digits ) ) {
+					if ( 0 === strpos( $trimmed, '08' ) ) {
+						$digits = '62' . substr( $digits, 1 );
+					} else {
+						$digits = ltrim( $digits, '0' );
+					}
+					if ( preg_match( '/^[1-9][0-9]{7,14}$/', $digits ) ) {
+						return 'https://wa.me/' . $digits;
+					}
+				}
+			}
+		}
+
+		// 3. Approved https:// URL (including wa.me / api.whatsapp.com).
 		$url = self::validate_https_url( $value, self::approved_contact_hosts() );
 		if ( null === $url ) {
 			return new \WP_Error(
 				'wkc_contact_url',
 				sprintf(
 					/* translators: %s: comma-separated list of approved hostnames. */
-					__( 'Contact URL must be an absolute https:// URL on an approved domain (%s), without credentials or a custom port.', 'wp-knowledge-chat' ),
+					__( 'Contact URL must be a valid WhatsApp number, email address, or an absolute https:// URL on an approved domain (%s), without credentials or a custom port.', 'wp-knowledge-chat' ),
 					implode( ', ', self::approved_contact_hosts() )
 				)
 			);
@@ -312,7 +346,7 @@ final class Settings {
 
 	/** @return string[] */
 	private static function base_hosts(): array {
-		$hosts     = self::DEFAULT_APPROVED_HOSTS;
+		$hosts     = array_merge( self::DEFAULT_APPROVED_HOSTS, self::DEFAULT_CONTACT_HOSTS );
 		$site_host = wp_parse_url( home_url(), PHP_URL_HOST );
 		if ( is_string( $site_host ) && '' !== $site_host ) {
 			$hosts[] = strtolower( $site_host );
