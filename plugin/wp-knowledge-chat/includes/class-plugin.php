@@ -15,6 +15,11 @@ final class Plugin {
 
 	private static ?Plugin $instance = null;
 
+	/**
+	 * @var object|null
+	 */
+	private ?object $updater = null;
+
 	public static function instance(): Plugin {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -44,6 +49,42 @@ final class Plugin {
 		if ( is_admin() ) {
 			( new Admin_Page() )->hooks();
 		}
+
+		$this->init_updater();
+	}
+
+	/**
+	 * Initializes the GitHub-based plugin update checker.
+	 */
+	public function init_updater(): void {
+		if ( null !== $this->updater ) {
+			return;
+		}
+
+		$puc_file = WP_KNOWLEDGE_CHAT_DIR . 'includes/puc/plugin-update-checker.php';
+		if ( file_exists( $puc_file ) ) {
+			require_once $puc_file;
+			if ( class_exists( 'YahnisElsts\\PluginUpdateChecker\\v5\\PucFactory' ) ) {
+				$this->updater = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+					'https://github.com/inpartnerhub/Plugin_WordPress',
+					WP_KNOWLEDGE_CHAT_FILE,
+					'wp-knowledge-chat'
+				);
+				$this->updater->setBranch( 'main' );
+				$this->updater->getVcsApi()->enableReleaseAssets( '/^wp-knowledge-chat-.*\.zip$/' );
+
+				if ( defined( 'WP_KNOWLEDGE_CHAT_GITHUB_TOKEN' ) && is_string( constant( 'WP_KNOWLEDGE_CHAT_GITHUB_TOKEN' ) ) ) {
+					$this->updater->setAuthentication( constant( 'WP_KNOWLEDGE_CHAT_GITHUB_TOKEN' ) );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns the update checker instance, or null if not initialized.
+	 */
+	public function get_updater(): ?object {
+		return $this->updater;
 	}
 
 	/**

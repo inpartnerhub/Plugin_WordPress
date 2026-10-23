@@ -325,4 +325,16 @@ final class AdminAndWidgetTest extends TestCase {
 		);
 		$this->assertSame( array( 'Bold?', 'A', 'B', 'C' ), Plugin::suggested_questions( 'en' ) );
 	}
+
+	public function test_updater_initializes_puc_instance(): void {
+		$plugin = Plugin::instance();
+		$plugin->init_updater();
+		$updater = $plugin->get_updater();
+
+		$this->assertNotNull( $updater );
+		$this->assertInstanceOf( \YahnisElsts\PluginUpdateChecker\v5p7\Plugin\UpdateChecker::class, $updater );
+		$this->assertSame( 'wp-knowledge-chat', $updater->slug );
+		$this->assertInstanceOf( \YahnisElsts\PluginUpdateChecker\v5p7\Vcs\GitHubApi::class, $updater->getVcsApi() );
+		$this->assertSame( 'https://github.com/inpartnerhub/Plugin_WordPress', $updater->getVcsApi()->getRepositoryUrl() );
+	}
 }
