@@ -126,6 +126,8 @@ export interface CachedResponse {
 /** In-memory cache for grounded FAQ responses without conversation history. */
 export class ResponseCache {
   private readonly cache = new Map<string, CachedResponse>();
+  private readonly inflight = new Map<string, Promise<unknown>>();
+  private namespace = 'default';
 
   constructor(
     private readonly ttlMs = 60 * 60 * 1000,
@@ -133,9 +135,17 @@ export class ResponseCache {
     private readonly now: () => number = () => Date.now(),
   ) {}
 
+  setNamespace(ns: string): void {
+    if (this.namespace !== ns) {
+      this.namespace = ns;
+      this.cache.clear();
+      this.inflight.clear();
+    }
+  }
+
   private makeKey(language: string, message: string): string {
     const norm = message.toLowerCase().trim().replace(/\s+/g, ' ');
-    return `${language}:${norm}`;
+    return `${this.namespace}:${language}:${norm}`;
   }
 
   get(language: string, message: string): CachedResponse | null {
@@ -150,16 +160,38 @@ export class ResponseCache {
   }
 
   set(language: string, message: string, data: Omit<CachedResponse, 'cachedAt'>): void {
+    if (!data.grounded) return;
     const key = this.makeKey(language, message);
-    if (this.cache.size >= this.maxSize) {
+    if (!this.cache.has(key) && this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
       if (firstKey) this.cache.delete(firstKey);
     }
-    this.cache.set(key, { ...data, cachedAt: this.now() });
+    this.cache.set(key, {
+      answer: data.answer,
+      sources: data.sources.map((s) => ({ ...s })),
+      grounded: data.grounded,
+      cachedAt: this.now(),
+    });
+  }
+
+  getInflight<T>(language: string, message: string): Promise<T> | undefined {
+    return this.inflight.get(this.makeKey(language, message)) as Promise<T> | undefined;
+  }
+
+  setInflight<T>(language: string, message: string, promise: Promise<T>): Promise<T> {
+    const key = this.makeKey(language, message);
+    const wrapped = promise.finally(() => {
+      if (this.inflight.get(key) === wrapped) {
+        this.inflight.delete(key);
+      }
+    });
+    this.inflight.set(key, wrapped);
+    return wrapped;
   }
 
   clear(): void {
     this.cache.clear();
+    this.inflight.clear();
   }
 
   get size(): number {

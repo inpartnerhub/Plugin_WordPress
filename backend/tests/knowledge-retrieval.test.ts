@@ -161,6 +161,36 @@ describe('Bm25Retriever', () => {
     assert.equal(retriever.search('Bagaimana mencari mitra distribusi?', 3, 1)[0]?.chunk.docId, 'page-2-distribution');
   });
 
+  it('retrieves contact document for WhatsApp and WA inquiries in EN, ID, and KO without matching unrelated messages', async () => {
+    const prodStore = new KnowledgeBaseStore(HOSTS);
+    const kbData = JSON.parse(await readFile('data/kb.json', 'utf8'));
+    prodStore.loadFrom(kbData);
+    const prodRetriever = new Bm25Retriever(prodStore.chunks());
+
+    const whatsappQueries = [
+      'What is your WhatsApp number?',
+      'whatsapp number',
+      'What is Inpartner WA number?',
+      'contact WhatsApp',
+      'Ada nomor WA?',
+      'nomor WA Inpartner berapa?',
+      'nomor WhatsApp resmi',
+      'Bagaimana cara hubungi via WhatsApp?',
+      '왓츠앱 번호가 어떻게 되나요?',
+      '연락처 알려주세요',
+    ];
+    for (const q of whatsappQueries) {
+      const hits = prodRetriever.search(q, 4, 1.0);
+      assert.ok(hits.length > 0, `Expected hits for "${q}"`);
+      assert.ok(hits.some((h) => h.chunk.docId === 'page-445-contact'), `Expected page-445-contact for "${q}", got ${hits.map((h) => h.chunk.docId).join(',')}`);
+      const contactChunk = hits.find((h) => h.chunk.docId === 'page-445-contact')!;
+      assert.ok(contactChunk.chunk.text.includes('+62 859 3454 8202'));
+    }
+
+    // Unrelated query with short words must not falsely match contact
+    assert.deepEqual(prodRetriever.search('weather in Paris tomorrow', 4, 1.0), []);
+  });
+
   it('maps Korean terms onto English content, with particles attached', () => {
     const tokens = tokenizeQuery('유통 파트너는 어떻게 찾나요?');
     assert.ok(tokens.includes('partner') && tokens.includes('distributor'));

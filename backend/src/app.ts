@@ -1,9 +1,9 @@
 import type { IncomingMessage, RequestListener, ServerResponse } from 'node:http';
 import type { Config } from './config/env.js';
 import { SignatureVerifier } from './lib/auth.js';
-import { HttpError, sendError, sendJson } from './lib/http.js';
+import { HttpError, createErrorResponse, sendError, sendJson } from './lib/http.js';
 import type { Logger } from './lib/logger.js';
-import { AbusePenaltyTracker, DailyBudget, FixedWindowLimiter } from './middleware/rate-limit.js';
+import { AbusePenaltyTracker, DailyBudget, FixedWindowLimiter, ResponseCache } from './middleware/rate-limit.js';
 import { handleChat } from './routes/chat.js';
 import { handleHealth } from './routes/health.js';
 import { createLock, handleIndex } from './routes/index.js';
@@ -24,6 +24,8 @@ export interface AppDeps {
 
 export function createApp({ config, store, llm, logger, now = () => Date.now(), indexingEnabled = true }: AppDeps): RequestListener {
   const retriever = new Bm25Retriever(store.chunks());
+  const cache = new ResponseCache(5 * 60_000, 500, now);
+  const cacheNamespace = `${config.llmProvider}:${config.llmProvider === 'openrouter' ? config.openrouterModel : config.geminiModel}`;
   const chat = new ChatService({
     store,
     retriever,
@@ -33,6 +35,8 @@ export function createApp({ config, store, llm, logger, now = () => Date.now(), 
     minScore: config.retrievalMinScore,
     secrets: [config.geminiApiKey, config.openrouterApiKey, config.chatSharedSecret, config.indexApiToken],
     budget: new DailyBudget(config.dailyRequestLimit, now),
+    cache,
+    cacheNamespace,
     now,
   });
   const verifier = new SignatureVerifier(config.chatSharedSecret, config.signatureMaxSkewSeconds, now);
@@ -60,6 +64,7 @@ export function createApp({ config, store, llm, logger, now = () => Date.now(), 
     logger,
     lock: createLock(),
     indexingEnabled,
+    cache,
   };
 
   const routes: Record<string, { method: string; handle: (req: IncomingMessage, res: ServerResponse) => Promise<void> | void }> = {
@@ -121,7 +126,10 @@ async function getDefaultApp(): Promise<RequestListener> {
 
     const llm = createLlmClient(config);
     return createApp({ config, store, llm, logger, indexingEnabled: false });
-  })();
+  })().catch((err) => {
+    defaultAppPromise = null;
+    throw err;
+  });
   return defaultAppPromise;
 }
 
@@ -147,19 +155,13 @@ export default async function defaultHandler(
     const { handleWebRequest } = await import('./netlify/adapter.js');
     return await handleWebRequest(req as Request, app);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    console.error(JSON.stringify({ level: 'error', event: 'default_handler_error', error: err instanceof Error ? err.name : 'unknown' }));
+    const httpErr = new HttpError(500, 'internal_error', 'An internal error occurred.');
     if (res && typeof res.setHeader === 'function') {
-      if (!res.headersSent) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: { code: 'internal_error', message: msg } }));
-      }
+      sendError(res, httpErr);
       return;
     }
-    return new Response(JSON.stringify({ error: { code: 'internal_error', message: msg } }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return createErrorResponse(httpErr);
   }
 }
 

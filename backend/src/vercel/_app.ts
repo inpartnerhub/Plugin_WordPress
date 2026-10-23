@@ -35,3 +35,7 @@ export async function getApp(): Promise<RequestListener> {
 
   return appPromise;
 }
+
+export function resetAppForTest(): void {
+  appPromise = null;
+}

@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **Grounded Response Caching & Request Coalescing (`ResponseCache`)**: Wired `ResponseCache` (5-minute TTL, max 500 entries) into `createApp()`, `ChatService.answer()`, and `handleIndex()` for stateless, PII-free grounded queries, with automatic KB-fingerprint namespace isolation and concurrent in-flight request deduplication.
+- **Chat Pipeline Timing Telemetry**: Added `retrieval_ms`, `llm_ms`, `total_ms`, and `cached` instrumentation to `ChatService.answer()` and the structured `chat_completed` log event.
+
+### Fixed
+- **Serverless Cold-Start Error Hardening (`vercel/*.ts`, `netlify/api.ts`, `app.ts`)**: Sanitized unhandled startup and request exceptions to log only non-sensitive error metadata (`error_name`), attached `SECURITY_HEADERS` via `createErrorResponse()`, and reset rejected `appPromise` instances so warm serverless functions can recover on subsequent requests.
+- **WhatsApp & Telephone Contact Retrieval (`text.ts`)**: Expanded `wa`, `whatsapp`, `telpon`, `telp`, `nomer`, `number`, `call`, `연락처`, `왓츠앱`, `카톡`, `telepon`, `nomor`, `phone`, `telephone`, and `전화` query terms to `['call', 'phone', 'contact']` so contact inquiries across English, Bahasa Indonesia, and Korean consistently retrieve `page-445-contact`.
+- **Scope Fallback Translations (`chat.ts`)**: Completed missing Indonesian (`investment_advice`, `profanity_hate`) and Korean (`injection`, `medical`, `unrelated`) entries in `SCOPE_FALLBACK_MESSAGES` and enforced strict `Record<ScopeViolation, Record<Language, string>>` typing.
+- **Widget Dynamic Localization & Accessibility (`chat-widget.js`)**: Updated `applyLanguage()` to dynamically re-localize already-rendered messages, CTA buttons, speaker labels, edit buttons, error banners, and open consultation forms when switching between EN, ID, and KO; added localized `quickActions`/`quickQuestions` labels and `aria-expanded`/`aria-controls` attributes on `.wkc-input-plus` and `.wkc-lang-toggle`.
+
 ## [1.0.2] - 2026-10-23
 
 ### Added

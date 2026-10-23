@@ -77,10 +77,17 @@ describe('auditKnowledgeBase', () => {
     assert.deepEqual(errors, []);
   });
 
-  it('keeps disputed phone numbers out and verifies authoritative phone in knowledge base', async () => {
+  it('keeps disputed phone numbers out and verifies authoritative phone, email, and approved services in knowledge base', async () => {
     const text = await readFile('data/kb.json', 'utf8');
-    assert.ok(!/896 2831 0192|555-0120/.test(text));
+    assert.ok(!/896[\s-]*2831[\s-]*0192|555-0120/.test(text));
     assert.ok(text.includes('+62 859 3454 8202'));
+    assert.ok(text.includes('corporatesecretary@inpartner.id'));
+    assert.ok(text.includes('Strategy & Corporate Advisory'));
+    assert.ok(text.includes('Investment & Project Advisory'));
+    assert.ok(text.includes('Market Access & Business Expansion'));
+    assert.ok(text.includes('Cross-Border & Technology Advisory'));
+    assert.ok(text.includes('Human Capital & Organization'));
+    assert.ok(!/Operations Advisory/i.test(text), 'unverified Operations Advisory teaser must not be fabricated in KB');
   });
 });
 

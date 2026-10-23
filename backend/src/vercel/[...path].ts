@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { getApp } from './_app.js';
+import { HttpError, createErrorResponse, sendError } from '../lib/http.js';
 import { handleWebRequest } from '../netlify/adapter.js';
 
 export const config = {
@@ -34,20 +35,13 @@ export default async function handler(
     }
     return await handleWebRequest(req as Request, app);
   } catch (err) {
-    console.error('Vercel Function Error ([...path]):', err);
-    const msg = err instanceof Error ? err.message : String(err);
+    console.error(JSON.stringify({ level: 'error', event: 'vercel_handler_error', route: '[...path]', error: err instanceof Error ? err.name : 'unknown' }));
+    const httpErr = new HttpError(500, 'internal_error', 'An internal error occurred.');
     if (res && typeof res.setHeader === 'function') {
-      if (!res.headersSent) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: { code: 'internal_error', message: msg } }));
-      }
+      sendError(res, httpErr);
       return;
     }
-    return new Response(JSON.stringify({ error: { code: 'internal_error', message: msg } }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return createErrorResponse(httpErr);
   }
 }
 
