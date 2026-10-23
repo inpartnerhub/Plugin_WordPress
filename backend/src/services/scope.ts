@@ -189,16 +189,30 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
   },
 ];
 
+const CONSULTATIVE_ACCOMPANIMENT_RE =
+  /\b(mendampingi|pendampingan|dampingi|apakah\s+inpartner\s+(?:bisa|dapat)|inpartner\s+(?:bisa|dapat)\s+(?:bantu|membantu|mendampingi|memfasilitasi))\b/i;
+const DIRECT_LEGAL_TAX_RE =
+  /\b(tax(es|ation)?|pajak|pph|ppn|vat|gst|dut(y|ies)|bea\s+(masuk|cukai)|cukai|minimum\s+capital|modal\s+(minimum|minimal|disetor)|lawyer|attorney|lawsuit|litigation|legal\s+(advice|risks?|review|opinion)|risiko\s+hukum|periksa\s+kontrak|how\s+(?:do|to|can)\s+(?:i|we)\s+(?:register|incorporate|set\s+up)|bagaimana\s+cara\s+(?:mendirikan|mendaftarkan)|cara\s+(?:mendirikan|mendaftarkan))\b/i;
+
 /** Returns the first scope violation found in a visitor question, or null. */
 export function scopeViolation(question: string): ScopeViolation | null {
   const deobf = deobfuscate(question);
   for (const rule of SCOPE_RULES) {
-    if (rule.patterns.some((re) => re.test(question) || re.test(deobf))) return rule.kind;
+    if (rule.patterns.some((re) => re.test(question) || re.test(deobf))) {
+      if (
+        rule.kind === 'legal_tax_advice' &&
+        CONSULTATIVE_ACCOMPANIMENT_RE.test(question) &&
+        !DIRECT_LEGAL_TAX_RE.test(question)
+      ) {
+        continue;
+      }
+      return rule.kind;
+    }
   }
   return null;
 }
 
-export type AnswerType = 'price' | 'founding' | 'headcount' | 'statistics' | 'clients' | 'hours' | 'office_location';
+export type AnswerType = 'price' | 'founding' | 'headcount' | 'statistics' | 'clients' | 'hours' | 'office_location' | 'duration';
 
 const ANSWER_TYPE_RULES: { type: AnswerType; question: RegExp; evidence: RegExp }[] = [
   {
@@ -208,6 +222,11 @@ const ANSWER_TYPE_RULES: { type: AnswerType; question: RegExp; evidence: RegExp 
     // A price needs an amount. The words "pricing"/"fees" alone are not one: KB v2.0 says
     // "Structure commercial agreements, pricing terms, ..." which opened the gate for every fee question.
     evidence: /\b(rp|idr|usd|sgd|eur|krw)\.?\s?\d|[$€£₩]\s?\d|\b(fees?|pricing|prices?|rates?|tarif|biaya|harga)\b[^.\n]{0,40}\d/i,
+  },
+  {
+    type: 'duration',
+    question: /\b(how long\s+(does|do|will|would|is)|berapa\s+lama|butuh\s+waktu\s+berapa\s+lama|estimasi\s+waktu|durasi\s+(proses|proyek|kerjasama|pencarian|pendampingan))\b|얼마나\s?걸리|소요\s?시간/i,
+    evidence: /\b\d+\s*(days?|weeks?|months?|years?|hari|minggu|bulan|tahun)\b/i,
   },
   {
     type: 'founding',
@@ -296,11 +315,20 @@ const COMMON_CAPITALISED = new Set(
     'monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december ' +
     'tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat ' +
     'halo hai pagi siang sore malam bapak ibu kak ' +
-    'layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga ' +
-    'asisten konsultasi bisnis global optima integra pt cv mitra solusi strategi strategis transformasi perusahaan klien penasihat manajemen ' +
+    'layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga baik sekali sama-sama senang bisa membantu semoga sukses hari menyenangkan ' +
+    'asisten konsultasi bisnis global optima integra pt cv pma bumn umkm mitra solusi strategi strategis transformasi perusahaan klien penasihat manajemen konsultan ' +
     'business consultation consulting cross-border cross border human capital organization executive search due diligence feasibility studies study ' +
-    'advisor advisory corporate expansion market partner partners service services jakarta selatan indonesia pakuwon tower casablanca kav ' +
-    'financing technology productivity restructuring investment investor distribution sourcing deal transaction'
+    'advisor advisory corporate expansion market partner partners service services jakarta selatan utara barat timur pusat indonesia pakuwon tower casablanca kav kavling lantai gedung menara jalan jl raya unit nomor no ' +
+    'financing technology productivity restructuring investment investor distribution sourcing deal transaction ' +
+    'perbankan jasa keuangan finansial lainnya pasar modal manufaktur rekayasa teknik industri sumber daya alam perkebunan pertanian agribisnis pertambangan mineral minyak gas migas ' +
+    'pengembangan teknologi informasi digital telekomunikasi kecerdasan buatan pusat data semikonduktor bioteknologi farmasi kesehatan medis rumah sakit ' +
+    'barang konsumen primer sekunder pokok non-pokok ritel perdagangan pariwisata perhotelan hospitalitas perjalanan energi terbarukan hijau bersih keberlanjutan berkelanjutan ' +
+    'ekuitas bank regional investasi alternatif ketahanan kesejahteraan transportasi logistik rantai pasok mobilitas perkotaan otomotif kendaraan listrik ' +
+    'properti real estat konstruksi infrastruktur pangan air peringkat nilai ekonomi karbon korporat korporasi sektor publik swasta pemerintahan negara institusi ' +
+    'kemitraan lintas batas negara usaha patungan transfer pengetahuan internasional pencarian rekrutmen eksekutif kepemimpinan talenta pelatihan kapasitas organisasi ' +
+    'penilaian analisis komersial peluang proyek akses masuk riset inteligensi pencocokan identifikasi distributor lokal asing cabang dukungan negosiasi evaluasi seleksi pendampingan ' +
+    'tahap tahapan langkah awal pertama kedua ketiga keempat kelima proses kerjasama pendekatan pemahaman pelaksanaan pertumbuhan kehadiran ' +
+    'asia tenggara timur tengah eropa amerika afrika pasifik korea jepang tiongkok china malaysia singapura australia belgia uni emirat arab abu dhabi swiss turki spanyol qatar saudi arabia jawa'
   ).split(/\s+/),
 );
 

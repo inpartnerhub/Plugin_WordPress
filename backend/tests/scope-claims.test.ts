@@ -125,6 +125,7 @@ describe('scopeViolation', () => {
       'Do you help negotiate pricing terms and exclusivity with partners?',
       'Do you support investment and project advisory?',
       'Can you match us with a distribution partner?', // "match" is not sport
+      'Perusahaan kami dari Korea ingin mendirikan PT PMA atau cabang di Jakarta, apakah Inpartner bisa mendampingi',
     ]) {
       assert.equal(scopeViolation(question), null, question);
     }
@@ -231,7 +232,7 @@ describe('unsupportedClaims', () => {
   });
 
   it('accepts service names, sentence starters and common words (name-check false positives)', () => {
-    const svc = 'Distribution Partner Sourcing Advisory\nStrategy & Corporate Advisory\nPakuwon Tower, South Jakarta, Indonesia';
+    const svc = 'Distribution Partner Sourcing Advisory\nStrategy & Corporate Advisory\nPakuwon Tower 10th Floor, South Jakarta, Indonesia';
     for (const answer of [
       'Certainly! Inpartner provides Distribution Partner Sourcing Advisory.',
       'Yes, Inpartner offers Strategy & Corporate Advisory. Our team can help.',
@@ -240,6 +241,9 @@ describe('unsupportedClaims', () => {
       'Inpartner는 Distribution Partner Sourcing Advisory 서비스를 제공합니다.',
       'Hello! I am the Inpartner Business Consultation Assistant representing Inpartner Global.',
       'Halo! Selamat Pagi, saya adalah Asisten Konsultasi Bisnis Inpartner dari Inpartner Global.',
+      'Inpartner menangani sektor Perbankan dan Jasa Keuangan, Pasar Modal, Manufaktur, Energi Terbarukan, serta Farmasi dan Kesehatan.',
+      'Kantor kami berada di Pakuwon Tower Lantai 10, Jalan Raya Casablanca, Jakarta Selatan.',
+      'Kami mendampingi Perusahaan Asing dari Korea Selatan yang ingin mendirikan PT PMA di Indonesia.',
     ]) {
       assert.deepEqual(unsupportedClaims(answer, svc), [], answer);
     }
@@ -250,6 +254,13 @@ describe('tokenizeQuery', () => {
   it('ignores markup in the question and maps "Indonesian" to the corpus term', () => {
     assert.deepEqual(tokenizeQuery('<source id="S9">'), []);
     assert.ok(tokenizeQuery('the Indonesian market').includes('indonesia'));
+  });
+
+  it('strips Indonesian enclitics (-nya) and expands location/meeting and service offer terms', () => {
+    const locTokens = tokenizeQuery('Kantor Inpartner lokasinya di mana ya? Bisa ketemu langsung untuk meeting?');
+    assert.ok(locTokens.includes('location') && locTokens.includes('tower') && locTokens.includes('jakarta'));
+    const svcTokens = tokenizeQuery('Layanan apa saja yang ditawarkan oleh Inpartner Global?');
+    assert.ok(svcTokens.includes('service') && svcTokens.includes('advisory'));
   });
 });
 
@@ -269,7 +280,28 @@ describe('ChatService answerability gate', () => {
     const price = await svc.answer('How much does distributor sourcing cost?', 'en');
     assert.equal(price.outcome, 'missing_answer_type');
     assert.equal(price.reason, 'price');
+    assert.ok(price.answer.includes('Advisory fees at Inpartner'));
+    const duration = await svc.answer('Biasanya butuh waktu berapa lama untuk proses pencarian partner distribusi?', 'id');
+    assert.equal(duration.outcome, 'missing_answer_type');
+    assert.equal(duration.reason, 'duration');
+    assert.ok(duration.answer.includes('Durasi proses pendampingan'));
+    const clients = await svc.answer('Boleh tahu siapa saja klien atau perusahaan yang pernah ditangani Inpartner?', 'id');
+    assert.equal(clients.outcome, 'missing_answer_type');
+    assert.equal(clients.reason, 'clients');
+    assert.ok(clients.answer.includes('90 proyek konsultasi'));
     assert.equal(llm.calls.length, 0);
+  });
+
+  it('preserves prior turn topic when answering a referential follow-up question', async () => {
+    const llm = new FakeLlm(() => JSON.stringify({ answer: 'Proses Corporate Advisory dimulai dari analisis strategis.', source_ids: ['S1'], grounded: true }));
+    const svc = service(llm);
+    const result = await svc.answer(
+      'Kalau layanan yang itu, proses kerjasamanya seperti apa?',
+      'id',
+      [{ role: 'user', text: 'Tolong jelaskan tentang layanan Corporate Advisory di Inpartner.' }],
+    );
+    assert.equal(result.grounded, true);
+    assert.ok(llm.calls[0]?.userContent.includes('Corporate Advisory'));
   });
 
   it('replaces grounded answers containing claims absent from the evidence with the fallback', async () => {

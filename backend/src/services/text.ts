@@ -13,8 +13,8 @@ const STOPWORDS = new Set(
     'us was we what when where which will with would you your yours also any some more most ' +
     // Indonesian
     'yang dan di ke dari apa apakah bagaimana gimana saya aku kami kita anda kamu untuk dengan ini itu ada bisa ' +
-    'dapat adalah ya tidak atau juga akan sudah pada oleh mana berapa kapan tolong mohon jelaskan sebutkan ' +
-    'seperti para tersebut lebih sangat punya memiliki menawarkan tawarkan'
+    'dapat adalah ya tidak atau juga akan sudah pada oleh mana berapa kapan tolong mohon sebutkan ' +
+    'seperti para tersebut lebih sangat punya memiliki'
   ).split(/\s+/),
 );
 
@@ -25,20 +25,35 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   hai: ['about', 'service'],
   hello: ['about', 'service'],
   hi: ['about', 'service'],
+  permisi: ['about', 'service'],
+  kabar: ['about', 'service'],
   selamat: ['about', 'service'],
   pagi: ['about', 'service'],
   siang: ['about', 'service'],
   sore: ['about', 'service'],
   malam: ['about', 'service'],
+  jelaskan: ['about', 'service', 'supporting', 'capabilities'],
+  jelasin: ['about', 'service', 'supporting', 'capabilities'],
+  penjelasan: ['about', 'service', 'supporting', 'capabilities'],
+  soal: ['about', 'service'],
+  info: ['about', 'service', 'contact'],
+  informasi: ['about', 'service', 'contact'],
+  menawarkan: ['service', 'advisory', 'portfolio', 'supporting', 'capabilities'],
+  ditawarkan: ['service', 'advisory', 'portfolio', 'supporting', 'capabilities'],
+  tawarkan: ['service', 'advisory', 'portfolio', 'supporting', 'capabilities'],
+  tersedia: ['service', 'advisory', 'portfolio', 'supporting'],
   bantu: ['service', 'advisory'],
   bantuan: ['service', 'advisory'],
   dibantu: ['service', 'advisory'],
   membantu: ['service', 'advisory'],
+  mendampingi: ['entry', 'market', 'advisory', 'partner', 'support'],
+  pendampingan: ['entry', 'market', 'advisory', 'partner', 'support'],
+  dampingi: ['entry', 'market', 'advisory', 'partner', 'support'],
   tolong: ['service', 'advisory'],
   help: ['service', 'advisory'],
   kamu: ['about', 'company'],
   anda: ['about', 'company'],
-  layanan: ['service', 'advisory'],
+  layanan: ['service', 'advisory', 'supporting', 'capabilities'],
   jasa: ['service', 'advisory'],
   servis: ['service', 'advisory'],
   mitra: ['partner'],
@@ -49,20 +64,41 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   memasuki: ['entry', 'enter'],
   ekspansi: ['expansion', 'expand'],
   perluasan: ['expansion', 'expand'],
+  cabang: ['entry', 'market', 'expansion', 'indonesia'],
+  pma: ['foreign', 'entry', 'market', 'indonesia', 'investment'],
+  korea: ['foreign', 'international', 'cross', 'border', 'entry'],
   berkembang: ['growth', 'expand'],
   pertumbuhan: ['growth'],
   kontak: ['contact'],
   hubungi: ['contact'],
   menghubungi: ['contact'],
+  tercepat: ['contact', 'phone', 'email', 'office'],
+  cepat: ['contact', 'phone', 'email'],
+  ketemu: ['contact', 'office', 'tower', 'jakarta'],
+  bertemu: ['contact', 'office', 'tower', 'jakarta'],
+  pertemuan: ['contact', 'office', 'tower', 'jakarta'],
+  meeting: ['contact', 'office', 'tower', 'jakarta'],
+  tatap: ['contact', 'office', 'jakarta'],
+  muka: ['contact', 'office', 'jakarta'],
   alamat: ['address', 'tower', 'jakarta'],
   kantor: ['office', 'tower', 'jakarta'],
-  lokasi: ['location', 'tower', 'jakarta'],
+  lokasi: ['location', 'office', 'tower', 'jakarta'],
   telepon: ['call', 'phone'],
   nomor: ['call', 'phone'],
   surel: ['email'],
-  tentang: ['about'],
-  profil: ['about'],
+  tentang: ['about', 'supporting', 'capabilities'],
+  profil: ['about', 'supporting', 'capabilities'],
   perusahaan: ['company'],
+  skala: ['company', 'middle', 'sized', 'corporations'],
+  menengah: ['middle', 'sized', 'corporations', 'companies'],
+  klien: ['client', 'company', 'corporate', 'portfolio'],
+  portofolio: ['portfolio', 'project', 'client'],
+  kerjasama: ['approach', 'process', 'partnership', 'engagement', 'stage'],
+  tahap: ['approach', 'process', 'step', 'stage'],
+  tahapan: ['approach', 'process', 'step', 'stage'],
+  awal: ['approach', 'step', 'stage', 'understand'],
+  ditangani: ['expertise', 'industry', 'sector', 'portfolio'],
+  menangani: ['expertise', 'industry', 'sector', 'portfolio'],
   akuisisi: ['acquisition', 'cross', 'border', 'deal', 'transaction'],
   penggabungan: ['merger', 'cross', 'border', 'deal', 'transaction'],
   merger: ['merger', 'cross', 'border', 'deal', 'transaction'],
@@ -253,6 +289,13 @@ export function tokenize(text: string): string[] {
   return tokens;
 }
 
+function stripIdClitic(word: string): string {
+  if (word.length > 5 && (word.endsWith('nya') || word.endsWith('lah') || word.endsWith('kah') || word.endsWith('pun'))) {
+    return word.slice(0, -3);
+  }
+  return word;
+}
+
 /**
  * Tokenises a query and adds mapped expansion terms (deduplicated). Markup
  * is removed first so tag and attribute names in a pasted payload (for
@@ -272,9 +315,11 @@ export function tokenizeQuery(text: string): string[] {
   }
   for (const raw of normalizeText(plain).split(/[^a-z0-9]+/)) {
     if (raw.length < 2) continue;
-    const expansions = QUERY_EXPANSIONS[raw] ?? QUERY_EXPANSIONS[stem(raw)];
+    const base = stripIdClitic(raw);
+    const expansions = QUERY_EXPANSIONS[raw] ?? QUERY_EXPANSIONS[base] ?? QUERY_EXPANSIONS[stem(raw)];
     if (expansions) for (const e of expansions) out.add(stem(e));
     if (!STOPWORDS.has(raw)) out.add(stem(raw));
+    if (base !== raw && !STOPWORDS.has(base)) out.add(stem(base));
   }
   return [...out];
 }
