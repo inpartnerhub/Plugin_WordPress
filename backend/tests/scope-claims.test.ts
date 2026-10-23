@@ -238,6 +238,8 @@ describe('unsupportedClaims', () => {
       'Of course. In General, our office is at Pakuwon Tower in South Jakarta.',
       'Tentu! Inpartner menyediakan layanan Distribution Partner Sourcing Advisory.',
       'Inpartner는 Distribution Partner Sourcing Advisory 서비스를 제공합니다.',
+      'Hello! I am the Inpartner Business Consultation Assistant representing Inpartner Global.',
+      'Halo! Selamat Pagi, saya adalah Asisten Konsultasi Bisnis Inpartner dari Inpartner Global.',
     ]) {
       assert.deepEqual(unsupportedClaims(answer, svc), [], answer);
     }

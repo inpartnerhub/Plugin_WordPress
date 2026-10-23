@@ -1407,7 +1407,7 @@ var digitsOnly = (s) => s.replace(/\D/g, "");
 var NAME_RUN_RE = /(?<![\p{L}\d])[A-ZÀ-ÖØ-Þ][\p{Script=Latin}'’-]*(?:\s+(?:(?:&|of|and|de|van|bin|binti)\s+)?[A-ZÀ-ÖØ-Þ][\p{Script=Latin}'’-]*)+/gu;
 var NAME_CONNECTORS = /* @__PURE__ */ new Set(["&", "of", "and", "de", "van", "bin", "binti"]);
 var COMMON_CAPITALISED = new Set(
-  "a an the and or but if so yes no not of in on at to for from by with as is are was were be been this that these those it its we our us you your they their i my he she his her who what when where which why how there here also however certainly sure absolutely great thank thanks please hello hi welcome of course indeed additionally furthermore moreover overall currently generally in general for example such each every all some any many most more other another both either neither one two three first second finally next then ai assistant inpartner inpartner\u2019s inpartner's english indonesian bahasa indonesia korean \uD55C\uAD6D\uC5B4 monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga asisten konsultasi bisnis global optima integra pt cv mitra solusi strategi strategis transformasi perusahaan klien penasihat manajemen advisor advisory corporate expansion market partner partners service services jakarta selatan indonesia pakuwon tower casablanca kav financing technology productivity restructuring investment investor distribution sourcing deal transaction".split(/\s+/)
+  "a an the and or but if so yes no not of in on at to for from by with as is are was were be been this that these those it its we our us you your they their i my he she his her who what when where which why how there here also however certainly sure absolutely great thank thanks please hello hi welcome of course indeed additionally furthermore moreover overall currently generally in general for example such each every all some any many most more other another both either neither one two three first second finally next then ai assistant inpartner inpartner\u2019s inpartner's english indonesian bahasa indonesia korean \uD55C\uAD6D\uC5B4 monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat halo hai pagi siang sore malam bapak ibu kak layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga asisten konsultasi bisnis global optima integra pt cv mitra solusi strategi strategis transformasi perusahaan klien penasihat manajemen business consultation consulting cross-border cross border human capital organization executive search due diligence feasibility studies study advisor advisory corporate expansion market partner partners service services jakarta selatan indonesia pakuwon tower casablanca kav financing technology productivity restructuring investment investor distribution sourcing deal transaction".split(/\s+/)
 );
 function unsupportedClaims(answer, evidenceText) {
   const problems = [];
@@ -2286,7 +2286,10 @@ async function getApp() {
     }
     const llm = createLlmClient(config2);
     return createApp({ config: config2, store, llm, logger, indexingEnabled: false });
-  })();
+  })().catch((err) => {
+    appPromise = null;
+    throw err;
+  });
   return appPromise;
 }
 

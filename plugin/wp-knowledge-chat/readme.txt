@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.5.1
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,13 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 
 == Changelog ==
 
+= 1.0.0 =
+* Production Release v1.0.0: finalized consultation-mode grounding validation in `Rest_Controller::sanitize_backend_response` when source cards are omitted, ensuring accurate grounded analytics and preventing false-positive fallback prompts in the widget.
+* Vercel Serverless Integration: added dedicated `/api/index` serverless handler, cold-start error recovery in `_app.ts`, and expanded capitalised greeting/service vocabulary in claim verification.
+
+= 0.5.1 =
+* Consultation Assistant UI: omitted source cards from user view and added natural conversational greeting and identity support (`en`, `id`, `ko`).
+
 = 0.5.0 =
 * Corporate theme: aligned with inpartnerglobal.com corporate blue palette (#0076db), with modernized WordPress admin dashboard and stat cards.
 * UI/UX redesign: Option 3 globe dropdown language switcher (🌐 EN ▾), aerodynamic paper airplane send button with dynamic typing states, collapsible suggestion chips (+), centered AI disclaimer, and refined 13.5px/14px typography hierarchy.
@@ -203,6 +210,9 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 * Initial MVP: chat widget, four admin settings, signed REST proxy to the AI backend, rate limiting, source links, fallback, English and Indonesian interface.
 
 == Upgrade Notice ==
+
+= 1.0.0 =
+Production release 1.0.0. Fixes consultation-mode grounded state handling between the Vercel backend and WordPress REST controller. Purge the page cache after upgrading.
 
 = 0.5.0 =
 Major UI redesign and corporate blue branding release (#0076db), Option 3 globe language switcher, and updated disclaimer. Purge the page cache so the new asset query strings are loaded.

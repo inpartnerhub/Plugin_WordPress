@@ -310,6 +310,12 @@ final class RestControllerTest extends TestCase {
 		$this->assertSame( array(), $clean['sources'] );
 	}
 
+	public function test_grounded_with_omitted_sources_preserves_grounded_flag(): void {
+		$clean = Rest_Controller::sanitize_backend_response( array( 'answer' => 'Hello! How can I help you?', 'sources' => array(), 'grounded' => true ) );
+		$this->assertTrue( $clean['grounded'] );
+		$this->assertSame( array(), $clean['sources'] );
+	}
+
 	public function test_long_answers_are_truncated(): void {
 		$clean = Rest_Controller::sanitize_backend_response( array( 'answer' => str_repeat( 'a', 5000 ), 'sources' => array(), 'grounded' => false ) );
 		$this->assertSame( Rest_Controller::MAX_ANSWER_CHARS, mb_strlen( $clean['answer'] ) );
