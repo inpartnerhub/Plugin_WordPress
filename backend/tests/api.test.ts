@@ -190,11 +190,12 @@ describe('rate limiting', () => {
     }
   });
 
-  it('enforces the daily request budget', async () => {
+  it('enforces the daily request budget on uncached model calls while serving cached repeats', async () => {
     const t = await startTestServer({ env: { DAILY_REQUEST_LIMIT: '1' } });
     try {
       assert.equal((await postChat(t.url, { message: 'distributors', language: 'en' }, { clientId: 'd1' })).status, 200);
-      const res = await postChat(t.url, { message: 'distributors', language: 'en' }, { clientId: 'd2' });
+      assert.equal((await postChat(t.url, { message: 'distributors', language: 'en' }, { clientId: 'd1-cached' })).status, 200);
+      const res = await postChat(t.url, { message: 'shortlist resellers', language: 'en' }, { clientId: 'd2' });
       assert.equal(res.status, 429);
       assert.equal(((await res.json()) as { error: { code: string } }).error.code, 'daily_limit_reached');
     } finally {
