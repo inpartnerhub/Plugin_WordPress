@@ -15,8 +15,9 @@ final class RestControllerTest extends TestCase {
 		parent::setUp();
 		$this->calls = array();
 		$_SERVER['REMOTE_ADDR'] = '203.0.113.' . wp_rand( 1, 250 );
+		Rest_Controller::flush_cache();
 		global $wpdb;
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_wkc_rl_%' OR option_name LIKE '_transient_timeout_wkc_rl_%'" );
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_wkc_%' OR option_name LIKE '_transient_timeout_wkc_%'" );
 		wp_cache_flush();
 	}
 
@@ -123,16 +124,16 @@ final class RestControllerTest extends TestCase {
 
 		// Untrusted peer: a spoofed header cannot buy a fresh rate-limit bucket.
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.1';
-		$this->assertSame( 200, $this->chat( array( 'message' => 'Hi' ) )->get_status() );
+		$this->assertSame( 200, $this->chat( array( 'message' => 'Hi 1' ) )->get_status() );
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.2';
-		$this->assertSame( 429, $this->chat( array( 'message' => 'Hi' ) )->get_status() );
+		$this->assertSame( 429, $this->chat( array( 'message' => 'Hi 2' ) )->get_status() );
 
 		// Trusted proxy: each forwarded visitor gets their own bucket and client id.
 		$this->add_filter( 'wp_knowledge_chat_trusted_proxies', fn() => array( '10.0.0.0/8' ) );
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.3';
-		$this->assertSame( 200, $this->chat( array( 'message' => 'Hi' ) )->get_status() );
+		$this->assertSame( 200, $this->chat( array( 'message' => 'Hi 3' ) )->get_status() );
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.4';
-		$this->assertSame( 200, $this->chat( array( 'message' => 'Hi' ) )->get_status() );
+		$this->assertSame( 200, $this->chat( array( 'message' => 'Hi 4' ) )->get_status() );
 		$this->assertNotSame( $this->calls[1]['args']['headers']['X-WKC-Client'], $this->calls[2]['args']['headers']['X-WKC-Client'] );
 		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
 	}
@@ -355,6 +356,48 @@ final class RestControllerTest extends TestCase {
 		$response = $this->chat( array( 'message' => 'What services do you offer?' ) );
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertNotEmpty( $this->calls[0]['args']['headers']['X-WKC-Client'] );
+	}
+
+	public function test_first_tier_cache_serves_repeated_stateless_question_without_backend_call(): void {
+		$this->backend( array( 200, self::GOOD ) );
+		$first = $this->chat( array( 'message' => 'Apa saja layanan Anda?' ) );
+		$this->assertSame( 200, $first->get_status() );
+		$this->assertSame( 'MISS', $first->get_headers()['X-WKC-Cache'] ?? '' );
+		$this->assertCount( 1, $this->calls );
+
+		// Second call with slightly different punctuation/spacing should hit Tier-1 cache.
+		$second = $this->chat( array( 'message' => 'apa saja layanan anda??' ) );
+		$this->assertSame( 200, $second->get_status() );
+		$this->assertSame( 'HIT', $second->get_headers()['X-WKC-Cache'] ?? '' );
+		$this->assertSame( self::GOOD['answer'], $second->get_data()['answer'] );
+		$this->assertCount( 1, $this->calls, 'Backend should NOT be called on cache hit' );
+	}
+
+	public function test_first_tier_cache_flush_clears_cached_entries(): void {
+		$this->backend( array( 200, self::GOOD ) );
+		$first = $this->chat( array( 'message' => 'Lokasi kantor dimana?' ) );
+		$this->assertSame( 200, $first->get_status() );
+		$this->assertCount( 1, $this->calls );
+
+		Rest_Controller::flush_cache();
+
+		// After flush, exact same question should call backend again.
+		$second = $this->chat( array( 'message' => 'Lokasi kantor dimana?' ) );
+		$this->assertSame( 200, $second->get_status() );
+		$this->assertSame( 'MISS', $second->get_headers()['X-WKC-Cache'] ?? '' );
+		$this->assertCount( 2, $this->calls );
+	}
+
+	public function test_keep_warm_backend_cron_schedule_and_hook(): void {
+		$schedules = \WP_Knowledge_Chat\Plugin::add_cron_schedules( array() );
+		$this->assertArrayHasKey( 'every_four_minutes', $schedules );
+		$this->assertSame( 240, $schedules['every_four_minutes']['interval'] );
+
+		// Test that keep_warm runs health check when configured
+		$this->backend( array( 200, array( 'status' => 'ok', 'knowledge_base' => 'ready' ) ) );
+		\WP_Knowledge_Chat\Plugin::run_keep_warm();
+		$this->assertNotEmpty( $this->calls );
+		$this->assertStringContainsString( '/api/health', $this->calls[0]['url'] );
 	}
 }
 

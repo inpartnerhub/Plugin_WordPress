@@ -584,6 +584,7 @@ final class Content_Sync {
 		}
 		update_option( self::SYNCED_OPTION, $synced, false );
 		update_option( self::PENDING_OPTION, $pending, false );
+		Rest_Controller::flush_cache();
 		return true;
 	}
 
@@ -593,6 +594,7 @@ final class Content_Sync {
 		unset( $synced[ $post_id ], $pending[ $post_id ] );
 		update_option( self::SYNCED_OPTION, $synced, false );
 		update_option( self::PENDING_OPTION, $pending, false );
+		Rest_Controller::flush_cache();
 		return true;
 	}
 

@@ -28,6 +28,8 @@
 			you: 'You said:',
 			assistant: 'Assistant said:',
 			typing: 'The assistant is preparing an answer…',
+			analyzing: 'Searching Inpartner knowledge base…',
+			formulating: 'Preparing business consultation answer…',
 			received: 'New answer received.',
 			sources: 'Sources',
 			newTab: '(opens in a new tab)',
@@ -77,6 +79,8 @@
 			you: 'Anda:',
 			assistant: 'Asisten:',
 			typing: 'Asisten sedang menyiapkan jawaban…',
+			analyzing: 'Menganalisis basis pengetahuan Inpartner…',
+			formulating: 'Menyusun jawaban konsultasi bisnis…',
 			received: 'Jawaban baru diterima.',
 			sources: 'Sumber',
 			newTab: '(terbuka di tab baru)',
@@ -126,6 +130,8 @@
 			you: '나:',
 			assistant: '어시스턴트:',
 			typing: '어시스턴트가 답변을 준비하고 있습니다…',
+			analyzing: 'Inpartner 지식 베이스 확인 중…',
+			formulating: '비즈니스 자문 답변 작성 중…',
 			received: '새 답변이 도착했습니다.',
 			sources: '출처',
 			newTab: '(새 탭에서 열림)',
@@ -962,6 +968,16 @@
 			var timer = setTimeout(function () {
 				if (controller) controller.abort();
 			}, REQUEST_TIMEOUT_MS);
+			var stepTimer1 = setTimeout(function () {
+				if (pending && status && typeof t.analyzing === 'string') {
+					status.textContent = t.analyzing;
+				}
+			}, 1500);
+			var stepTimer2 = setTimeout(function () {
+				if (pending && status && typeof t.formulating === 'string') {
+					status.textContent = t.formulating;
+				}
+			}, 3500);
 
 			var payload = { message: question, language: lang };
 			var prevHistory = history.slice(0, -1);
@@ -1016,6 +1032,8 @@
 				})
 				.then(function () {
 					clearTimeout(timer);
+					clearTimeout(stepTimer1);
+					clearTimeout(stepTimer2);
 					setPending(false);
 				});
 		}

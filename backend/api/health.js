@@ -160,7 +160,7 @@ var init_llm = __esm({
           responseMimeType: "application/json",
           responseSchema: RESPONSE_SCHEMA
         };
-        if (/^gemini-2\.5-flash/.test(this.options.model)) {
+        if (/^gemini-2\./.test(this.options.model)) {
           generationConfig.thinkingConfig = { thinkingBudget: 0 };
         }
         const safetySettings = [
@@ -669,7 +669,7 @@ function loadConfig(env = process.env) {
     geminiModel,
     geminiApiBaseUrl,
     geminiTimeoutMs: int("GEMINI_TIMEOUT_MS", 25e3, 1e3, 6e4),
-    geminiMaxOutputTokens: int("GEMINI_MAX_OUTPUT_TOKENS", 600, 64, 4096),
+    geminiMaxOutputTokens: int("GEMINI_MAX_OUTPUT_TOKENS", 220, 64, 4096),
     chatSharedSecret,
     indexApiToken,
     allowedSourceHosts,

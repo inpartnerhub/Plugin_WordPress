@@ -19,6 +19,7 @@ function wkc_uninstall_site(): void {
 	delete_option( 'wkc_synced_pages' );
 	delete_option( 'wkc_sync_pending' );
 	wp_clear_scheduled_hook( 'wkc_retry_sync' );
+	wp_clear_scheduled_hook( 'wkc_keep_warm_backend' );
 
 	// Consultation leads (personal data) are deleted with the plugin. Export them first
 	// (Analytics & Leads screen, or Tools → Export Personal Data) if they must be kept.

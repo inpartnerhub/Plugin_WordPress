@@ -11,7 +11,8 @@ defined( 'ABSPATH' ) || exit;
 
 final class Plugin {
 
-	public const HANDLE = 'wp-knowledge-chat';
+	public const HANDLE         = 'wp-knowledge-chat';
+	public const KEEP_WARM_HOOK = 'wkc_keep_warm_backend';
 
 	private static ?Plugin $instance = null;
 
@@ -32,6 +33,9 @@ final class Plugin {
 		add_action( 'init', array( Settings::class, 'register' ) );
 		add_action( 'init', array( Analytics::class, 'register_post_type' ) );
 		add_action( 'admin_init', array( self::class, 'add_privacy_policy_content' ) );
+		add_filter( 'cron_schedules', array( self::class, 'add_cron_schedules' ) );
+		add_action( self::KEEP_WARM_HOOK, array( self::class, 'run_keep_warm' ) );
+		self::schedule_keep_warm();
 		add_filter( 'wp_privacy_personal_data_exporters', array( Analytics::class, 'register_exporter' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( Analytics::class, 'register_eraser' ) );
 		// While the stored value equals the registered default, update_option() takes the add_option() path.
@@ -99,6 +103,7 @@ final class Plugin {
 		Settings::install();
 		Analytics::register_post_type();
 		Analytics::maybe_migrate_legacy_leads();
+		self::schedule_keep_warm();
 	}
 
 	/**
@@ -128,6 +133,41 @@ final class Plugin {
 	public static function deactivate(): void {
 		wp_cache_delete( Settings::OPTION, 'options' );
 		wp_clear_scheduled_hook( Content_Sync::RETRY_HOOK );
+		wp_clear_scheduled_hook( self::KEEP_WARM_HOOK );
+	}
+
+	/**
+	 * Registers a 4-minute schedule interval for the backend keep-warm ping.
+	 *
+	 * @param array<string,array{interval:int,display:string}> $schedules Cron schedules.
+	 * @return array<string,array{interval:int,display:string}>
+	 */
+	public static function add_cron_schedules( array $schedules ): array {
+		if ( ! isset( $schedules['every_four_minutes'] ) ) {
+			$schedules['every_four_minutes'] = array(
+				'interval' => 4 * MINUTE_IN_SECONDS,
+				'display'  => __( 'Every Four Minutes', 'wp-knowledge-chat' ),
+			);
+		}
+		return $schedules;
+	}
+
+	/**
+	 * Schedules the keep-warm event if not already scheduled.
+	 */
+	public static function schedule_keep_warm(): void {
+		if ( ! wp_next_scheduled( self::KEEP_WARM_HOOK ) && Backend_Client::is_configured() ) {
+			wp_schedule_event( time() + 60, 'every_four_minutes', self::KEEP_WARM_HOOK );
+		}
+	}
+
+	/**
+	 * Sends a lightweight health ping to the backend to keep serverless containers warm.
+	 */
+	public static function run_keep_warm(): void {
+		if ( Backend_Client::is_configured() ) {
+			Backend_Client::health();
+		}
 	}
 
 	/**

@@ -156,6 +156,23 @@ final class Rest_Controller {
 			return $this->rate_limited( $language, MINUTE_IN_SECONDS );
 		}
 
+		// First-tier fast cache for repetitive stateless queries.
+		$is_stateless = empty( $history );
+		$cache_key    = '';
+		if ( $is_stateless ) {
+			$norm_msg  = mb_strtolower( trim( preg_replace( '/[?!.,;:\s]+/u', ' ', $message ) ?? '' ) );
+			$cache_key = 'wkc_qc_' . md5( $language . ':' . $norm_msg );
+			$cached    = get_transient( $cache_key );
+			if ( is_array( $cached ) && isset( $cached['answer'], $cached['grounded'], $cached['sources'] ) ) {
+				$this->defer_analytics( $message, $language, (bool) $cached['grounded'], $cached['grounded'] ? 'answered' : 'fallback' );
+				$response = new \WP_REST_Response( $cached, 200 );
+				$response->header( 'Cache-Control', 'no-store, private' );
+				$response->header( 'X-Robots-Tag', 'noindex' );
+				$response->header( 'X-WKC-Cache', 'HIT' );
+				return $response;
+			}
+		}
+
 		// The backend receives an opaque, salted identifier, never the visitor's IP address.
 		$client_id = substr( hash_hmac( 'sha256', $ip, wp_salt( 'auth' ) ), 0, 32 );
 		$result    = Backend_Client::chat( $message, $language, $client_id, $history );
@@ -180,14 +197,25 @@ final class Rest_Controller {
 			return $this->error( 'wkc_unavailable', 'unavailable', $language, 503 );
 		}
 
-		Analytics::record_query( $message, $language, $clean['grounded'], $clean['grounded'] ? 'answered' : 'fallback' );
-		if ( ! $clean['grounded'] ) {
-			Analytics::record_content_gap( $message, $language );
+		if ( $is_stateless && '' !== $cache_key && ! empty( $clean['grounded'] ) ) {
+			/**
+			 * Filters the transient cache TTL for grounded chat answers in seconds.
+			 * Default 24 hours (86400).
+			 *
+			 * @param int $ttl Cache time-to-live in seconds.
+			 */
+			$ttl = (int) apply_filters( 'wp_knowledge_chat_cache_ttl', 24 * HOUR_IN_SECONDS );
+			if ( $ttl > 0 ) {
+				set_transient( $cache_key, $clean, $ttl );
+			}
 		}
+
+		$this->defer_analytics( $message, $language, $clean['grounded'], $clean['grounded'] ? 'answered' : 'fallback' );
 
 		$response = new \WP_REST_Response( $clean, 200 );
 		$response->header( 'Cache-Control', 'no-store, private' );
 		$response->header( 'X-Robots-Tag', 'noindex' );
+		$response->header( 'X-WKC-Cache', 'MISS' );
 		return $response;
 	}
 
@@ -554,5 +582,48 @@ final class Rest_Controller {
 		);
 		$lang = isset( $messages[ $language ] ) ? $language : 'en';
 		return new \WP_Error( $code, $messages[ $lang ][ $kind ], array( 'status' => $status ) );
+	}
+
+	/**
+	 * Defer analytics and content gap recording to the shutdown hook so visitor responses
+	 * are returned immediately without blocking on database option writes.
+	 */
+	private function defer_analytics( string $message, string $language, bool $grounded, string $outcome ): void {
+		if ( defined( 'WP_TESTS_DOMAIN' ) || ! function_exists( 'add_action' ) ) {
+			Analytics::record_query( $message, $language, $grounded, $outcome );
+			if ( ! $grounded ) {
+				Analytics::record_content_gap( $message, $language );
+			}
+			return;
+		}
+
+		add_action(
+			'shutdown',
+			static function () use ( $message, $language, $grounded, $outcome ) {
+				Analytics::record_query( $message, $language, $grounded, $outcome );
+				if ( ! $grounded ) {
+					Analytics::record_content_gap( $message, $language );
+				}
+			}
+		);
+	}
+
+	/**
+	 * Flushes all cached chat responses from WordPress transients.
+	 */
+	public static function flush_cache(): void {
+		global $wpdb;
+		if ( isset( $wpdb->options ) ) {
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+					$wpdb->esc_like( '_transient_wkc_qc_' ) . '%',
+					$wpdb->esc_like( '_transient_timeout_wkc_qc_' ) . '%'
+				)
+			); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
+		if ( function_exists( 'wp_cache_flush' ) ) {
+			wp_cache_flush();
+		}
 	}
 }

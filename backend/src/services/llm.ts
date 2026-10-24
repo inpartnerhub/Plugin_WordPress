@@ -147,8 +147,8 @@ export class GeminiClient implements LlmClient {
       responseMimeType: 'application/json',
       responseSchema: RESPONSE_SCHEMA,
     };
-    // Gemini 2.5 Flash spends output tokens on "thinking" by default; a short grounded answer does not need it.
-    if (/^gemini-2\.5-flash/.test(this.options.model)) {
+    // Gemini 2.x models spend output tokens on "thinking" by default; a short grounded answer does not need it.
+    if (/^gemini-2\./.test(this.options.model)) {
       generationConfig.thinkingConfig = { thinkingBudget: 0 };
     }
 
