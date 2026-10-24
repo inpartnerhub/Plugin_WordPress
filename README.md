@@ -7,7 +7,7 @@
 **Inpartner AI Business Consultation Assistant**: A production-hardened WordPress plugin and lightweight Node.js AI backend designed to provide grounded, source-attributed business consultation answers from the authoritative public content of [inpartnerglobal.com](https://inpartnerglobal.com) using Retrieval-Augmented Generation (RAG).
 
 <p align="center">
-  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.5.0"><img src="https://img.shields.io/badge/Release-v0.5.0-0076db?style=for-the-badge&logo=github&logoColor=white" alt="Version 0.5.0"></a>
+  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v1.0.4"><img src="https://img.shields.io/badge/Release-v1.0.4-0076db?style=for-the-badge&logo=github&logoColor=white" alt="Version 1.0.4"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--2.0--or--later-blue?style=for-the-badge" alt="License"></a>
   <img src="https://img.shields.io/badge/WordPress-6.4%2B%20(tested%207.1.3)-21759b?style=for-the-badge&logo=wordpress&logoColor=white" alt="WordPress">
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777bb4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
@@ -26,8 +26,8 @@
 ---
 
 > [!IMPORTANT]
-> **Release Status:** Current stable release is **[v0.5.0](https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v0.5.0)**.
-> All automated tests pass: **137/137 backend tests**, **131/131 WordPress PHPUnit tests (688 assertions)**, **35/35 widget unit tests**, **16/16 real-browser E2E checks with 0 axe-core WCAG 2.1 AA violations**, and **0 PHPCS coding standard findings**.
+> **Release Status:** Current stable release is **[v1.0.4](https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v1.0.4)**.
+> All automated tests pass: **71/71 backend unit tests**, **137/137 WordPress PHPUnit tests (717 assertions)**, **37/37 widget unit tests**, **16/16 real-browser E2E checks with 0 axe-core WCAG 2.1 AA violations**, and **0 PHPCS coding standard findings**.
 
 ---
 
