@@ -52,7 +52,7 @@ describe('OpenRouterClient', () => {
     assert.equal(seenBody.model, 'deepseek/deepseek-chat');
     assert.equal(seenBody.models, undefined);
     assert.deepEqual(seenBody.response_format, { type: 'json_object' });
-    assert.deepEqual(seenBody.provider, { require_parameters: true });
+    assert.deepEqual(seenBody.provider, { require_parameters: true, sort: 'latency' });
     assert.deepEqual(seenBody.messages, [
       { role: 'system', content: 'system rules' },
       { role: 'user', content: 'SOURCES ... QUESTION' },
