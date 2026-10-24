@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -162,6 +162,10 @@ REST endpoint: `POST /wp-json/wp-knowledge-chat/v1/chat` with `{"message": "..."
 Deactivating keeps the settings, leads and metrics. Deleting the plugin from the Plugins screen runs `uninstall.php`, which removes the `wp_knowledge_chat_settings` option, the metrics, **all stored leads**, the knowledge-base sync state and the plugin's transients. Export leads first (Analytics & Leads → Export CSV) if you need to keep them. Remove the `wp-config.php` constants manually.
 
 == Changelog ==
+
+= 1.0.6 =
+* Interactive Animations & Micro-Interactions: Added ambient floating launcher button, elastic pop badge entrance, smooth spring scale panel entrance (`cubic-bezier(0.16, 1, 0.3, 1)`), directional message entrance, progressive paragraph reveal for bot answers, glowing wave typing indicator, and staggered suggestions cascade.
+* Widget Layout & A11y Isolation: Isolated screen-reader status announcements (`left: -10000px; user-select: none;`), compacted suggestion container (`max-height: 170px`) with dedicated scrollbar, and enforced automatic scroll anchoring on new messages.
 
 = 1.0.5 =
 * Vercel Singapore Edge Deployment: Configured Vercel serverless function execution in Singapore (`sin1`), reducing round-trip backend latency by ~500ms between DomaiNesia WordPress and Vercel.

@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-10-25
+
+### Added
+- **Interactive Animations & Micro-Interactions (`chat-widget.css`)**: Added ambient floating launcher button, elastic pop badge entrance, smooth spring scale panel entrance (`cubic-bezier(0.16, 1, 0.3, 1)`), directional message entrance, progressive paragraph reveal for bot answers, glowing wave typing indicator, and staggered suggestions cascade.
+- **Widget Layout & Scroll Anchoring (`chat-widget.js`, `chat-widget.css`)**: Compacted quick suggestion container (`max-height: 170px`) with dedicated scrollbar and automated scroll anchoring to keep active conversation history visible.
+- **Screen-Reader Element Isolation (`chat-widget.css`)**: Isolated assistive status elements (`.wkc-sr-only`) with `left: -10000px; user-select: none;` to prevent visual overlapping and selection artifacts.
+
 ## [1.0.5] - 2026-10-25
 
 ### Added
