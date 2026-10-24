@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -162,6 +162,12 @@ REST endpoint: `POST /wp-json/wp-knowledge-chat/v1/chat` with `{"message": "..."
 Deactivating keeps the settings, leads and metrics. Deleting the plugin from the Plugins screen runs `uninstall.php`, which removes the `wp_knowledge_chat_settings` option, the metrics, **all stored leads**, the knowledge-base sync state and the plugin's transients. Export leads first (Analytics & Leads → Export CSV) if you need to keep them. Remove the `wp-config.php` constants manually.
 
 == Changelog ==
+
+= 1.0.5 =
+* Vercel Singapore Edge Deployment: Configured Vercel serverless function execution in Singapore (`sin1`), reducing round-trip backend latency by ~500ms between DomaiNesia WordPress and Vercel.
+* OpenRouter Latency-Optimized Routing: Added `provider: { require_parameters: true, sort: 'latency' }` to prioritize lowest-latency, fastest-queue upstream providers on OpenRouter.
+* Client-Side In-Memory Response Caching: Added client-side memory cache in `chat-widget.js` for repeat stateless questions within a visitor session, delivering instant 0ms responses without network round-trips.
+* Persistent HTTP/1.1 Connections: Added HTTP/1.1 keep-alive headers to WordPress backend client requests to allow TCP/TLS connection reuse.
 
 = 1.0.4 =
 * WordPress Tier-1 Transient Caching: Added in-memory WordPress transient caching (24-hour TTL) for repeat stateless grounded queries, serving common questions in <50ms without calling external backend or LLM APIs.

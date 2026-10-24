@@ -251,7 +251,7 @@ var init_llm = __esm({
           temperature: 0.1,
           max_tokens: this.options.maxOutputTokens,
           response_format: { type: "json_object" },
-          provider: { require_parameters: true }
+          provider: { require_parameters: true, sort: "latency" }
         });
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);

@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-10-25
+
+### Added
+- **Vercel Singapore Edge Deployment (`backend/vercel.json`)**: Configured Vercel serverless function execution in Singapore (`sin1`), reducing round-trip backend latency by ~500ms between DomaiNesia WordPress and Vercel.
+- **OpenRouter Latency-Optimized Routing (`backend/src/services/llm.ts`, `backend/api/*.js`)**: Added `provider: { require_parameters: true, sort: 'latency' }` to prioritize lowest-latency, fastest-queue upstream providers on OpenRouter.
+- **Client-Side In-Memory Response Caching (`chat-widget.js`)**: Added client-side memory cache for repeat stateless questions within a visitor session, delivering instant 0ms responses without network round-trips.
+- **Persistent HTTP/1.1 Connections (`class-backend-client.php`)**: Added HTTP/1.1 keep-alive headers to WordPress backend client requests to allow TCP/TLS connection reuse.
+
 ## [1.0.4] - 2026-10-24
 
 ### Added
@@ -14,6 +22,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 - **LLM Decoding Token Optimization (`env.ts`, `api/*.js`, `llm.ts`)**: Reduced default `GEMINI_MAX_OUTPUT_TOKENS` from 600 to 220 tokens tailored for concise 35–65 word consultation answers, and enforced `thinkingBudget: 0` for all Gemini 2.x models to eliminate reasoning latency.
+
+## [1.0.3] - 2026-10-24
 
 ### Added
 - **Grounded Response Caching & Request Coalescing (`ResponseCache`)**: Wired `ResponseCache` (5-minute TTL, max 500 entries) into `createApp()`, `ChatService.answer()`, and `handleIndex()` for stateless, PII-free grounded queries, with automatic KB-fingerprint namespace isolation and concurrent in-flight request deduplication.

@@ -277,6 +277,30 @@ describe('sending messages', () => {
 			{ role: 'model', text: 'First answer' },
 		]);
 	});
+
+	it('serves repeat stateless questions immediately from client-side memory cache without hitting network', async () => {
+		const { $, $$, calls, flush, type, pressEnter } = await setup({
+			responses: [
+				jsonResponse(200, { answer: 'Instant cached answer', sources: [], grounded: true }),
+			],
+		});
+		type('What services do you provide?');
+		pressEnter();
+		await flush();
+		await flush();
+		assert.equal(calls.length, 1);
+		assert.equal($$('.wkc-msg--bot').length, 2);
+
+		$('.wkc-clear').click();
+		assert.equal($$('.wkc-msg--bot').length, 1);
+
+		type('what services do you provide?');
+		pressEnter();
+		await flush();
+		assert.equal(calls.length, 1, 'second call was served from clientCache without HTTP request');
+		assert.equal($$('.wkc-msg--bot').length, 2);
+		assert.ok($$('.wkc-msg--bot')[1].textContent.includes('Instant cached answer'));
+	});
 });
 
 describe('error states', () => {

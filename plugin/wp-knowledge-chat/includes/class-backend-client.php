@@ -97,8 +97,10 @@ final class Backend_Client {
 			array(
 				'timeout'             => self::TIMEOUT_SECONDS,
 				'redirection'         => 0,
+				'httpversion'         => '1.1',
 				'limit_response_size' => self::MAX_RESPONSE_BYTES,
 				'headers'             => array(
+					'Connection'      => 'keep-alive',
 					'Content-Type'    => 'application/json',
 					'Accept'          => 'application/json',
 					'X-WKC-Timestamp' => $timestamp,

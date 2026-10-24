@@ -284,6 +284,7 @@
 		var history = [];
 		var pending = false;
 		var lastQuestion = '';
+		var clientCache = {};
 
 		/* ---------- DOM ---------- */
 		var root = el('div', { id: 'wkc-root', class: 'wkc', lang: lang });
@@ -1016,6 +1017,12 @@
 					if (result.ok && d && typeof d.answer === 'string') {
 						addMessage({ role: 'bot', text: d.answer, sources: Array.isArray(d.sources) ? d.sources : [], grounded: d.grounded === true });
 						status.textContent = t.received;
+						if (d.grounded === true && (!payload.history || payload.history.length === 0)) {
+							clientCache[lang + ':' + question.toLowerCase()] = {
+								answer: d.answer,
+								sources: Array.isArray(d.sources) ? d.sources : []
+							};
+						}
 					} else {
 						var serverMsg = d && typeof d.message === 'string' && result.status >= 400 && result.status < 500 && result.status !== 403 ? d.message : null;
 						var errKey = serverMsg ? null : (result.status === 429 ? 'errRate' : 'errGeneric');
@@ -1060,7 +1067,21 @@
 			input.value = '';
 			updateCounter();
 			updateSendIcon();
+
+			var prevTurns = history.filter(function (m) {
+				return m && !m.isGreeting && (m.role === 'user' || m.role === 'bot') && typeof m.text === 'string';
+			});
+			var cacheKey = lang + ':' + question.toLowerCase();
+
 			addMessage({ role: 'user', text: question });
+
+			if (prevTurns.length === 0 && clientCache[cacheKey]) {
+				var cached = clientCache[cacheKey];
+				addMessage({ role: 'bot', text: cached.answer, sources: cached.sources || [], grounded: true });
+				status.textContent = t.received;
+				return;
+			}
+
 			send(question);
 		}
 

@@ -302,7 +302,7 @@ export class OpenRouterClient implements LlmClient {
       temperature: 0.1,
       max_tokens: this.options.maxOutputTokens,
       response_format: { type: 'json_object' },
-      provider: { require_parameters: true },
+      provider: { require_parameters: true, sort: 'latency' },
     });
 
     const controller = new AbortController();
