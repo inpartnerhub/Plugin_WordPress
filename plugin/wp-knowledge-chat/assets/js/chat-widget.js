@@ -446,8 +446,10 @@
 			var isOpen = !suggestions.hidden;
 			plusBtn.classList.toggle('wkc-plus--open', isOpen);
 			plusBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-			if (isOpen && typeof suggestions.scrollIntoView === 'function') {
-				suggestions.scrollIntoView({ behavior: 'smooth' });
+			if (isOpen) {
+				setTimeout(function () {
+					log.scrollTop = log.scrollHeight;
+				}, 40);
 			}
 		});
 		row.appendChild(plusBtn);
@@ -725,6 +727,9 @@
 			}
 			log.appendChild(item);
 			log.scrollTop = log.scrollHeight;
+			setTimeout(function () {
+				log.scrollTop = log.scrollHeight;
+			}, 60);
 			return item;
 		}
 
@@ -893,6 +898,9 @@
 			item.appendChild(bubble);
 			log.appendChild(item);
 			log.scrollTop = log.scrollHeight;
+			setTimeout(function () {
+				log.scrollTop = log.scrollHeight;
+			}, 60);
 			return item;
 		}
 
