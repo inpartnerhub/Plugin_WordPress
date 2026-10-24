@@ -1,6 +1,6 @@
 {
   "name": "wp-knowledge-chat-backend",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "description": "AI backend for WP Knowledge Chat (Inpartner AI Business Consultation Assistant).",
   "license": "GPL-2.0-or-later",

@@ -4,7 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-## [1.0.3] - 2026-10-23
+## [1.0.4] - 2026-10-24
+
+### Added
+- **WordPress Tier-1 Transient Caching (`class-rest-controller.php`)**: Added in-memory WordPress transient caching (24-hour TTL) for repeat stateless grounded queries, serving common questions (greetings, services, location, pricing) in <50ms without calling external backend or LLM APIs.
+- **Serverless Keep-Warm Automation (`class-plugin.php`)**: Added recurring 4-minute WP Cron schedule (`every_four_minutes`) and signed `/api/health` keep-warm ping to eliminate Vercel serverless cold starts.
+- **Cache Invalidation Lifecycle (`class-content-sync.php`, `uninstall.php`)**: Automated cache flushing (`Rest_Controller::flush_cache()`) on knowledge base content synchronization and clean transient removal on uninstall.
+- **Progressive Waiting & UI Polishing (`chat-widget.js`, `chat-widget.css`)**: Added progressive status indicators during generation (*"Searching knowledge base..."* → *"Formulating answer..."*) and smooth CSS entrance animations (`wkc-slide-up`) with reduced-motion support.
+
+### Changed
+- **LLM Decoding Token Optimization (`env.ts`, `api/*.js`, `llm.ts`)**: Reduced default `GEMINI_MAX_OUTPUT_TOKENS` from 600 to 220 tokens tailored for concise 35–65 word consultation answers, and enforced `thinkingBudget: 0` for all Gemini 2.x models to eliminate reasoning latency.
 
 ### Added
 - **Grounded Response Caching & Request Coalescing (`ResponseCache`)**: Wired `ResponseCache` (5-minute TTL, max 500 entries) into `createApp()`, `ChatService.answer()`, and `handleIndex()` for stateless, PII-free grounded queries, with automatic KB-fingerprint namespace isolation and concurrent in-flight request deduplication.

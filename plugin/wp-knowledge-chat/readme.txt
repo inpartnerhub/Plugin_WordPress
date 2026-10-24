@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -162,6 +162,12 @@ REST endpoint: `POST /wp-json/wp-knowledge-chat/v1/chat` with `{"message": "..."
 Deactivating keeps the settings, leads and metrics. Deleting the plugin from the Plugins screen runs `uninstall.php`, which removes the `wp_knowledge_chat_settings` option, the metrics, **all stored leads**, the knowledge-base sync state and the plugin's transients. Export leads first (Analytics & Leads → Export CSV) if you need to keep them. Remove the `wp-config.php` constants manually.
 
 == Changelog ==
+
+= 1.0.4 =
+* WordPress Tier-1 Transient Caching: Added in-memory WordPress transient caching (24-hour TTL) for repeat stateless grounded queries, serving common questions in <50ms without calling external backend or LLM APIs.
+* Vercel Serverless Keep-Warm: Added automated 4-minute health ping schedule to eliminate serverless cold-start delays.
+* LLM Computation Tuning: Optimized Gemini maximum output tokens (220 tokens) and enforced thinkingBudget 0 on Gemini 2.x models for faster token decoding.
+* Progressive UI Feedback: Added timed progress indicators in the widget during generation and smooth message entrance animations.
 
 = 1.0.3 =
 * Grounded Response Caching & Telemetry: Integrated `ResponseCache` with namespace isolation and request coalescing for repeat stateless queries, plus stage-level timing telemetry (`retrieval_ms`, `llm_ms`, `total_ms`).
