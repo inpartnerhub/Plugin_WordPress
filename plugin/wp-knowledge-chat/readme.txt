@@ -26,7 +26,7 @@ The AI provider key never reaches the browser or the WordPress database.
 * Floating chat button and panel. Responsive, with a full-width bottom sheet on mobile.
 * Greeting message, suggested questions, loading indicator, friendly error states with retry, and a fallback with a contact link.
 * Source links for factual answers. Only https links to approved domains are shown.
-* English, Bahasa Indonesia and Korean (한국어) interface, with a language switcher and browser-language detection.
+* English, Bahasa Indonesia, Korean (한국어), Japanese (日本語) and Simplified Chinese (简体中文) interface, with a language switcher and browser-language detection.
 * Keyboard accessible: Tab, Enter and Escape, visible focus, screen-reader announcements. Checked with axe-core (WCAG 2.1 A/AA).
 * Conversation kept for the browser session only; nothing is stored on the server.
 * Styles scoped to the widget, so they do not affect Elementor layouts or the site navigation.
@@ -61,15 +61,15 @@ The widget stays hidden until both constants are defined and valid.
 **WP Knowledge Chat → Settings** (administrators only, `manage_options`):
 
 * **Enable Chatbot**: show or hide the widget on the public site. When it is off, the chat endpoint also refuses requests.
-* **Greeting Messages**: one per language (English, Bahasa Indonesia, 한국어). Plain text, maximum 500 characters; any HTML is removed. Leave a field empty to restore that language's default.
-* **Default Language**: English (`en`), Bahasa Indonesia (`id`) or Korean (`ko`). Used when the visitor has not chosen a language and their browser language is not supported (or detection is off).
-* **Language Switcher**: show EN · ID · 한국어 buttons in the chat header. The visitor's choice is remembered in the browser.
+* **Greeting Messages**: one per language (English, Bahasa Indonesia, 한국어, 日本語, 简体中文). Plain text, maximum 500 characters; any HTML is removed. Leave a field empty to restore that language's default.
+* **Default Language**: English (`en`), Bahasa Indonesia (`id`), Korean (`ko`), Japanese (`ja`) or Simplified Chinese (`zh`). Used when the visitor has not chosen a language and their browser language is not supported (or detection is off).
+* **Language Switcher**: show EN · ID · 한국어 · 日本語 · 简体中文 buttons in the chat header. The visitor's choice is remembered in the browser.
 * **Browser Language**: start in the visitor's browser language when it is one of the three.
 * **Contact URL**: an absolute `https://` URL on an approved domain (inpartnerglobal.com, www.inpartnerglobal.com, or this site's own domain), without a username/password or a custom port. The URL is never fetched by the server.
 
 All settings are stored in the single option `wp_knowledge_chat_settings`. Invalid values are rejected with an error message, and the previous value is kept. Saving changed settings triggers a LiteSpeed Cache purge (`litespeed_purge_all`), because the greetings, languages and contact link are embedded in cached pages.
 
-The admin screens are translated into Bahasa Indonesia (`id_ID`) and Korean (`ko_KR`); translation files are in `languages/`.
+The admin screens are translated into Bahasa Indonesia (`id_ID`), Korean (`ko_KR`), Japanese (`ja`) and Simplified Chinese (`zh_CN`); translation files are in `languages/`.
 
 == Frequently Asked Questions ==
 

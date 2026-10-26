@@ -29,10 +29,10 @@ Contains the general chatbot behavior, language settings, and AI backend connect
 | Setting | What it does | Tips |
 |---|---|---|
 | **Enable Chatbot** | Turns the chat button on or off for the whole site | Untick it to switch the assistant off immediately |
-| **Greeting Messages** | The first message visitors see when they open the chat, one field per language (English, Bahasa Indonesia, 한국어) | Plain text only, max 500 characters each. Leave a field empty to restore that language's default greeting |
-| **Default Language** | Language of the buttons and messages (English, Bahasa Indonesia or 한국어) when the visitor has not chosen one, and the language the assistant answers in | Content on the website stays in its original language; service names are not translated |
+| **Greeting Messages** | The first message visitors see when they open the chat, one field per language (English, Bahasa Indonesia, 한국어, 日本語, 简体中文) | Plain text only, max 500 characters each. Leave a field empty to restore that language's default greeting |
+| **Default Language** | Language of the buttons and messages (English, Bahasa Indonesia, 한국어, 日本語 or 简体中文) when the visitor has not chosen one, and the language the assistant answers in | Content on the website stays in its original language; service names are not translated |
 | **Language Switcher** | Shows a globe dropdown (`🌐 EN ▾`) in the chat header | The visitor's choice is remembered in their browser |
-| **Browser Language** | Starts the chat in the visitor's browser language if it is English, Indonesian or Korean | Otherwise *Default Language* is used |
+| **Browser Language** | Starts the chat in the visitor's browser language if it is English, Indonesian, Korean, Japanese or Chinese (any region, e.g. `zh-TW`, starts in Simplified Chinese) | Otherwise *Default Language* is used |
 | **Contact URL** | Where "Contact the Inpartner team" links go | Default: the homepage, `https://inpartnerglobal.com`. Switching to a dedicated contact page (for example `/contact/`) needs the site owner's approval first. Only https links on inpartnerglobal.com (or this site) are accepted |
 
 Click **Save Changes**. If a value is not accepted, a red message explains why and the old value is kept. With LiteSpeed Cache, the page cache is purged automatically when settings change; with any other page cache, **purge it** after saving so visitors see the change.
@@ -75,7 +75,7 @@ Lists all published Inpartner service pages approved for the assistant:
 
 **Offer only one language.** Untick *Language Switcher* and *Browser Language*; every visitor then sees *Default Language*.
 
-**Admin screens in Indonesian or Korean.** Choose the language under *Users → Profile → Language* (or *Settings → General → Site Language*). The plugin's settings page is translated.
+**Admin screens in Indonesian, Korean, Japanese or Simplified Chinese.** Choose the language under *Users → Profile → Language* (or *Settings → General → Site Language*). The plugin's settings page is translated.
 
 **Show it only on some pages.** This needs a small code snippet from the technical team (see the plugin's readme, "Can I show the widget only on some pages?").
 

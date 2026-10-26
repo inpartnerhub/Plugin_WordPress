@@ -54,7 +54,7 @@
 
 ### 1. Visitor Experience & Modern Chatbot UI
 - **Branded Corporate Design**: Styled in `inpartnerglobal.com` corporate blue palette (`#0076db`), featuring crisp 13.5px/14px typography hierarchy, 1.55 line height, subpixel font smoothing, and modern sparkle bot avatar (`✦`).
-- **Globe Dropdown Language Switcher**: Compact header trigger button (`🌐 EN ▾`) with floating card menu, seamlessly switching interface strings across **English**, **Bahasa Indonesia**, and **한국어 (Korean)** without screen-reader text leakage.
+- **Globe Dropdown Language Switcher**: Compact header trigger button (`🌐 EN ▾`) with floating card menu, seamlessly switching interface strings across **English**, **Bahasa Indonesia**, **한국어 (Korean)**, **日本語 (Japanese)**, and **简体中文 (Simplified Chinese)** without screen-reader text leakage.
 - **Aerodynamic Send Action**: Circular 36px blue send button with interactive paper plane icon, smooth hover lift, and dynamic glow states when typing.
 - **Collapsible Suggestion Chips**: Recommendation drawer starts closed by default for maximum screen real estate; opens and closes with smooth animation via the `+` action button.
 - **Asymmetric Bubble Geometry**: User bubbles rounded at `18px 18px 4px 18px` in soft ice blue (`#eaf4fd`) with subtle border, and assistant bubbles at `18px 18px 18px 4px` in pure white (`#ffffff`) with clean borders (`#e2e8f0`).
@@ -124,7 +124,7 @@
 | **Chat Widget** | Vanilla JavaScript & CSS | ES5 compatible, WCAG 2.1 AA | Zero external frontend dependencies, scoped under `#wkc-root` |
 | **AI Backend Service** | Node.js / TypeScript | Node ≥ 20.11 (TypeScript 5.9) | `node:http`, `node:crypto`, serverless Netlify adapter |
 | **AI Models** | Gemini & OpenRouter | `gemini-1.5-flash` / `deepseek-chat` | Dual-provider support with automatic high-availability failover |
-| **Retrieval Engine** | BM25 Search | Pure TypeScript implementation | NFD normalization, Indonesian & Korean query expansion |
+| **Retrieval Engine** | BM25 Search | Pure TypeScript implementation | NFKC normalization, Indonesian, Korean, Japanese & Chinese query expansion |
 | **Testing Tools** | Node:test, PHPUnit, axe-core | PHPUnit 12.5, axe-core 4.14 | Headless Chrome E2E and real WordPress test suites |
 
 ---

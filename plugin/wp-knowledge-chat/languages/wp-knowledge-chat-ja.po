@@ -1,0 +1,671 @@
+# Copyright (C) 2026 Inpartner
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Knowledge Chat 1.0.6\n"
+"Report-Msgid-Bugs-To: https://github.com/inpartnerhub/Plugin_WordPress/issues\n"
+"Last-Translator: Inpartner\n"
+"Language-Team: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-26T02:42:23+00:00\n"
+"PO-Revision-Date: 2026-10-26 00:00+0000\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp-knowledge-chat\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. Plugin Name of the plugin
+#: wp-knowledge-chat.php
+#: includes/class-admin-page.php:56
+#: includes/class-admin-page.php:57
+#: includes/class-plugin.php:115
+msgid "WP Knowledge Chat"
+msgstr "WP Knowledge Chat"
+
+#. Description of the plugin
+#: wp-knowledge-chat.php
+msgid "Inpartner AI Business Consultation Assistant: a floating chat widget that answers visitor questions from approved website content via a separate AI backend."
+msgstr "Inpartner AIビジネスコンサルティングアシスタント：承認済みのWebサイトコンテンツをもとに、別のAIバックエンドを通じて訪問者の質問に回答するフローティングチャットウィジェットです。"
+
+#. Author of the plugin
+#: wp-knowledge-chat.php
+msgid "Inpartner"
+msgstr "Inpartner"
+
+#: includes/class-admin-page.php:66
+#: includes/class-admin-page.php:239
+msgid "WP Knowledge Chat Settings"
+msgstr "WP Knowledge Chat 設定"
+
+#: includes/class-admin-page.php:67
+#: includes/class-plugin.php:190
+msgid "Settings"
+msgstr "設定"
+
+#: includes/class-admin-page.php:74
+msgid "Knowledge Base Sync"
+msgstr "ナレッジベース同期"
+
+#: includes/class-admin-page.php:75
+msgid "Knowledge Base"
+msgstr "ナレッジベース"
+
+#: includes/class-admin-page.php:82
+#: includes/class-admin-page.php:595
+msgid "Analytics & Consultation Leads"
+msgstr "アナリティクスと相談リード"
+
+#: includes/class-admin-page.php:83
+msgid "Analytics & Leads"
+msgstr "アナリティクスとリード"
+
+#: includes/class-admin-page.php:91
+msgid "Chat widget"
+msgstr "チャットウィジェット"
+
+#: includes/class-admin-page.php:94
+msgid "Enable Chatbot"
+msgstr "チャットボットを有効にする"
+
+#: includes/class-admin-page.php:95
+#: includes/class-admin-page.php:146
+msgid "Greeting Messages"
+msgstr "あいさつメッセージ"
+
+#: includes/class-admin-page.php:96
+msgid "Default Language"
+msgstr "デフォルト言語"
+
+#: includes/class-admin-page.php:97
+msgid "Language Switcher"
+msgstr "言語切り替え"
+
+#: includes/class-admin-page.php:98
+msgid "Browser Language"
+msgstr "ブラウザの言語"
+
+#: includes/class-admin-page.php:99
+msgid "Contact URL"
+msgstr "連絡先URL"
+
+#: includes/class-admin-page.php:141
+msgid "Show the chat widget on the public site."
+msgstr "公開サイトにチャットウィジェットを表示します。"
+
+#. translators: %d: maximum characters.
+#: includes/class-admin-page.php:164
+#, php-format
+msgid "Shown when the chat opens, in the visitor's language. Plain text only (HTML is removed). Maximum %d characters. Leave a field empty to restore its default."
+msgstr "チャットを開いたときに訪問者の言語で表示されます。プレーンテキストのみ（HTMLは削除されます）。最大%d文字。空欄にするとデフォルトに戻ります。"
+
+#: includes/class-admin-page.php:176
+msgid "Interface language and preferred answer language when the visitor has not chosen one. Source content is not altered."
+msgstr "訪問者が言語を選んでいない場合のインターフェース言語と、回答の優先言語です。元のコンテンツは変更されません。"
+
+#: includes/class-admin-page.php:182
+msgid "Let visitors switch between English, Bahasa Indonesia, 한국어, 日本語 and 简体中文 in the chat header."
+msgstr "チャットのヘッダーで、訪問者が English、Bahasa Indonesia、한국어、日本語、简体中文 を切り替えられるようにします。"
+
+#: includes/class-admin-page.php:183
+msgid "Start in the visitor's browser language when it is supported; otherwise use the default language."
+msgstr "訪問者のブラウザの言語に対応している場合はその言語で開始し、対応していない場合はデフォルト言語を使用します。"
+
+#. translators: %s: approved hostnames.
+#: includes/class-admin-page.php:203
+#, php-format
+msgid "WhatsApp number (e.g. +6281234567890), email address (e.g. info@inpartnerglobal.com), or an absolute https:// URL on an approved domain: %s."
+msgstr "WhatsApp番号（例：+6281234567890）、メールアドレス（例：info@inpartnerglobal.com）、または承認済みドメイン上の絶対 https:// URL：%s。"
+
+#: includes/class-admin-page.php:222
+msgid "Inpartner AI Assistant"
+msgstr "Inpartner AIアシスタント"
+
+#: includes/class-admin-page.php:233
+#: includes/class-admin-page.php:315
+msgid "You do not have permission to manage these settings."
+msgstr "これらの設定を管理する権限がありません。"
+
+#: includes/class-admin-page.php:240
+msgid "Configure the AI consultation assistant, language defaults, and backend connectivity."
+msgstr "AIコンサルティングアシスタント、言語のデフォルト、バックエンド接続を設定します。"
+
+#: includes/class-admin-page.php:264
+msgid "AI backend"
+msgstr "AIバックエンド"
+
+#: includes/class-admin-page.php:266
+msgid "Configured."
+msgstr "設定済み。"
+
+#: includes/class-admin-page.php:267
+msgid "The backend URL and shared secret are read from wp-config.php and are never shown here or sent to browsers."
+msgstr "バックエンドURLと共有シークレットは wp-config.php から読み込まれ、ここに表示されたりブラウザに送信されたりすることはありません。"
+
+#: includes/class-admin-page.php:269
+msgid "Not configured."
+msgstr "未設定。"
+
+#: includes/class-admin-page.php:270
+msgid "The widget stays hidden until WP_KNOWLEDGE_CHAT_BACKEND_URL (https) and WP_KNOWLEDGE_CHAT_SHARED_SECRET (32+ characters) are defined in wp-config.php."
+msgstr "wp-config.php で WP_KNOWLEDGE_CHAT_BACKEND_URL（https）と WP_KNOWLEDGE_CHAT_SHARED_SECRET（32文字以上）が定義されるまで、ウィジェットは非表示のままです。"
+
+#: includes/class-admin-page.php:276
+msgid "Connection test: backend is reachable, the shared secret is accepted and the knowledge base is ready."
+msgstr "接続テスト：バックエンドに接続でき、共有シークレットが受け入れられ、ナレッジベースの準備ができています。"
+
+#: includes/class-admin-page.php:278
+msgid "Connection test failed: the backend rejected the shared secret. Check that WP_KNOWLEDGE_CHAT_SHARED_SECRET matches CHAT_SHARED_SECRET and that the server clock is correct."
+msgstr "接続テストに失敗しました：バックエンドが共有シークレットを拒否しました。WP_KNOWLEDGE_CHAT_SHARED_SECRET が CHAT_SHARED_SECRET と一致していること、およびサーバーの時刻が正しいことを確認してください。"
+
+#: includes/class-admin-page.php:280
+msgid "Connection test failed: the backend is running but its knowledge base is empty."
+msgstr "接続テストに失敗しました：バックエンドは稼働していますが、ナレッジベースが空です。"
+
+#. translators: %d: HTTP status code, 0 when unreachable.
+#: includes/class-admin-page.php:283
+#, php-format
+msgid "Connection test failed (HTTP status %d). Check the backend URL and that the service is running."
+msgstr "接続テストに失敗しました（HTTPステータス %d）。バックエンドURLとサービスが稼働していることを確認してください。"
+
+#: includes/class-admin-page.php:291
+msgid "Test connection"
+msgstr "接続テスト"
+
+#: includes/class-admin-page.php:294
+msgid "Index API token configured."
+msgstr "インデックスAPIトークンが設定されています。"
+
+#: includes/class-admin-page.php:295
+msgid "Knowledge base synchronization from WordPress pages is enabled."
+msgstr "WordPressページからのナレッジベース同期が有効です。"
+
+#: includes/class-admin-page.php:297
+msgid "Note: To enable page synchronization to the AI backend, define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php."
+msgstr "注：AIバックエンドへのページ同期を有効にするには、wp-config.php で WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN を定義してください。"
+
+#: includes/class-admin-page.php:305
+#: includes/class-admin-page.php:511
+#: includes/class-admin-page.php:787
+msgid "You do not have permission to do this."
+msgstr "この操作を行う権限がありません。"
+
+#: includes/class-admin-page.php:330
+msgid "Knowledge Base Synchronization"
+msgstr "ナレッジベースの同期"
+
+#: includes/class-admin-page.php:331
+msgid "Sync published WordPress pages directly into the AI knowledge base. Content is cleaned and indexed by the AI backend."
+msgstr "公開済みのWordPressページをAIナレッジベースに直接同期します。コンテンツはAIバックエンドで整形され、インデックス化されます。"
+
+#: includes/class-admin-page.php:347
+msgid "Automatic updates failed:"
+msgstr "自動更新に失敗しました："
+
+#: includes/class-admin-page.php:348
+msgid "the AI backend still has an outdated copy of these pages (an unpublished page may still be answered from). They are retried every few minutes."
+msgstr "AIバックエンドにはこれらのページの古いコピーが残っています（非公開にしたページから回答される可能性があります）。数分ごとに再試行されます。"
+
+#. translators: 1: page title or ID, 2: error code, 3: attempts, 4: date.
+#: includes/class-admin-page.php:357
+#, php-format
+msgid "%1$s — %2$s, %3$d attempt(s) since %4$s UTC"
+msgstr "%1$s — %2$s、%4$s UTC 以降 %3$d 回試行"
+
+#: includes/class-admin-page.php:371
+msgid "Retry now"
+msgstr "今すぐ再試行"
+
+#: includes/class-admin-page.php:377
+msgid "Only pages you sync here enter the knowledge base. After that, edits are sent automatically; unpublishing, trashing, password-protecting or deleting a page removes it. New pages are never added automatically, and password-protected pages are never indexed."
+msgstr "ここで同期したページだけがナレッジベースに追加されます。その後の編集は自動的に送信され、非公開・ゴミ箱への移動・パスワード保護・削除を行うとページは削除されます。新しいページが自動的に追加されることはなく、パスワード保護されたページがインデックス化されることもありません。"
+
+#: includes/class-admin-page.php:383
+msgid "Sync not ready:"
+msgstr "同期の準備ができていません："
+
+#: includes/class-admin-page.php:384
+msgid "Define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php to enable synchronizing pages with the AI backend."
+msgstr "AIバックエンドとのページ同期を有効にするには、wp-config.php で WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN を定義してください。"
+
+#: includes/class-admin-page.php:395
+#: includes/class-admin-page.php:498
+msgid "Sync Selected Pages"
+msgstr "選択したページを同期"
+
+#: includes/class-admin-page.php:398
+#: includes/class-admin-page.php:501
+msgid "Sync All Eligible Pages"
+msgstr "対象となるすべてのページを同期"
+
+#: includes/class-admin-page.php:402
+msgid "Replace entire backend knowledge base (prune unselected)"
+msgstr "バックエンドのナレッジベース全体を置き換える（選択されていないものを削除）"
+
+#: includes/class-admin-page.php:412
+#: includes/class-admin-page.php:488
+msgid "Page Title"
+msgstr "ページタイトル"
+
+#: includes/class-admin-page.php:413
+#: includes/class-admin-page.php:489
+msgid "Category"
+msgstr "カテゴリー"
+
+#: includes/class-admin-page.php:414
+#: includes/class-admin-page.php:490
+msgid "Content Size"
+msgstr "コンテンツサイズ"
+
+#: includes/class-admin-page.php:415
+#: includes/class-admin-page.php:491
+msgid "Last Modified"
+msgstr "最終更新日"
+
+#: includes/class-admin-page.php:421
+msgid "No published pages found."
+msgstr "公開済みのページが見つかりません。"
+
+#: includes/class-admin-page.php:436
+msgid "View"
+msgstr "表示"
+
+#: includes/class-admin-page.php:450
+msgid "Password protected (never indexed)"
+msgstr "パスワード保護（インデックス化されません）"
+
+#. translators: %d: character count
+#: includes/class-admin-page.php:456
+#, php-format
+msgid "%d chars (Ready)"
+msgstr "%d文字（準備完了）"
+
+#. translators: %d: character count
+#: includes/class-admin-page.php:466
+#, php-format
+msgid "%d chars (Too short)"
+msgstr "%d文字（短すぎます）"
+
+#: includes/class-admin-page.php:476
+msgid "In knowledge base"
+msgstr "ナレッジベースに登録済み"
+
+#: includes/class-admin-page.php:525
+msgid "All pending knowledge-base updates were applied."
+msgstr "保留中のナレッジベース更新はすべて適用されました。"
+
+#. translators: %d: number of pages.
+#: includes/class-admin-page.php:527
+#, php-format
+msgid "%d page update(s) still failing. Check the backend and try again."
+msgstr "%d件のページ更新が引き続き失敗しています。バックエンドを確認して再試行してください。"
+
+#: includes/class-admin-page.php:572
+msgid "You do not have permission to access this page."
+msgstr "このページにアクセスする権限がありません。"
+
+#: includes/class-admin-page.php:596
+msgid "Monitor chatbot engagement, question trends, and visitor consultation requests. Leads contain personal data: keep them only as long as needed."
+msgstr "チャットボットの利用状況、質問の傾向、訪問者からの相談リクエストを確認できます。リードには個人データが含まれるため、必要な期間だけ保管してください。"
+
+#: includes/class-admin-page.php:605
+msgid "Total Conversations"
+msgstr "会話の総数"
+
+#: includes/class-admin-page.php:607
+msgid "Total questions asked by visitors"
+msgstr "訪問者からの質問の総数"
+
+#: includes/class-admin-page.php:610
+msgid "Answered from Knowledge"
+msgstr "ナレッジから回答"
+
+#: includes/class-admin-page.php:612
+msgid "Supported by official website sources"
+msgstr "公式Webサイトの情報に基づく回答"
+
+#: includes/class-admin-page.php:615
+msgid "Consultation Fallbacks"
+msgstr "相談への誘導"
+
+#: includes/class-admin-page.php:617
+msgid "Directed to consultation / contact link"
+msgstr "相談・連絡先リンクへ誘導"
+
+#: includes/class-admin-page.php:620
+msgid "Captured Leads"
+msgstr "獲得したリード"
+
+#: includes/class-admin-page.php:622
+msgid "Prospective clients requesting consultation"
+msgstr "相談をリクエストした見込み顧客"
+
+#: includes/class-admin-page.php:625
+msgid "Threats & Spam Blocked"
+msgstr "ブロックした脅威とスパム"
+
+#: includes/class-admin-page.php:627
+msgid "Honeypots, disposable emails & abuse limits"
+msgstr "ハニーポット、使い捨てメール、不正利用の制限"
+
+#: includes/class-admin-page.php:631
+msgid "Captured Consultation Leads"
+msgstr "獲得した相談リード"
+
+#. translators: 1: leads shown, 2: total leads.
+#: includes/class-admin-page.php:636
+#, php-format
+msgid "Showing the newest %1$d of %2$d leads. Export CSV includes all of them."
+msgstr "%2$d件中、最新の%1$d件のリードを表示しています。CSVエクスポートにはすべて含まれます。"
+
+#: includes/class-admin-page.php:641
+msgid "Export CSV"
+msgstr "CSVをエクスポート"
+
+#: includes/class-admin-page.php:642
+msgid "Delete all leads"
+msgstr "すべてのリードを削除"
+
+#: includes/class-admin-page.php:642
+msgid "Permanently delete all leads? This cannot be undone."
+msgstr "すべてのリードを完全に削除しますか？この操作は元に戻せません。"
+
+#: includes/class-admin-page.php:643
+msgid "Reset metrics"
+msgstr "指標をリセット"
+
+#: includes/class-admin-page.php:643
+msgid "Reset all conversation counts and recent questions?"
+msgstr "すべての会話数と最近の質問をリセットしますか？"
+
+#: includes/class-admin-page.php:648
+#: includes/class-admin-page.php:682
+#: includes/class-admin-page.php:719
+#: includes/class-analytics.php:580
+msgid "Date (UTC)"
+msgstr "日時（UTC）"
+
+#: includes/class-admin-page.php:649
+#: includes/class-analytics.php:584
+msgid "Name"
+msgstr "名前"
+
+#: includes/class-admin-page.php:650
+#: includes/class-analytics.php:588
+msgid "Email"
+msgstr "メール"
+
+#: includes/class-admin-page.php:651
+#: includes/class-analytics.php:592
+msgid "Company"
+msgstr "会社"
+
+#: includes/class-admin-page.php:652
+#: includes/class-analytics.php:596
+msgid "Inquiry Message"
+msgstr "お問い合わせ内容"
+
+#: includes/class-admin-page.php:653
+msgid "Notification"
+msgstr "通知"
+
+#: includes/class-admin-page.php:654
+msgid "Actions"
+msgstr "操作"
+
+#: includes/class-admin-page.php:660
+msgid "No leads captured yet. Prospective clients who request consultation via the chat widget will appear here."
+msgstr "まだリードはありません。チャットウィジェットから相談をリクエストした見込み顧客がここに表示されます。"
+
+#: includes/class-admin-page.php:671
+msgid "Delete"
+msgstr "削除"
+
+#: includes/class-admin-page.php:671
+msgid "Permanently delete this lead?"
+msgstr "このリードを完全に削除しますか？"
+
+#: includes/class-admin-page.php:678
+msgid "Recent Visitor Questions (Privacy-Safe Snippets)"
+msgstr "最近の訪問者の質問（プライバシー保護済みの抜粋）"
+
+#: includes/class-admin-page.php:683
+msgid "Question"
+msgstr "質問"
+
+#: includes/class-admin-page.php:684
+#: includes/class-admin-page.php:721
+msgid "Language"
+msgstr "言語"
+
+#: includes/class-admin-page.php:685
+msgid "Outcome"
+msgstr "結果"
+
+#: includes/class-admin-page.php:691
+msgid "No questions recorded yet."
+msgstr "まだ質問は記録されていません。"
+
+#: includes/class-admin-page.php:701
+msgid "Grounded"
+msgstr "根拠あり"
+
+#: includes/class-admin-page.php:703
+msgid "Fallback"
+msgstr "フォールバック"
+
+#: includes/class-admin-page.php:712
+msgid "Knowledge Gaps & Unanswered Topics"
+msgstr "ナレッジの不足と未回答のトピック"
+
+#: includes/class-admin-page.php:714
+msgid "Questions where the chatbot could not find sufficient evidence and triggered a consultation fallback. Use these topics to expand your Knowledge Base."
+msgstr "チャットボットが十分な根拠を見つけられず、相談へのフォールバックとなった質問です。これらのトピックをもとにナレッジベースを充実させてください。"
+
+#: includes/class-admin-page.php:720
+msgid "Unanswered Question (Redacted)"
+msgstr "未回答の質問（マスキング済み）"
+
+#: includes/class-admin-page.php:722
+msgid "Suggested Action"
+msgstr "推奨されるアクション"
+
+#: includes/class-admin-page.php:728
+msgid "No knowledge gaps recorded yet."
+msgstr "まだナレッジの不足は記録されていません。"
+
+#: includes/class-admin-page.php:736
+msgid "Add to Knowledge"
+msgstr "ナレッジに追加"
+
+#: includes/class-admin-page.php:748
+msgid "Service"
+msgstr "サービス"
+
+#: includes/class-admin-page.php:749
+msgid "About"
+msgstr "会社概要"
+
+#: includes/class-admin-page.php:750
+msgid "Contact"
+msgstr "お問い合わせ"
+
+#: includes/class-admin-page.php:751
+msgid "FAQ"
+msgstr "よくある質問"
+
+#: includes/class-admin-page.php:752
+msgid "Home"
+msgstr "ホーム"
+
+#: includes/class-admin-page.php:753
+msgid "Article"
+msgstr "記事"
+
+#: includes/class-admin-page.php:760
+msgid "Sent"
+msgstr "送信済み"
+
+#: includes/class-admin-page.php:761
+msgid "Failed"
+msgstr "失敗"
+
+#: includes/class-admin-page.php:762
+msgid "Pending"
+msgstr "保留中"
+
+#: includes/class-admin-page.php:763
+msgid "Before 0.2.1"
+msgstr "0.2.1より前"
+
+#: includes/class-admin-page.php:796
+msgid "Lead deleted."
+msgstr "リードを削除しました。"
+
+#: includes/class-admin-page.php:796
+msgid "Lead not found."
+msgstr "リードが見つかりません。"
+
+#. translators: %d: number of leads.
+#: includes/class-admin-page.php:800
+#, php-format
+msgid "%d lead(s) deleted."
+msgstr "%d件のリードを削除しました。"
+
+#: includes/class-admin-page.php:804
+msgid "Metrics reset."
+msgstr "指標をリセットしました。"
+
+#: includes/class-admin-page.php:810
+msgid "Unknown action."
+msgstr "不明な操作です。"
+
+#: includes/class-analytics.php:69
+#: includes/class-analytics.php:649
+#: includes/class-analytics.php:661
+msgid "WP Knowledge Chat leads"
+msgstr "WP Knowledge Chat のリード"
+
+#: includes/class-analytics.php:576
+msgid "Consultation requests (WP Knowledge Chat)"
+msgstr "相談リクエスト（WP Knowledge Chat）"
+
+#: includes/class-backend-client.php:82
+msgid "Backend is not configured."
+msgstr "バックエンドが設定されていません。"
+
+#: includes/class-backend-client.php:175
+msgid "Index token or backend URL is not configured."
+msgstr "インデックストークンまたはバックエンドURLが設定されていません。"
+
+#: includes/class-content-sync.php:299
+msgid "No pages selected for synchronization."
+msgstr "同期するページが選択されていません。"
+
+#: includes/class-content-sync.php:306
+msgid "Index API Token is not configured. Please define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php."
+msgstr "インデックスAPIトークンが設定されていません。wp-config.php で WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN を定義してください。"
+
+#: includes/class-content-sync.php:335
+msgid "None of the selected pages contain sufficient public text content to be indexed (minimum 40 characters; password-protected pages are never indexed)."
+msgstr "選択したページには、インデックス化に十分な公開テキストがありません（最低40文字。パスワード保護されたページはインデックス化されません）。"
+
+#. translators: %s: error message
+#: includes/class-content-sync.php:345
+#, php-format
+msgid "Synchronization failed: %s"
+msgstr "同期に失敗しました：%s"
+
+#: includes/class-content-sync.php:357
+msgid "Unexpected response from AI backend."
+msgstr "AIバックエンドから予期しない応答がありました。"
+
+#. translators: 1: status code, 2: message
+#: includes/class-content-sync.php:362
+#, php-format
+msgid "Backend rejected synchronization (HTTP %1$d): %2$s"
+msgstr "バックエンドが同期を拒否しました（HTTP %1$d）：%2$s"
+
+#. translators: 1: upserted count, 2: unchanged count, 3: total count
+#: includes/class-content-sync.php:393
+#, php-format
+msgid "Knowledge Base synchronized successfully! %1$d document(s) updated, %2$d unchanged. Total documents in AI Backend: %3$d."
+msgstr "ナレッジベースの同期に成功しました！%1$d件のドキュメントを更新、%2$d件は変更なし。AIバックエンドのドキュメント総数：%3$d件。"
+
+#: includes/class-content-sync.php:399
+msgid "Warning: the backend could not save the knowledge base to disk; the update will be lost when it restarts."
+msgstr "警告：バックエンドがナレッジベースをディスクに保存できませんでした。再起動すると更新内容は失われます。"
+
+#: includes/class-plugin.php:120
+msgid "Chat assistant"
+msgstr "チャットアシスタント"
+
+#: includes/class-plugin.php:121
+msgid "Questions and answers"
+msgstr "質問と回答"
+
+#: includes/class-plugin.php:122
+msgid "Visitors can ask questions in a chat assistant. The text of each question is sent to our AI backend service and, together with excerpts of public pages of this website, to Google Gemini to write the answer. The visitor's IP address, cookies and identity are not sent; a salted one-way identifier is used for rate limiting."
+msgstr "訪問者はチャットアシスタントで質問できます。各質問のテキストは当社のAIバックエンドサービスに送信され、このWebサイトの公開ページの抜粋とともにGoogle Geminiに送られて回答が作成されます。訪問者のIPアドレス、Cookie、身元は送信されません。レート制限にはソルト付きの一方向識別子が使用されます。"
+
+#: includes/class-plugin.php:123
+msgid "Conversation storage"
+msgstr "会話の保存"
+
+#: includes/class-plugin.php:124
+msgid "The conversation is kept only in the visitor's browser (session storage) and is cleared when the tab is closed. This site stores short-lived rate-limit counters, aggregate counts of questions and the 25 most recent question snippets, from which e-mail addresses, phone numbers, links and long numbers have been removed."
+msgstr "相談リクエスト"
+
+#: includes/class-plugin.php:125
+msgid "Consultation requests"
+msgstr "会話は訪問者のブラウザ（セッションストレージ）にのみ保存され、タブを閉じると消去されます。このサイトには、短期間のレート制限カウンター、質問の集計数、最近の質問の抜粋25件（メールアドレス、電話番号、リンク、長い数字は削除済み）が保存されます。"
+
+#: includes/class-plugin.php:126
+msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgstr "訪問者は任意で相談リクエストを送信できます。入力された名前、メールアドレス、会社、メッセージはこのサイトに保存され、サイト管理者にメールで送信されます。IPアドレスは保存されません。リクエストは管理者が削除するまで、またはサイト所有者が設定した保存期間まで保管され、「ツール」→「個人データのエクスポート」および「個人データの消去」からエクスポートまたは消去できます。"
+
+#: includes/class-plugin.php:149
+msgid "Every Four Minutes"
+msgstr "4分ごと"
+
+#: includes/class-settings.php:144
+msgid "Settings were not saved: invalid input."
+msgstr "設定は保存されませんでした：入力が無効です。"
+
+#: includes/class-settings.php:153
+msgid "Enable Chatbot must be checked or unchecked."
+msgstr "「チャットボットを有効にする」はオンまたはオフにしてください。"
+
+#: includes/class-settings.php:154
+msgid "Language Switcher must be checked or unchecked."
+msgstr "「言語切り替え」はオンまたはオフにしてください。"
+
+#: includes/class-settings.php:155
+msgid "Browser Language must be checked or unchecked."
+msgstr "「ブラウザの言語」はオンまたはオフにしてください。"
+
+#: includes/class-settings.php:189
+#: includes/class-settings.php:219
+msgid "Greeting message must be text."
+msgstr "あいさつメッセージはテキストで入力してください。"
+
+#: includes/class-settings.php:197
+msgid "Default language must be English (en), Indonesian (id), Korean (ko), Japanese (ja) or Simplified Chinese (zh)."
+msgstr "デフォルト言語は、英語（en）、インドネシア語（id）、韓国語（ko）、日本語（ja）、簡体字中国語（zh）のいずれかにしてください。"
+
+#: includes/class-settings.php:226
+msgid "Greeting message is required."
+msgstr "あいさつメッセージは必須です。"
+
+#. translators: %d: maximum number of characters.
+#: includes/class-settings.php:230
+#, php-format
+msgid "Greeting message must be %d characters or fewer."
+msgstr "あいさつメッセージは%d文字以内で入力してください。"
+
+#. translators: %s: comma-separated list of approved hostnames.
+#: includes/class-settings.php:279
+#, php-format
+msgid "Contact URL must be a valid WhatsApp number, email address, or an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
+msgstr "連絡先URLは、有効なWhatsApp番号、メールアドレス、または承認済みドメイン（%s）上の絶対 https:// URL にしてください。認証情報やカスタムポートは使用できません。"

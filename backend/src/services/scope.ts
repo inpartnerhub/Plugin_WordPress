@@ -17,9 +17,12 @@
  * 3. Claim verification (after generation): numbers, URLs, e-mail addresses
  *    and phone numbers in an answer must appear in the evidence.
  *
- * Patterns are written per category (English, Indonesian and Korean). Review
- * them when the knowledge base gains content in one of these areas. Korean
- * patterns use no \b: JavaScript word boundaries only see ASCII letters.
+ * Patterns are written per category (English, Indonesian, Korean, Japanese and
+ * Simplified Chinese). Review them when the knowledge base gains content in one
+ * of these areas. Korean, Japanese and Chinese patterns use no \b (JavaScript
+ * word boundaries only see ASCII letters) and also stop at 。？！. Japanese and
+ * Chinese patterns avoid bare words that also name a listed service or a
+ * company form (投资/投資, 株 as in 株式会社, 设立 as market entry).
  */
 
 export type ScopeViolation = 'injection' | 'investment_advice' | 'legal_tax_advice' | 'medical' | 'guarantee' | 'unrelated' | 'profanity_hate';
@@ -120,6 +123,22 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
       /(너는|당신은)\s?이제|척\s?(해|하세요|해줘)|역할을\s?(해|하세요|해줘|맡아)|탈옥/,
       /(위|앞|이전)(의)?\s?(내용|문장|텍스트|글)[^.?!]{0,20}(반복|그대로)/,
       /(비공개|임시|초안)\s?(페이지|게시물|콘텐츠|문서)/,
+      // Japanese
+      /(指示|命令|ルール|規則|プロンプト|設定)[^.?!。？！]{0,30}(無視|忘れ|従わ)/,
+      /(無視|忘れ)[^.?!。？！]{0,30}(指示|命令|ルール|規則|プロンプト)/,
+      /(システム|隠れた|隠された|内部|初期)\s?(プロンプト|指示|メッセージ|設定|ルール)/,
+      /(api|API)\s?キー|秘密鍵|シークレットキー|パスワード|アクセストークン/,
+      /(あなた|君|お前)は今から|ふりをして|ロールプレイ|なりきって|脱獄|ジェイルブレイク|開発者モード/,
+      /(上|前|以前)の(内容|文章|テキスト)[^.?!。？！]{0,20}(繰り返|そのまま)/,
+      /(非公開|下書き)の?(ページ|投稿|コンテンツ|文書)/,
+      // Simplified Chinese
+      /(忽略|无视|忘记|忘掉|违反|不要遵守)[^.?!。？！]{0,30}(指令|指示|规则|提示词|设定)/,
+      /(指令|指示|规则|提示词)[^.?!。？！]{0,10}(忽略|无视|忘记|忘掉)/,
+      /(系统|隐藏|内部|初始)的?(提示词|提示|指令|指示|消息|设置|规则)/,
+      /(api|API)\s?密钥|秘钥|私钥|密码|访问令牌/,
+      /你现在是|假装(你是|成)|扮演(一个|成)|角色扮演|越狱|开发者模式|无限制模式/,
+      /(上面|之前|前面)的(内容|文字|文本)[^.?!。？！]{0,20}(重复|原样)/,
+      /(未发布|草稿|私密)的?(页面|文章|内容|文档)/,
     ],
   },
   {
@@ -128,6 +147,9 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
       /\b(kontol|memek|ngentot|pantek|jembut|bangsat|bajingan|keparat|perek|lonte|tolol|goblok)\b/i,
       /\b(fuck|fucking|bitch|bastard|asshole|cunt|dickhead|whore|nigger|nigga|faggot)\b/i,
       /시발|씨발|개새끼|지랄|병신|좆|존나|개년/,
+      // Hiragana ばか is left out: it is part of ばかり ("only").
+      /バカ野郎|馬鹿|クソ|くそったれ|死ね|ちくしょう|カス野郎/,
+      /傻逼|妈的|他妈|操你|滚蛋|王八蛋|狗屎|贱人|去死/,
     ],
   },
   {
@@ -145,6 +167,12 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
       /주식|암호화폐|가상화폐|비트코인|코인\s?(추천|투자)/,
       /투자[^.?!]{0,15}(추천|해야|할까|좋을까|수익률)/,
       /(환율|주가|증시|코스피|루피아)[^.?!]{0,30}(오를|오르|내릴|떨어|전망|예측)/,
+      /株を(買|売)|株価|銘柄|暗号資産|仮想通貨|ビットコイン/,
+      /投資[^.?!。？！]{0,15}(おすすめ|すべき|した方がいい|利回り)/,
+      /(為替|株価|株式市場|ルピア)[^.?!。？！]{0,30}(上が|下が|予測|見通し)/,
+      /股票|加密货币|虚拟货币|比特币|基金推荐/,
+      /投资[^.?!。？！]{0,15}(推荐|建议买|该买|回报率|收益率)/,
+      /(汇率|股价|股市|印尼盾)[^.?!。？！]{0,30}(涨|跌|预测|走势)/,
     ],
   },
   {
@@ -166,15 +194,28 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
       /최소\s?자본금|자본금\s?(요건|기준)|법적\s?(리스크|위험|검토)|계약서[^.?!]{0,15}(검토|확인)/,
       /법률\s?(자문|상담|조언)|변호사|소송|합법(인가|적인가|일까)/,
       /(법인|회사|현지\s?법인)\s?(설립|등록)/,
+      /税金|税務|法人税|消費税|所得税|関税|税率/,
+      /最低資本金|資本金の?(要件|基準)|法的(リスク|助言|アドバイス|レビュー)|契約書[^.?!。？！]{0,15}(確認|チェック|レビュー)/,
+      /弁護士|訴訟|合法(です|か|でしょう)/,
+      /(会社|法人|現地法人)を?(設立|登記)/,
+      /税务|税率|纳税|所得税|增值税|关税|税收/,
+      /最低(注册)?资本|注册资本(要求)?|法律(风险|意见|审查|咨询|建议)|合同[^.?!。？！]{0,15}(审查|审核|检查)/,
+      /律师|诉讼|是否合法|合法吗/,
+      /(注册|设立|成立)(公司|法人|子公司)|公司(注册|设立)/,
     ],
   },
   {
     kind: 'medical',
-    patterns: [/\b(medicine|medication|doctor|symptoms?|diagnos\w*|disease|illness|prescription|obat|dokter|gejala|penyakit)\b/i, /증상|질병|처방|병원|의약품/],
+    patterns: [
+      /\b(medicine|medication|doctor|symptoms?|diagnos\w*|disease|illness|prescription|obat|dokter|gejala|penyakit)\b/i,
+      /증상|질병|처방|병원|의약품/,
+      /症状|病気|処方箋?/,
+      /症状|疾病|处方|看病/,
+    ],
   },
   {
     kind: 'guarantee',
-    patterns: [/\b(guarantee[sd]?|promise|assure)\b/i, /\b(jamin|menjamin|dijamin|garansi)\b/i, /보장|보증|장담/],
+    patterns: [/\b(guarantee[sd]?|promise|assure)\b/i, /\b(jamin|menjamin|dijamin|garansi)\b/i, /보장|보증|장담/, /保証|確約/, /保证|担保|承诺/],
   },
   {
     kind: 'unrelated',
@@ -185,6 +226,10 @@ const SCOPE_RULES: { kind: ScopeViolation; patterns: RegExp[] }[] = [
       /\b(football|soccer|basketball|baseball|cricket|world cup|premier league|champions league|sepak ?bola|bulu ?tangkis)\b/i,
       /날씨|레시피|요리법|농담|운세|별자리|축구|야구|농구|월드컵/,
       /(시를|에세이|소설|이야기를|코드를|사업\s?계획서|자기소개서|이력서)[^.?!]{0,10}(써|작성)/,
+      /天気|レシピ|料理の作り方|冗談|ジョーク|占い|星座|サッカー|野球|バスケ|ワールドカップ/,
+      /(詩|エッセイ|小説|物語|コード|事業計画書|履歴書)[^.?!。？！]{0,10}(を)?(書いて|作成して|作って)/,
+      /天气|食谱|菜谱|笑话|运势|星座|足球|篮球|棒球|世界杯/,
+      /(写|帮我写|创作)[^.?!。？！]{0,10}(诗|作文|文章|小说|故事|代码|商业计划书|简历)/,
     ],
   },
 ];
@@ -218,42 +263,42 @@ const ANSWER_TYPE_RULES: { type: AnswerType; question: RegExp; evidence: RegExp 
   {
     type: 'price',
     // "pricing terms" / "pricing strategy" are negotiation topics (a listed service), not a request for Inpartner's prices.
-    question: /\b(price[sd]?|pricing(?!\s+(terms?|strateg\w*|models?|negotiations?))|fees?|how much|quotes?|rate card|biaya|harga|tarif|ongkos)\b|\b(what|how)\b[^.?!]{0,25}\bcosts?\b|\bcosts? (of|for) (your|the|inpartner|a|an)\b|가격|비용|요금|수수료|얼마|견적/i,
+    question: /\b(price[sd]?|pricing(?!\s+(terms?|strateg\w*|models?|negotiations?))|fees?|how much|quotes?|rate card|biaya|harga|tarif|ongkos)\b|\b(what|how)\b[^.?!]{0,25}\bcosts?\b|\bcosts? (of|for) (your|the|inpartner|a|an)\b|가격|비용|요금|수수료|얼마|견적|料金|費用|価格|値段|いくら|見積|手数料|价格|费用|收费|多少钱|报价|价钱|手续费/i,
     // A price needs an amount. The words "pricing"/"fees" alone are not one: KB v2.0 says
     // "Structure commercial agreements, pricing terms, ..." which opened the gate for every fee question.
     evidence: /\b(rp|idr|usd|sgd|eur|krw)\.?\s?\d|[$€£₩]\s?\d|\b(fees?|pricing|prices?|rates?|tarif|biaya|harga)\b[^.\n]{0,40}\d/i,
   },
   {
     type: 'duration',
-    question: /\b(how long\s+(does|do|will|would|is)|berapa\s+lama|butuh\s+waktu\s+berapa\s+lama|estimasi\s+waktu|durasi\s+(proses|proyek|kerjasama|pencarian|pendampingan))\b|얼마나\s?걸리|소요\s?시간/i,
+    question: /\b(how long\s+(does|do|will|would|is)|berapa\s+lama|butuh\s+waktu\s+berapa\s+lama|estimasi\s+waktu|durasi\s+(proses|proyek|kerjasama|pencarian|pendampingan))\b|얼마나\s?걸리|소요\s?시간|どのくらい(の期間|の時間|時間|かか)|期間はどれ|所要時間|何[ヶか]月|多长时间|多久|需要多少时间|几个月/i,
     evidence: /\b\d+\s*(days?|weeks?|months?|years?|hari|minggu|bulan|tahun)\b/i,
   },
   {
     type: 'founding',
-    question: /\b(founded|founders?|founding|since when|history of|didirikan|pendiri|berdiri sejak|kapan berdiri)\b|\bwhen (was|were|did)\b[^.?!]{0,40}\b(start|found|establish|begin|created)|설립|창립|창업자|언제부터/i,
+    question: /\b(founded|founders?|founding|since when|history of|didirikan|pendiri|berdiri sejak|kapan berdiri)\b|\bwhen (was|were|did)\b[^.?!]{0,40}\b(start|found|establish|begin|created)|설립|창립|창업자|언제부터|設立|創業|創立|創設者|成立于|何时成立|什么时候成立|哪一年成立|创立|创始人|创办人/i,
     // "We support founders" is not a founding statement: require a year or "founded by".
     evidence: /\b(founded|established|since)\b[^.\n]{0,40}\b(19|20)\d{2}\b|\b(19|20)\d{2}\b[^.\n]{0,40}\b(founded|established)\b|\b(founded|established) by\b/i,
   },
   {
     type: 'headcount',
-    question: /\bhow many\s+(employees|staff|people|consultants|advisors|team members|offices)\b|\b(number of|jumlah)\s+(employees|staff|karyawan|pegawai|kantor)\b|\bteam size\b|직원\s?수|임직원\s?수|몇\s?명|팀\s?규모/i,
+    question: /\bhow many\s+(employees|staff|people|consultants|advisors|team members|offices)\b|\b(number of|jumlah)\s+(employees|staff|karyawan|pegawai|kantor)\b|\bteam size\b|직원\s?수|임직원\s?수|몇\s?명|팀\s?규모|従業員数|社員数|スタッフ数|何人|チームの規模|员工人数|多少员工|多少人|团队规模/i,
     evidence: /\b\d[\d,.]*\+?\s+(employees|staff|people|consultants|advisors|professionals|offices|karyawan)\b/i,
   },
   {
     type: 'statistics',
-    question: /\b(success rate|track record|win rate|percentage|statistics?|persentase|tingkat keberhasilan)\b|\b(how many|number of|jumlah)\s+(clients|customers|deals|projects|companies|transactions|klien|proyek)\b|성공률|통계|(고객|프로젝트|거래|고객사)\s?(수|몇)/i,
+    question: /\b(success rate|track record|win rate|percentage|statistics?|persentase|tingkat keberhasilan)\b|\b(how many|number of|jumlah)\s+(clients|customers|deals|projects|companies|transactions|klien|proyek)\b|성공률|통계|(고객|프로젝트|거래|고객사)\s?(수|몇)|統計|(顧客|クライアント|プロジェクト|案件|取引)(数|の数|は何件)|成功率|统计|(客户|项目|交易)(数量|有多少|多少个)/i,
     evidence: /\d\s?%|\b\d[\d,.]*\+?\s+(clients|customers|deals|projects|companies|transactions)\b/i,
   },
   {
     type: 'clients',
-    question: /\b(who are|list|name)\b[^.?!]{0,30}\b(clients|customers)\b|\b(name|list)\b[^.?!]{0,30}\b(companies|firms|brands|businesses)\b[^.?!]{0,30}\b(helped|worked with|served|advised)\b|\b(clients?|customers?)\s+(list|names?|portfolio)\b|\bcase stud(y|ies)\b|\btestimonials?\b|\bportfolio\b|\bstudi kasus\b|\btestimoni\b|\b(siapa( saja)?|daftar|nama)\s+klien\b|고객\s?(목록|명단|리스트)|고객사\s?(이름|목록|명단)|(주요|대표)\s?고객|사례\s?연구|포트폴리오|후기/i,
+    question: /\b(who are|list|name)\b[^.?!]{0,30}\b(clients|customers)\b|\b(name|list)\b[^.?!]{0,30}\b(companies|firms|brands|businesses)\b[^.?!]{0,30}\b(helped|worked with|served|advised)\b|\b(clients?|customers?)\s+(list|names?|portfolio)\b|\bcase stud(y|ies)\b|\btestimonials?\b|\bportfolio\b|\bstudi kasus\b|\btestimoni\b|\b(siapa( saja)?|daftar|nama)\s+klien\b|고객\s?(목록|명단|리스트)|고객사\s?(이름|목록|명단)|(주요|대표)\s?고객|사례\s?연구|포트폴리오|후기|(顧客|クライアント|取引先)の?(一覧|リスト|名前|名)|(主要|代表的な)(顧客|クライアント|取引先)|導入事例|ケーススタディ|ポートフォリオ|お客様の声|客户(名单|列表|名称|名字)|(主要|代表性?)客户|成功案例|客户案例|作品集|客户评价/i,
     // Client names, not counts: "Project Portfolio: 90+ projects" and "Official Service Portfolio" (KB v2.0)
     // matched the former bare "portfolio" and let "Who are your clients?" through.
     evidence: /\b(case stud(y|ies)|testimonials?|our clients include|clients include|clients such as|trusted by)\b/i,
   },
   {
     type: 'hours',
-    question: /\b(office|opening|business|working)\s+hours\b|\bjam\s+(kerja|operasional|buka|kantor)\b|(영업|근무|운영|업무)\s?시간/i,
+    question: /\b(office|opening|business|working)\s+hours\b|\bjam\s+(kerja|operasional|buka|kantor)\b|(영업|근무|운영|업무)\s?시간|営業時間|勤務時間|業務時間|受付時間|营业时间|工作时间|办公时间/i,
     evidence: /\b\d{1,2}[:.]\d{2}\b|\b\d{1,2}\s?(am|pm)\b|\b(monday|senin)\b/i,
   },
 ];
@@ -268,8 +313,8 @@ const OFFICE_EVIDENCE_LINE = /\b(office|kantor|address|alamat|headquarters?|towe
 /**
  * "Do you have an office in London?" retrieves the contact page (it mentions
  * an office) although London appears nowhere: the place must be named on an
- * office/address line of the evidence. Latin-script place names only; Korean
- * place names are not mapped, so Korean questions skip this check.
+ * office/address line of the evidence. Latin-script place names only; Korean,
+ * Japanese and Chinese place names are not mapped, so those questions skip this check.
  */
 function missingOfficeLocation(question: string, evidenceText: string): boolean {
   for (const re of OFFICE_PLACE_RES) {
@@ -311,7 +356,7 @@ const COMMON_CAPITALISED = new Set(
     'we our us you your they their i my he she his her who what when where which why how there here also however certainly sure absolutely ' +
     'great thank thanks please hello hi welcome of course indeed additionally furthermore moreover overall currently generally in general ' +
     'for example such each every all some any many most more other another both either neither one two three first second finally next then ' +
-    'ai assistant inpartner inpartner’s inpartner\'s english indonesian bahasa indonesia korean 한국어 ' +
+    'ai assistant inpartner inpartner’s inpartner\'s english indonesian bahasa indonesia korean 한국어 japanese chinese ' +
     'monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december ' +
     'tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat ' +
     'halo hai pagi siang sore malam bapak ibu kak ' +

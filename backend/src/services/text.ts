@@ -1,7 +1,7 @@
 /**
  * Tokenisation for lexical retrieval. The knowledge base is English; small
- * curated Indonesian->English and Korean->English term maps let Indonesian
- * and Korean questions reach the same chunks. This is a pragmatic MVP
+ * curated Indonesian, Korean, Japanese and Simplified Chinese -> English term
+ * maps let questions in those languages reach the same chunks. This is a pragmatic MVP
  * measure, not general translation.
  */
 
@@ -314,6 +314,157 @@ const KOREAN_EXPANSIONS: [string, string[]][] = [
   ['단계', ['approach', 'step']],
 ];
 
+/**
+ * Japanese terms mapped to English stems. Japanese has no spaces and attaches
+ * particles (サービスは, 市場に), so keys are matched as substrings like Korean.
+ */
+const JAPANESE_EXPANSIONS: [string, string[]][] = [
+  ['こんにちは', ['about', 'service']],
+  ['手伝', ['service', 'advisory']],
+  ['サポート', ['service', 'advisory']],
+  ['支援', ['service', 'advisory']],
+  ['インパートナー', ['inpartner']],
+  ['サービス', ['service', 'advisory']],
+  ['提供', ['service', 'advisory']],
+  ['アドバイザリー', ['advisory', 'advisor']],
+  ['助言', ['advisory', 'advisor']],
+  ['コンサル', ['advisory', 'consultation']],
+  ['相談', ['advisory', 'consultation']],
+  ['パートナーシップ', ['partner', 'partnership']],
+  ['パートナー', ['partner']],
+  ['提携', ['partner', 'partnership']],
+  ['協力', ['partner', 'partnership']],
+  ['販売代理店', ['distributor', 'distribution']],
+  ['代理店', ['distributor', 'reseller']],
+  ['流通', ['distribution', 'distributor']],
+  ['販売網', ['distribution', 'distributor']],
+  ['ディストリビューター', ['distributor', 'distribution']],
+  ['リセラー', ['reseller', 'distributor']],
+  ['市場', ['market']],
+  ['マーケット', ['market']],
+  ['進出', ['entry', 'enter', 'market']],
+  ['参入', ['entry', 'enter', 'market']],
+  ['拡大', ['expansion', 'expand']],
+  ['展開', ['expansion', 'expand']],
+  ['成長', ['growth']],
+  ['連絡', ['contact']],
+  ['問い合わせ', ['contact']],
+  ['問合せ', ['contact']],
+  ['住所', ['address', 'tower', 'jakarta']],
+  ['所在地', ['address', 'tower', 'jakarta']],
+  ['オフィス', ['office', 'tower', 'jakarta']],
+  ['事務所', ['office', 'tower', 'jakarta']],
+  ['拠点', ['office', 'location']],
+  ['場所', ['location', 'tower', 'jakarta']],
+  ['メール', ['email']],
+  ['電話', ['call', 'phone', 'contact']],
+  ['ワッツアップ', ['call', 'phone', 'contact']],
+  ['会社', ['about', 'company']],
+  ['企業', ['company']],
+  ['紹介', ['about']],
+  ['どんな', ['about']],
+  ['誰', ['who', 'about']],
+  ['買収', ['acquisition', 'cross', 'border', 'deal', 'transaction']],
+  ['合併', ['merger', 'cross', 'border', 'deal', 'transaction']],
+  ['投資', ['investment', 'investor']],
+  ['戦略', ['strategy', 'strategic']],
+  ['運営', ['operation', 'operational']],
+  ['オペレーション', ['operation', 'operational']],
+  ['デューデリジェンス', ['due', 'diligence']],
+  ['交渉', ['negotiation']],
+  ['評価', ['assessment', 'assess', 'evaluation', 'evaluate']],
+  ['調査', ['assessment', 'research']],
+  ['東南アジア', ['southeast', 'asia']],
+  ['海外', ['international', 'cross', 'border', 'foreign']],
+  ['国境', ['cross', 'border']],
+  ['クロスボーダー', ['cross', 'border']],
+  ['国際', ['international', 'cross', 'border']],
+  ['外国', ['foreign']],
+  ['インドネシア', ['indonesia']],
+  ['アプローチ', ['approach']],
+  ['手順', ['approach', 'process']],
+  ['プロセス', ['approach', 'process']],
+  ['流れ', ['approach', 'process']],
+  ['段階', ['approach', 'step']],
+  ['ステップ', ['approach', 'step']],
+];
+
+/**
+ * Simplified Chinese terms mapped to English stems, matched as substrings
+ * (Chinese has no spaces between words).
+ */
+const CHINESE_EXPANSIONS: [string, string[]][] = [
+  ['你好', ['about', 'service']],
+  ['您好', ['about', 'service']],
+  ['帮助', ['service', 'advisory']],
+  ['帮', ['service', 'advisory']],
+  ['支持', ['service', 'advisory']],
+  ['服务', ['service', 'advisory']],
+  ['提供', ['service', 'advisory']],
+  ['咨询', ['advisory', 'consultation']],
+  ['顾问', ['advisory', 'advisor']],
+  ['建议', ['advisory']],
+  ['合作伙伴', ['partner', 'partnership']],
+  ['伙伴', ['partner']],
+  ['合作', ['partner', 'partnership']],
+  ['经销商', ['distributor', 'distribution']],
+  ['分销', ['distribution', 'distributor']],
+  ['代理商', ['distributor', 'reseller']],
+  ['渠道', ['distribution', 'distributor']],
+  ['经销', ['distribution', 'distributor']],
+  ['市场', ['market']],
+  ['进入', ['entry', 'enter', 'market']],
+  ['进军', ['entry', 'enter', 'market']],
+  ['开拓', ['entry', 'expansion', 'market']],
+  ['拓展', ['expansion', 'expand']],
+  ['扩张', ['expansion', 'expand']],
+  ['扩大', ['expansion', 'expand']],
+  ['增长', ['growth']],
+  ['发展', ['growth']],
+  ['联系', ['contact']],
+  ['联络', ['contact']],
+  ['地址', ['address', 'tower', 'jakarta']],
+  ['办公室', ['office', 'tower', 'jakarta']],
+  ['办事处', ['office', 'tower', 'jakarta']],
+  ['位置', ['location', 'tower', 'jakarta']],
+  ['在哪', ['location', 'tower', 'jakarta']],
+  ['邮箱', ['email']],
+  ['邮件', ['email']],
+  ['电话', ['call', 'phone', 'contact']],
+  ['微信', ['call', 'phone', 'contact']],
+  ['公司', ['about', 'company']],
+  ['企业', ['company']],
+  ['介绍', ['about']],
+  ['是谁', ['who', 'about']],
+  ['什么样', ['about']],
+  ['收购', ['acquisition', 'cross', 'border', 'deal', 'transaction']],
+  ['并购', ['merger', 'acquisition', 'cross', 'border', 'deal', 'transaction']],
+  ['合并', ['merger', 'cross', 'border', 'deal', 'transaction']],
+  ['投资', ['investment', 'investor']],
+  ['战略', ['strategy', 'strategic']],
+  ['运营', ['operation', 'operational']],
+  ['尽职调查', ['due', 'diligence']],
+  ['尽调', ['due', 'diligence']],
+  ['谈判', ['negotiation']],
+  ['评估', ['assessment', 'assess', 'evaluation', 'evaluate']],
+  ['调研', ['assessment', 'research']],
+  ['东南亚', ['southeast', 'asia']],
+  ['海外', ['international', 'cross', 'border', 'foreign']],
+  ['跨境', ['cross', 'border']],
+  ['国际', ['international', 'cross', 'border']],
+  ['外国', ['foreign']],
+  ['外资', ['foreign']],
+  ['印度尼西亚', ['indonesia']],
+  ['印尼', ['indonesia']],
+  ['方法', ['approach']],
+  ['流程', ['approach', 'process']],
+  ['过程', ['approach', 'process']],
+  ['步骤', ['approach', 'step']],
+  ['阶段', ['approach', 'step']],
+];
+
+const SUBSTRING_EXPANSIONS: readonly [string, string[]][] = [...KOREAN_EXPANSIONS, ...JAPANESE_EXPANSIONS, ...CHINESE_EXPANSIONS];
+
 /** Very light English stemmer: plural/verb suffixes only, enough to merge common variants. */
 export function stem(word: string): string {
   if (word.length <= 3) return word;
@@ -359,9 +510,10 @@ function stripIdClitic(word: string): string {
 export function tokenizeQuery(text: string): string[] {
   const out = new Set<string>();
   const plain = text.replace(/<[^>]*>/g, ' ');
-  // Before normalizeText(): NFKD splits Hangul syllables into jamo.
-  const nfc = plain.normalize('NFC');
-  for (const [term, expansions] of KOREAN_EXPANSIONS) {
+  // Before normalizeText(): NFKD splits Hangul syllables into jamo and kana into base + dakuten.
+  // NFKC also folds half-width katakana (ｻｰﾋﾞｽ) and full-width Latin onto the keys below.
+  const nfc = plain.normalize('NFKC');
+  for (const [term, expansions] of SUBSTRING_EXPANSIONS) {
     if (nfc.includes(term)) for (const e of expansions) out.add(stem(e));
   }
   if (/\bwhat do you do\b/i.test(plain)) {

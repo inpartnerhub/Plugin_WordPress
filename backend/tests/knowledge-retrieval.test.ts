@@ -203,11 +203,34 @@ describe('Bm25Retriever', () => {
     assert.ok(tokenizeQuery('유통 파트너'.normalize('NFD')).includes('partner'));
   });
 
+  it('maps Japanese terms onto English content, without spaces', () => {
+    const tokens = tokenizeQuery('販売代理店はどうやって探しますか？');
+    assert.ok(tokens.includes('distributor') && tokens.includes('distribution'));
+    assert.ok(tokenizeQuery('インドネシア市場に進出したいです').includes('market'));
+    assert.equal(retriever.search('販売代理店やリセラーを探すのを手伝ってもらえますか？', 3, 1)[0]?.chunk.docId, 'page-2-distribution');
+    assert.equal(retriever.search('メールアドレスを教えてください。', 3, 1)[0]?.chunk.docId, 'page-3-contact');
+  });
+
+  it('matches Japanese in decomposed (NFD) and half-width forms too', () => {
+    assert.ok(tokenizeQuery('デューデリジェンス'.normalize('NFD')).includes('diligence'));
+    assert.ok(tokenizeQuery('ｻｰﾋﾞｽ').includes('service'));
+  });
+
+  it('maps Simplified Chinese terms onto English content, without spaces', () => {
+    const tokens = tokenizeQuery('怎么寻找经销商和合作伙伴？');
+    assert.ok(tokens.includes('distributor') && tokens.includes('partner'));
+    assert.ok(tokenizeQuery('我们想进入印尼市场').includes('market'));
+    assert.equal(retriever.search('你们能帮我们寻找经销商和代理商吗？', 3, 1)[0]?.chunk.docId, 'page-2-distribution');
+    assert.equal(retriever.search('请告诉我你们的邮箱地址。', 3, 1)[0]?.chunk.docId, 'page-3-contact');
+  });
+
   it('returns nothing for unrelated or empty questions', () => {
     assert.deepEqual(retriever.search('weather forecast tomorrow', 3, 1), []);
     assert.deepEqual(retriever.search('the and of', 3, 1), []);
     assert.deepEqual(retriever.search('', 3, 1), []);
     assert.deepEqual(retriever.search('맛있는 김치찌개', 3, 1), []);
+    assert.deepEqual(retriever.search('美味しいラーメン', 3, 1), []);
+    assert.deepEqual(retriever.search('好吃的饺子', 3, 1), []);
   });
 });
 

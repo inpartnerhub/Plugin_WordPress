@@ -181,21 +181,25 @@ final class AdminAndWidgetTest extends TestCase {
 		$this->assertStringContainsString( 'value="https://inpartnerglobal.com/contact/?a=1&amp;b=2"', $html );
 		$this->assertStringContainsString( 'name="wp_knowledge_chat_settings[enabled]"', $html );
 		$this->assertStringContainsString( 'maxlength="500"', $html );
-		foreach ( array( 'en', 'id', 'ko' ) as $lang ) {
+		foreach ( Settings::LANGUAGES as $lang ) {
 			$this->assertStringContainsString( 'name="wp_knowledge_chat_settings[greetings][' . $lang . ']"', $html );
 			$this->assertStringContainsString( '<label for="wkc-greetings-' . $lang . '">', $html );
 			$this->assertStringContainsString( '<option value="' . $lang . '"', $html );
 		}
 		$this->assertStringContainsString( '안녕하세요! Inpartner의 서비스에 대해 무엇을 도와드릴까요?', $html );
+		$this->assertStringContainsString( 'こんにちは！Inpartnerのサービスについて、どのようなことをお手伝いできますか？', $html );
+		$this->assertStringContainsString( '您好！关于 Inpartner 的服务，有什么可以帮您？', $html );
 		$this->assertStringContainsString( 'name="wp_knowledge_chat_settings[language_switcher]"', $html );
 		$this->assertStringContainsString( 'name="wp_knowledge_chat_settings[detect_browser_language]"', $html );
 	}
 
-	public function test_admin_strings_are_translated_for_indonesian_and_korean(): void {
+	public function test_admin_strings_are_translated_for_every_locale(): void {
 		// The test site has no core language packs, so switch_to_locale() would refuse these locales.
 		$expected = array(
 			'id_ID' => array( 'Pengaturan', 'Pesan Sapaan', 'Uji koneksi' ),
 			'ko_KR' => array( '설정', '인사말', '연결 테스트' ),
+			'ja'    => array( '設定', 'あいさつメッセージ', '接続テスト' ),
+			'zh_CN' => array( '设置', '问候语', '测试连接' ),
 			'en_US' => array( 'Settings', 'Greeting Messages', 'Test connection' ),
 		);
 		foreach ( $expected as $locale => $strings ) {
@@ -300,9 +304,9 @@ final class AdminAndWidgetTest extends TestCase {
 		$this->assertSame( array( 'restUrl', 'language', 'languages', 'switcher', 'detectBrowser', 'greetings', 'contactUrl', 'maxLength', 'sourceHosts', 'contactHosts', 'suggestions' ), array_keys( $config ) );
 		$this->assertStringEndsWith( '/wp-knowledge-chat/v1/chat', $config['restUrl'] );
 		$this->assertSame( 500, $config['maxLength'] );
-		$this->assertSame( array( 'en', 'id', 'ko' ), $config['languages'] );
-		$this->assertSame( array( 'en', 'id', 'ko' ), array_keys( $config['greetings'] ) );
-		$this->assertSame( array( 'en', 'id', 'ko' ), array_keys( $config['suggestions'] ) );
+		$this->assertSame( array( 'en', 'id', 'ko', 'ja', 'zh' ), $config['languages'] );
+		$this->assertSame( array( 'en', 'id', 'ko', 'ja', 'zh' ), array_keys( $config['greetings'] ) );
+		$this->assertSame( array( 'en', 'id', 'ko', 'ja', 'zh' ), array_keys( $config['suggestions'] ) );
 		$this->assertTrue( $config['switcher'] );
 		$this->assertTrue( $config['detectBrowser'] );
 	}
@@ -319,6 +323,10 @@ final class AdminAndWidgetTest extends TestCase {
 		$this->assertSame( 'Layanan apa saja yang ditawarkan Inpartner?', Plugin::suggested_questions( 'id' )[0] );
 		$this->assertSame( 'Inpartner는 어떤 서비스를 제공하나요?', Plugin::suggested_questions( 'ko' )[0] );
 		$this->assertCount( 4, Plugin::suggested_questions( 'ko' ) );
+		$this->assertSame( 'Inpartnerはどのようなサービスを提供していますか？', Plugin::suggested_questions( 'ja' )[0] );
+		$this->assertSame( 'Inpartner 提供哪些服务？', Plugin::suggested_questions( 'zh' )[0] );
+		$this->assertCount( 4, Plugin::suggested_questions( 'ja' ) );
+		$this->assertCount( 4, Plugin::suggested_questions( 'zh' ) );
 		$this->add_filter(
 			'wp_knowledge_chat_suggested_questions',
 			fn() => array( '<b>Bold?</b>', str_repeat( 'x', 151 ), 42, 'A', 'B', 'C', 'D' )

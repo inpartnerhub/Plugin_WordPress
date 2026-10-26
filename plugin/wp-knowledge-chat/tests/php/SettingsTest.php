@@ -18,6 +18,8 @@ final class SettingsTest extends TestCase {
 					'en' => "Hello! How can I help you explore Inpartner's services?",
 					'id' => 'Halo! Ada yang bisa saya bantu terkait layanan Inpartner?',
 					'ko' => '안녕하세요! Inpartner의 서비스에 대해 무엇을 도와드릴까요?',
+					'ja' => 'こんにちは！Inpartnerのサービスについて、どのようなことをお手伝いできますか？',
+					'zh' => '您好！关于 Inpartner 的服务，有什么可以帮您？',
 				),
 				'language'                => 'en',
 				'contact_url'             => 'https://inpartnerglobal.com',
@@ -107,6 +109,8 @@ final class SettingsTest extends TestCase {
 					'en' => 'Welcome!',
 					'id' => "Selamat datang!\nAda yang bisa dibantu?",
 					'ko' => '환영합니다!',
+					'ja' => Settings::default_greetings()['ja'],
+					'zh' => Settings::default_greetings()['zh'],
 				),
 				'language'                => 'ko',
 				'contact_url'             => 'https://inpartnerglobal.com/contact/',
@@ -196,8 +200,16 @@ final class SettingsTest extends TestCase {
 	}
 
 	public function test_korean_is_a_valid_language(): void {
-		$this->assertSame( array( 'en', 'id', 'ko' ), Settings::LANGUAGES );
+		$this->assertSame( array( 'en', 'id', 'ko', 'ja', 'zh' ), Settings::LANGUAGES );
 		$this->assertSame( 'ko', Settings::sanitize( array( 'language' => 'ko' ) )['language'] );
+		$this->assertSame( array(), $this->settings_error_codes() );
+	}
+
+	public function test_japanese_and_chinese_are_valid_languages(): void {
+		$this->assertSame( 'ja', Settings::sanitize( array( 'language' => 'ja' ) )['language'] );
+		$this->assertSame( 'zh', Settings::sanitize( array( 'language' => 'zh' ) )['language'] );
+		$this->assertSame( 'ようこそ', Settings::sanitize( array( 'greetings' => array( 'ja' => 'ようこそ' ) ) )['greetings']['ja'] );
+		$this->assertSame( '欢迎', Settings::sanitize( array( 'greetings' => array( 'zh' => '欢迎' ) ) )['greetings']['zh'] );
 		$this->assertSame( array(), $this->settings_error_codes() );
 	}
 

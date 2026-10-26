@@ -145,7 +145,7 @@ All configuration is supplied via environment variables and validated at process
 2. **Rate Limiting**: Enforces per-client and global rate windows before JSON body parsing (`src/middleware/rate-limit.ts`).
 3. **Validation**: Validates message length (1–500 characters) and supported language code (`en`, `id`, `ko`).
 4. **Scope & PII Redaction**: Checks for prompt injections, out-of-scope advice requests, and automatically scrubs sensitive PII (`src/services/pii.ts`, `src/services/scope.ts`).
-5. **BM25 Retrieval**: Performs lexical search over ~700-character line-aligned chunks with language-specific query expansion and Korean NFD matching (`src/services/retrieval.ts`).
+5. **BM25 Retrieval**: Performs lexical search over ~700-character line-aligned chunks with language-specific query expansion and NFKC substring matching for Korean, Japanese and Chinese (`src/services/text.ts`).
 6. **Deterministic Abstention Gate**: If top retrieved score < `RETRIEVAL_MIN_SCORE` (1.0) or required fact type is absent, returns an honest fallback **without calling the model**.
 7. **Cache & Budget**: Checks in-memory `ResponseCache` for cached grounded answers; otherwise accounts for 1 unit of `DAILY_REQUEST_LIMIT`.
 8. **Constrained Generation & Failover**: Instructs LLM with delimited evidence. `FailoverLlmClient` automatically handles retries or failover to secondary provider if needed.

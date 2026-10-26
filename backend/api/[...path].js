@@ -1356,7 +1356,23 @@ var SCOPE_RULES = [
       /(api|API)\s?키|비밀\s?키|비밀번호|액세스\s?토큰/,
       /(너는|당신은)\s?이제|척\s?(해|하세요|해줘)|역할을\s?(해|하세요|해줘|맡아)|탈옥/,
       /(위|앞|이전)(의)?\s?(내용|문장|텍스트|글)[^.?!]{0,20}(반복|그대로)/,
-      /(비공개|임시|초안)\s?(페이지|게시물|콘텐츠|문서)/
+      /(비공개|임시|초안)\s?(페이지|게시물|콘텐츠|문서)/,
+      // Japanese
+      /(指示|命令|ルール|規則|プロンプト|設定)[^.?!。？！]{0,30}(無視|忘れ|従わ)/,
+      /(無視|忘れ)[^.?!。？！]{0,30}(指示|命令|ルール|規則|プロンプト)/,
+      /(システム|隠れた|隠された|内部|初期)\s?(プロンプト|指示|メッセージ|設定|ルール)/,
+      /(api|API)\s?キー|秘密鍵|シークレットキー|パスワード|アクセストークン/,
+      /(あなた|君|お前)は今から|ふりをして|ロールプレイ|なりきって|脱獄|ジェイルブレイク|開発者モード/,
+      /(上|前|以前)の(内容|文章|テキスト)[^.?!。？！]{0,20}(繰り返|そのまま)/,
+      /(非公開|下書き)の?(ページ|投稿|コンテンツ|文書)/,
+      // Simplified Chinese
+      /(忽略|无视|忘记|忘掉|违反|不要遵守)[^.?!。？！]{0,30}(指令|指示|规则|提示词|设定)/,
+      /(指令|指示|规则|提示词)[^.?!。？！]{0,10}(忽略|无视|忘记|忘掉)/,
+      /(系统|隐藏|内部|初始)的?(提示词|提示|指令|指示|消息|设置|规则)/,
+      /(api|API)\s?密钥|秘钥|私钥|密码|访问令牌/,
+      /你现在是|假装(你是|成)|扮演(一个|成)|角色扮演|越狱|开发者模式|无限制模式/,
+      /(上面|之前|前面)的(内容|文字|文本)[^.?!。？！]{0,20}(重复|原样)/,
+      /(未发布|草稿|私密)的?(页面|文章|内容|文档)/
     ]
   },
   {
@@ -1364,7 +1380,10 @@ var SCOPE_RULES = [
     patterns: [
       /\b(kontol|memek|ngentot|pantek|jembut|bangsat|bajingan|keparat|perek|lonte|tolol|goblok)\b/i,
       /\b(fuck|fucking|bitch|bastard|asshole|cunt|dickhead|whore|nigger|nigga|faggot)\b/i,
-      /시발|씨발|개새끼|지랄|병신|좆|존나|개년/
+      /시발|씨발|개새끼|지랄|병신|좆|존나|개년/,
+      // Hiragana ばか is left out: it is part of ばかり ("only").
+      /バカ野郎|馬鹿|クソ|くそったれ|死ね|ちくしょう|カス野郎/,
+      /傻逼|妈的|他妈|操你|滚蛋|王八蛋|狗屎|贱人|去死/
     ]
   },
   {
@@ -1381,7 +1400,13 @@ var SCOPE_RULES = [
       /\binvestasi (apa|yang (bagus|terbaik|menguntungkan))\b|\bkurs\b[^.?!]{0,30}\b(naik|turun|melemah|menguat)\b/i,
       /주식|암호화폐|가상화폐|비트코인|코인\s?(추천|투자)/,
       /투자[^.?!]{0,15}(추천|해야|할까|좋을까|수익률)/,
-      /(환율|주가|증시|코스피|루피아)[^.?!]{0,30}(오를|오르|내릴|떨어|전망|예측)/
+      /(환율|주가|증시|코스피|루피아)[^.?!]{0,30}(오를|오르|내릴|떨어|전망|예측)/,
+      /株を(買|売)|株価|銘柄|暗号資産|仮想通貨|ビットコイン/,
+      /投資[^.?!。？！]{0,15}(おすすめ|すべき|した方がいい|利回り)/,
+      /(為替|株価|株式市場|ルピア)[^.?!。？！]{0,30}(上が|下が|予測|見通し)/,
+      /股票|加密货币|虚拟货币|比特币|基金推荐/,
+      /投资[^.?!。？！]{0,15}(推荐|建议买|该买|回报率|收益率)/,
+      /(汇率|股价|股市|印尼盾)[^.?!。？！]{0,30}(涨|跌|预测|走势)/
     ]
   },
   {
@@ -1402,16 +1427,29 @@ var SCOPE_RULES = [
       /세금|세무|법인세|부가세|부가가치세|소득세|관세/,
       /최소\s?자본금|자본금\s?(요건|기준)|법적\s?(리스크|위험|검토)|계약서[^.?!]{0,15}(검토|확인)/,
       /법률\s?(자문|상담|조언)|변호사|소송|합법(인가|적인가|일까)/,
-      /(법인|회사|현지\s?법인)\s?(설립|등록)/
+      /(법인|회사|현지\s?법인)\s?(설립|등록)/,
+      /税金|税務|法人税|消費税|所得税|関税|税率/,
+      /最低資本金|資本金の?(要件|基準)|法的(リスク|助言|アドバイス|レビュー)|契約書[^.?!。？！]{0,15}(確認|チェック|レビュー)/,
+      /弁護士|訴訟|合法(です|か|でしょう)/,
+      /(会社|法人|現地法人)を?(設立|登記)/,
+      /税务|税率|纳税|所得税|增值税|关税|税收/,
+      /最低(注册)?资本|注册资本(要求)?|法律(风险|意见|审查|咨询|建议)|合同[^.?!。？！]{0,15}(审查|审核|检查)/,
+      /律师|诉讼|是否合法|合法吗/,
+      /(注册|设立|成立)(公司|法人|子公司)|公司(注册|设立)/
     ]
   },
   {
     kind: "medical",
-    patterns: [/\b(medicine|medication|doctor|symptoms?|diagnos\w*|disease|illness|prescription|obat|dokter|gejala|penyakit)\b/i, /증상|질병|처방|병원|의약품/]
+    patterns: [
+      /\b(medicine|medication|doctor|symptoms?|diagnos\w*|disease|illness|prescription|obat|dokter|gejala|penyakit)\b/i,
+      /증상|질병|처방|병원|의약품/,
+      /症状|病気|処方箋?/,
+      /症状|疾病|处方|看病/
+    ]
   },
   {
     kind: "guarantee",
-    patterns: [/\b(guarantee[sd]?|promise|assure)\b/i, /\b(jamin|menjamin|dijamin|garansi)\b/i, /보장|보증|장담/]
+    patterns: [/\b(guarantee[sd]?|promise|assure)\b/i, /\b(jamin|menjamin|dijamin|garansi)\b/i, /보장|보증|장담/, /保証|確約/, /保证|担保|承诺/]
   },
   {
     kind: "unrelated",
@@ -1421,7 +1459,11 @@ var SCOPE_RULES = [
       /\b(buatkan|tuliskan|tulis)\b[^.?!]{0,20}\b(puisi|esai|cerita|kode|rencana bisnis|surat)\b/i,
       /\b(football|soccer|basketball|baseball|cricket|world cup|premier league|champions league|sepak ?bola|bulu ?tangkis)\b/i,
       /날씨|레시피|요리법|농담|운세|별자리|축구|야구|농구|월드컵/,
-      /(시를|에세이|소설|이야기를|코드를|사업\s?계획서|자기소개서|이력서)[^.?!]{0,10}(써|작성)/
+      /(시를|에세이|소설|이야기를|코드를|사업\s?계획서|자기소개서|이력서)[^.?!]{0,10}(써|작성)/,
+      /天気|レシピ|料理の作り方|冗談|ジョーク|占い|星座|サッカー|野球|バスケ|ワールドカップ/,
+      /(詩|エッセイ|小説|物語|コード|事業計画書|履歴書)[^.?!。？！]{0,10}(を)?(書いて|作成して|作って)/,
+      /天气|食谱|菜谱|笑话|运势|星座|足球|篮球|棒球|世界杯/,
+      /(写|帮我写|创作)[^.?!。？！]{0,10}(诗|作文|文章|小说|故事|代码|商业计划书|简历)/
     ]
   }
 ];
@@ -1443,42 +1485,42 @@ var ANSWER_TYPE_RULES = [
   {
     type: "price",
     // "pricing terms" / "pricing strategy" are negotiation topics (a listed service), not a request for Inpartner's prices.
-    question: /\b(price[sd]?|pricing(?!\s+(terms?|strateg\w*|models?|negotiations?))|fees?|how much|quotes?|rate card|biaya|harga|tarif|ongkos)\b|\b(what|how)\b[^.?!]{0,25}\bcosts?\b|\bcosts? (of|for) (your|the|inpartner|a|an)\b|가격|비용|요금|수수료|얼마|견적/i,
+    question: /\b(price[sd]?|pricing(?!\s+(terms?|strateg\w*|models?|negotiations?))|fees?|how much|quotes?|rate card|biaya|harga|tarif|ongkos)\b|\b(what|how)\b[^.?!]{0,25}\bcosts?\b|\bcosts? (of|for) (your|the|inpartner|a|an)\b|가격|비용|요금|수수료|얼마|견적|料金|費用|価格|値段|いくら|見積|手数料|价格|费用|收费|多少钱|报价|价钱|手续费/i,
     // A price needs an amount. The words "pricing"/"fees" alone are not one: KB v2.0 says
     // "Structure commercial agreements, pricing terms, ..." which opened the gate for every fee question.
     evidence: /\b(rp|idr|usd|sgd|eur|krw)\.?\s?\d|[$€£₩]\s?\d|\b(fees?|pricing|prices?|rates?|tarif|biaya|harga)\b[^.\n]{0,40}\d/i
   },
   {
     type: "duration",
-    question: /\b(how long\s+(does|do|will|would|is)|berapa\s+lama|butuh\s+waktu\s+berapa\s+lama|estimasi\s+waktu|durasi\s+(proses|proyek|kerjasama|pencarian|pendampingan))\b|얼마나\s?걸리|소요\s?시간/i,
+    question: /\b(how long\s+(does|do|will|would|is)|berapa\s+lama|butuh\s+waktu\s+berapa\s+lama|estimasi\s+waktu|durasi\s+(proses|proyek|kerjasama|pencarian|pendampingan))\b|얼마나\s?걸리|소요\s?시간|どのくらい(の期間|の時間|時間|かか)|期間はどれ|所要時間|何[ヶか]月|多长时间|多久|需要多少时间|几个月/i,
     evidence: /\b\d+\s*(days?|weeks?|months?|years?|hari|minggu|bulan|tahun)\b/i
   },
   {
     type: "founding",
-    question: /\b(founded|founders?|founding|since when|history of|didirikan|pendiri|berdiri sejak|kapan berdiri)\b|\bwhen (was|were|did)\b[^.?!]{0,40}\b(start|found|establish|begin|created)|설립|창립|창업자|언제부터/i,
+    question: /\b(founded|founders?|founding|since when|history of|didirikan|pendiri|berdiri sejak|kapan berdiri)\b|\bwhen (was|were|did)\b[^.?!]{0,40}\b(start|found|establish|begin|created)|설립|창립|창업자|언제부터|設立|創業|創立|創設者|成立于|何时成立|什么时候成立|哪一年成立|创立|创始人|创办人/i,
     // "We support founders" is not a founding statement: require a year or "founded by".
     evidence: /\b(founded|established|since)\b[^.\n]{0,40}\b(19|20)\d{2}\b|\b(19|20)\d{2}\b[^.\n]{0,40}\b(founded|established)\b|\b(founded|established) by\b/i
   },
   {
     type: "headcount",
-    question: /\bhow many\s+(employees|staff|people|consultants|advisors|team members|offices)\b|\b(number of|jumlah)\s+(employees|staff|karyawan|pegawai|kantor)\b|\bteam size\b|직원\s?수|임직원\s?수|몇\s?명|팀\s?규모/i,
+    question: /\bhow many\s+(employees|staff|people|consultants|advisors|team members|offices)\b|\b(number of|jumlah)\s+(employees|staff|karyawan|pegawai|kantor)\b|\bteam size\b|직원\s?수|임직원\s?수|몇\s?명|팀\s?규모|従業員数|社員数|スタッフ数|何人|チームの規模|员工人数|多少员工|多少人|团队规模/i,
     evidence: /\b\d[\d,.]*\+?\s+(employees|staff|people|consultants|advisors|professionals|offices|karyawan)\b/i
   },
   {
     type: "statistics",
-    question: /\b(success rate|track record|win rate|percentage|statistics?|persentase|tingkat keberhasilan)\b|\b(how many|number of|jumlah)\s+(clients|customers|deals|projects|companies|transactions|klien|proyek)\b|성공률|통계|(고객|프로젝트|거래|고객사)\s?(수|몇)/i,
+    question: /\b(success rate|track record|win rate|percentage|statistics?|persentase|tingkat keberhasilan)\b|\b(how many|number of|jumlah)\s+(clients|customers|deals|projects|companies|transactions|klien|proyek)\b|성공률|통계|(고객|프로젝트|거래|고객사)\s?(수|몇)|統計|(顧客|クライアント|プロジェクト|案件|取引)(数|の数|は何件)|成功率|统计|(客户|项目|交易)(数量|有多少|多少个)/i,
     evidence: /\d\s?%|\b\d[\d,.]*\+?\s+(clients|customers|deals|projects|companies|transactions)\b/i
   },
   {
     type: "clients",
-    question: /\b(who are|list|name)\b[^.?!]{0,30}\b(clients|customers)\b|\b(name|list)\b[^.?!]{0,30}\b(companies|firms|brands|businesses)\b[^.?!]{0,30}\b(helped|worked with|served|advised)\b|\b(clients?|customers?)\s+(list|names?|portfolio)\b|\bcase stud(y|ies)\b|\btestimonials?\b|\bportfolio\b|\bstudi kasus\b|\btestimoni\b|\b(siapa( saja)?|daftar|nama)\s+klien\b|고객\s?(목록|명단|리스트)|고객사\s?(이름|목록|명단)|(주요|대표)\s?고객|사례\s?연구|포트폴리오|후기/i,
+    question: /\b(who are|list|name)\b[^.?!]{0,30}\b(clients|customers)\b|\b(name|list)\b[^.?!]{0,30}\b(companies|firms|brands|businesses)\b[^.?!]{0,30}\b(helped|worked with|served|advised)\b|\b(clients?|customers?)\s+(list|names?|portfolio)\b|\bcase stud(y|ies)\b|\btestimonials?\b|\bportfolio\b|\bstudi kasus\b|\btestimoni\b|\b(siapa( saja)?|daftar|nama)\s+klien\b|고객\s?(목록|명단|리스트)|고객사\s?(이름|목록|명단)|(주요|대표)\s?고객|사례\s?연구|포트폴리오|후기|(顧客|クライアント|取引先)の?(一覧|リスト|名前|名)|(主要|代表的な)(顧客|クライアント|取引先)|導入事例|ケーススタディ|ポートフォリオ|お客様の声|客户(名单|列表|名称|名字)|(主要|代表性?)客户|成功案例|客户案例|作品集|客户评价/i,
     // Client names, not counts: "Project Portfolio: 90+ projects" and "Official Service Portfolio" (KB v2.0)
     // matched the former bare "portfolio" and let "Who are your clients?" through.
     evidence: /\b(case stud(y|ies)|testimonials?|our clients include|clients include|clients such as|trusted by)\b/i
   },
   {
     type: "hours",
-    question: /\b(office|opening|business|working)\s+hours\b|\bjam\s+(kerja|operasional|buka|kantor)\b|(영업|근무|운영|업무)\s?시간/i,
+    question: /\b(office|opening|business|working)\s+hours\b|\bjam\s+(kerja|operasional|buka|kantor)\b|(영업|근무|운영|업무)\s?시간|営業時間|勤務時間|業務時間|受付時間|营业时间|工作时间|办公时间/i,
     evidence: /\b\d{1,2}[:.]\d{2}\b|\b\d{1,2}\s?(am|pm)\b|\b(monday|senin)\b/i
   }
 ];
@@ -1512,7 +1554,7 @@ var digitsOnly = (s) => s.replace(/\D/g, "");
 var NAME_RUN_RE = /(?<![\p{L}\d])[A-ZÀ-ÖØ-Þ][\p{Script=Latin}'’-]*(?:\s+(?:(?:&|of|and|de|van|bin|binti)\s+)?[A-ZÀ-ÖØ-Þ][\p{Script=Latin}'’-]*)+/gu;
 var NAME_CONNECTORS = /* @__PURE__ */ new Set(["&", "of", "and", "de", "van", "bin", "binti"]);
 var COMMON_CAPITALISED = new Set(
-  "a an the and or but if so yes no not of in on at to for from by with as is are was were be been this that these those it its we our us you your they their i my he she his her who what when where which why how there here also however certainly sure absolutely great thank thanks please hello hi welcome of course indeed additionally furthermore moreover overall currently generally in general for example such each every all some any many most more other another both either neither one two three first second finally next then ai assistant inpartner inpartner\u2019s inpartner's english indonesian bahasa indonesia korean \uD55C\uAD6D\uC5B4 monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat halo hai pagi siang sore malam bapak ibu kak layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga baik sekali sama-sama senang bisa membantu semoga sukses hari menyenangkan asisten konsultasi bisnis global optima integra pt cv pma bumn umkm mitra solusi strategi strategis transformasi perusahaan klien penasihat manajemen konsultan business consultation consulting cross-border cross border human capital organization executive search due diligence feasibility studies study advisor advisory corporate expansion market partner partners service services jakarta selatan utara barat timur pusat indonesia pakuwon tower casablanca kav kavling lantai gedung menara jalan jl raya unit nomor no financing technology productivity restructuring investment investor distribution sourcing deal transaction perbankan jasa keuangan finansial lainnya pasar modal manufaktur rekayasa teknik industri sumber daya alam perkebunan pertanian agribisnis pertambangan mineral minyak gas migas pengembangan teknologi informasi digital telekomunikasi kecerdasan buatan pusat data semikonduktor bioteknologi farmasi kesehatan medis rumah sakit barang konsumen primer sekunder pokok non-pokok ritel perdagangan pariwisata perhotelan hospitalitas perjalanan energi terbarukan hijau bersih keberlanjutan berkelanjutan ekuitas bank regional investasi alternatif ketahanan kesejahteraan transportasi logistik rantai pasok mobilitas perkotaan otomotif kendaraan listrik properti real estat konstruksi infrastruktur pangan air peringkat nilai ekonomi karbon korporat korporasi sektor publik swasta pemerintahan negara institusi kemitraan lintas batas negara usaha patungan transfer pengetahuan internasional pencarian rekrutmen eksekutif kepemimpinan talenta pelatihan kapasitas organisasi penilaian analisis komersial peluang proyek akses masuk riset inteligensi pencocokan identifikasi distributor lokal asing cabang dukungan negosiasi evaluasi seleksi pendampingan tahap tahapan langkah awal pertama kedua ketiga keempat kelima proses kerjasama pendekatan pemahaman pelaksanaan pertumbuhan kehadiran asia tenggara timur tengah eropa amerika afrika pasifik korea jepang tiongkok china malaysia singapura australia belgia uni emirat arab abu dhabi swiss turki spanyol qatar saudi arabia jawa bisa langsung bertemu ketemu pertemuan meeting tatap muka kantor pusat operasional jangan ragu hubungi kontak resmi tersedia lebih lanjut diskusi jadwal penjadwalan kunjungan lokasi alamat melalui telepon email whatsapp tautan berikut siap mendukung kebutuhan spesifik sesuai tujuan saja sangat cocok yuk mari".split(/\s+/)
+  "a an the and or but if so yes no not of in on at to for from by with as is are was were be been this that these those it its we our us you your they their i my he she his her who what when where which why how there here also however certainly sure absolutely great thank thanks please hello hi welcome of course indeed additionally furthermore moreover overall currently generally in general for example such each every all some any many most more other another both either neither one two three first second finally next then ai assistant inpartner inpartner\u2019s inpartner's english indonesian bahasa indonesia korean \uD55C\uAD6D\uC5B4 japanese chinese monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december tentu ya tidak untuk dengan dan atau di ke dari pada yang ini itu kami kita anda mereka saya kamu silakan terima kasih selain selamat halo hai pagi siang sore malam bapak ibu kak layanan tim apakah bagaimana apa siapa kapan mengapa dimana secara umum misalnya namun juga baik sekali sama-sama senang bisa membantu semoga sukses hari menyenangkan asisten konsultasi bisnis global optima integra pt cv pma bumn umkm mitra solusi strategi strategis transformasi perusahaan klien penasihat manajemen konsultan business consultation consulting cross-border cross border human capital organization executive search due diligence feasibility studies study advisor advisory corporate expansion market partner partners service services jakarta selatan utara barat timur pusat indonesia pakuwon tower casablanca kav kavling lantai gedung menara jalan jl raya unit nomor no financing technology productivity restructuring investment investor distribution sourcing deal transaction perbankan jasa keuangan finansial lainnya pasar modal manufaktur rekayasa teknik industri sumber daya alam perkebunan pertanian agribisnis pertambangan mineral minyak gas migas pengembangan teknologi informasi digital telekomunikasi kecerdasan buatan pusat data semikonduktor bioteknologi farmasi kesehatan medis rumah sakit barang konsumen primer sekunder pokok non-pokok ritel perdagangan pariwisata perhotelan hospitalitas perjalanan energi terbarukan hijau bersih keberlanjutan berkelanjutan ekuitas bank regional investasi alternatif ketahanan kesejahteraan transportasi logistik rantai pasok mobilitas perkotaan otomotif kendaraan listrik properti real estat konstruksi infrastruktur pangan air peringkat nilai ekonomi karbon korporat korporasi sektor publik swasta pemerintahan negara institusi kemitraan lintas batas negara usaha patungan transfer pengetahuan internasional pencarian rekrutmen eksekutif kepemimpinan talenta pelatihan kapasitas organisasi penilaian analisis komersial peluang proyek akses masuk riset inteligensi pencocokan identifikasi distributor lokal asing cabang dukungan negosiasi evaluasi seleksi pendampingan tahap tahapan langkah awal pertama kedua ketiga keempat kelima proses kerjasama pendekatan pemahaman pelaksanaan pertumbuhan kehadiran asia tenggara timur tengah eropa amerika afrika pasifik korea jepang tiongkok china malaysia singapura australia belgia uni emirat arab abu dhabi swiss turki spanyol qatar saudi arabia jawa bisa langsung bertemu ketemu pertemuan meeting tatap muka kantor pusat operasional jangan ragu hubungi kontak resmi tersedia lebih lanjut diskusi jadwal penjadwalan kunjungan lokasi alamat melalui telepon email whatsapp tautan berikut siap mendukung kebutuhan spesifik sesuai tujuan saja sangat cocok yuk mari".split(/\s+/)
 );
 function unsupportedClaims(answer, evidenceText) {
   const problems = [];
@@ -1551,7 +1593,7 @@ function unsupportedClaims(answer, evidenceText) {
 }
 
 // src/services/chat.ts
-var LANGUAGES = ["en", "id", "ko"];
+var LANGUAGES = ["en", "id", "ko", "ja", "zh"];
 var BudgetExceededError = class extends Error {
   constructor(retryAfterSeconds) {
     super("Daily model-call budget exhausted");
@@ -1563,77 +1605,111 @@ var BudgetExceededError = class extends Error {
 var FALLBACK_MESSAGES = {
   en: "Hello! I specifically assist with Inpartner Global\u2019s business consulting services\u2014from Strategy & Corporate Advisory and Cross-Border Market Entry to Distribution Partner Sourcing. If you would like to discuss your business needs directly with our advisory team, please reach out through the contact link below!",
   id: "Halo! Saat ini saya khusus melayani konsultasi seputar layanan bisnis Inpartner Global\u2014mulai dari Strategy & Corporate Advisory, Cross-Border Market Entry, hingga pencarian mitra distribusi. Jika ada rencana ekspansi atau kebutuhan bisnis yang ingin didiskusikan bersama tim konsultan kami, yuk hubungi kami melalui tautan kontak berikut!",
-  ko: "\uC548\uB155\uD558\uC138\uC694! \uC800\uB294 Inpartner Global\uC758 \uBE44\uC988\uB2C8\uC2A4 \uCEE8\uC124\uD305 \uC11C\uBE44\uC2A4(\uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C, \uC720\uD1B5 \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uB4F1)\uB97C \uC804\uBB38\uC801\uC73C\uB85C \uC548\uB0B4\uD574 \uB4DC\uB9AC\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uBE44\uC988\uB2C8\uC2A4\uC5D0 \uB9DE\uCD98 \uC0C1\uB2F4\uC774 \uD544\uC694\uD558\uC2DC\uBA74 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB97C \uD1B5\uD574 \uC5B8\uC81C\uB4E0\uC9C0 \uC800\uD76C \uC790\uBB38\uD300\uC5D0 \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+  ko: "\uC548\uB155\uD558\uC138\uC694! \uC800\uB294 Inpartner Global\uC758 \uBE44\uC988\uB2C8\uC2A4 \uCEE8\uC124\uD305 \uC11C\uBE44\uC2A4(\uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C, \uC720\uD1B5 \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uB4F1)\uB97C \uC804\uBB38\uC801\uC73C\uB85C \uC548\uB0B4\uD574 \uB4DC\uB9AC\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uBE44\uC988\uB2C8\uC2A4\uC5D0 \uB9DE\uCD98 \uC0C1\uB2F4\uC774 \uD544\uC694\uD558\uC2DC\uBA74 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB97C \uD1B5\uD574 \uC5B8\uC81C\uB4E0\uC9C0 \uC800\uD76C \uC790\uBB38\uD300\uC5D0 \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+  ja: "\u3053\u3093\u306B\u3061\u306F\uFF01\u79C1\u306FInpartner Global\u306E\u30D3\u30B8\u30CD\u30B9\u30B3\u30F3\u30B5\u30EB\u30C6\u30A3\u30F3\u30B0\u30B5\u30FC\u30D3\u30B9\uFF08Strategy & Corporate Advisory\u3001Cross-Border Market Entry\u3001\u8CA9\u58F2\u30D1\u30FC\u30C8\u30CA\u30FC\u63A2\u7D22\u306A\u3069\uFF09\u3092\u5C02\u9580\u306B\u3054\u6848\u5185\u3057\u3066\u3044\u307E\u3059\u3002\u30D3\u30B8\u30CD\u30B9\u306E\u3054\u76F8\u8AC7\u3092\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC\u30C1\u30FC\u30E0\u3068\u76F4\u63A5\u3055\u308C\u305F\u3044\u5834\u5408\u306F\u3001\u4E0B\u8A18\u306E\u9023\u7D61\u5148\u30EA\u30F3\u30AF\u304B\u3089\u304A\u6C17\u8EFD\u306B\u304A\u554F\u3044\u5408\u308F\u305B\u304F\u3060\u3055\u3044\uFF01",
+  zh: "\u60A8\u597D\uFF01\u6211\u4E13\u95E8\u4E3A\u60A8\u4ECB\u7ECD Inpartner Global \u7684\u5546\u4E1A\u54A8\u8BE2\u670D\u52A1\u2014\u2014\u4ECE Strategy & Corporate Advisory\u3001Cross-Border Market Entry \u5230\u5206\u9500\u5408\u4F5C\u4F19\u4F34\u5BFB\u627E\u3002\u5982\u9700\u4E0E\u6211\u4EEC\u7684\u987E\u95EE\u56E2\u961F\u76F4\u63A5\u6C9F\u901A\u60A8\u7684\u4E1A\u52A1\u9700\u6C42\uFF0C\u6B22\u8FCE\u901A\u8FC7\u4E0B\u65B9\u8054\u7CFB\u94FE\u63A5\u4E0E\u6211\u4EEC\u8054\u7CFB\uFF01"
 };
 var SCOPE_FALLBACK_MESSAGES = {
   guarantee: {
     en: "In business and market expansion, no advisory firm can ethically guarantee 100% outcomes. However, Inpartner helps minimize risks and maximize your success through structured Market Assessment, Due Diligence, and Strategy & Corporate Advisory\u2014feel free to connect with our team via the link below!",
     id: "Dalam dunia bisnis, tentu tidak ada pihak yang dapat menjamin hasil 100% secara mutlak. Namun, tim Inpartner siap membantu meminimalkan risiko dan memaksimalkan peluang sukses perusahaan Anda lewat layanan Market Assessment, Due Diligence, serta Strategy & Corporate Advisory\u2014yuk diskusikan rencana bisnis Anda melalui tautan kontak berikut!",
-    ko: "\uBE44\uC988\uB2C8\uC2A4\uC640 \uC2DC\uC7A5 \uC9C4\uCD9C\uC5D0\uC11C \uACB0\uACFC\uB97C 100% \uBCF4\uC7A5\uD560 \uC218\uB294 \uC5C6\uC9C0\uB9CC, Inpartner\uB294 \uCCB4\uACC4\uC801\uC778 \uC2DC\uC7A5 \uD3C9\uAC00, \uC2E4\uC0AC(Due Diligence) \uBC0F \uC804\uB7B5 \uC790\uBB38\uC744 \uD1B5\uD574 \uB9AC\uC2A4\uD06C\uB97C \uCD5C\uC18C\uD654\uD558\uACE0 \uC131\uACF5 \uAC00\uB2A5\uC131\uC744 \uB192\uC5EC \uB4DC\uB9BD\uB2C8\uB2E4. \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uD3B8\uD558\uAC8C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+    ko: "\uBE44\uC988\uB2C8\uC2A4\uC640 \uC2DC\uC7A5 \uC9C4\uCD9C\uC5D0\uC11C \uACB0\uACFC\uB97C 100% \uBCF4\uC7A5\uD560 \uC218\uB294 \uC5C6\uC9C0\uB9CC, Inpartner\uB294 \uCCB4\uACC4\uC801\uC778 \uC2DC\uC7A5 \uD3C9\uAC00, \uC2E4\uC0AC(Due Diligence) \uBC0F \uC804\uB7B5 \uC790\uBB38\uC744 \uD1B5\uD574 \uB9AC\uC2A4\uD06C\uB97C \uCD5C\uC18C\uD654\uD558\uACE0 \uC131\uACF5 \uAC00\uB2A5\uC131\uC744 \uB192\uC5EC \uB4DC\uB9BD\uB2C8\uB2E4. \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uD3B8\uD558\uAC8C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+    ja: "\u30D3\u30B8\u30CD\u30B9\u3084\u5E02\u5834\u9032\u51FA\u306B\u304A\u3044\u3066\u3001\u6210\u679C\u3092100%\u4FDD\u8A3C\u3067\u304D\u308B\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC\u4F1A\u793E\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u305F\u3060\u3057Inpartner\u306F\u3001\u4F53\u7CFB\u7684\u306AMarket Assessment\u3001Due Diligence\u3001Strategy & Corporate Advisory\u3092\u901A\u3058\u3066\u30EA\u30B9\u30AF\u3092\u6291\u3048\u3001\u6210\u529F\u306E\u53EF\u80FD\u6027\u3092\u9AD8\u3081\u308B\u304A\u624B\u4F1D\u3044\u3092\u3057\u307E\u3059\u3002\u4E0B\u8A18\u306E\u30EA\u30F3\u30AF\u304B\u3089\u304A\u6C17\u8EFD\u306B\u3054\u76F8\u8AC7\u304F\u3060\u3055\u3044\uFF01",
+    zh: "\u5728\u5546\u4E1A\u548C\u5E02\u573A\u62D3\u5C55\u4E2D\uFF0C\u6CA1\u6709\u4EFB\u4F55\u54A8\u8BE2\u673A\u6784\u80FD\u591F\u5408\u4E4E\u804C\u4E1A\u9053\u5FB7\u5730\u4FDD\u8BC1100%\u7684\u7ED3\u679C\u3002\u4E0D\u8FC7\uFF0CInpartner \u53EF\u4EE5\u901A\u8FC7\u7CFB\u7EDF\u7684 Market Assessment\u3001Due Diligence \u4EE5\u53CA Strategy & Corporate Advisory \u5E2E\u52A9\u60A8\u964D\u4F4E\u98CE\u9669\u3001\u63D0\u9AD8\u6210\u529F\u7387\u2014\u2014\u6B22\u8FCE\u901A\u8FC7\u4E0B\u65B9\u94FE\u63A5\u8054\u7CFB\u6211\u4EEC\u7684\u56E2\u961F\uFF01"
   },
   legal_tax_advice: {
     en: "Specific tax calculations and statutory legal filings are handled alongside licensed tax or legal counsel. However, Inpartner is ready to guide your commercial strategy through our Cross-Border Market Entry, Feasibility Studies, and local partner sourcing services\u2014reach out to our team via the contact link below!",
     id: "Untuk perhitungan pajak spesifik atau pengurusan legalitas teknis, hal tersebut perlu ditangani bersama konsultan pajak/hukum berlisensi. Namun, tim Inpartner siap mendampingi sisi strategis dan komersialnya lewat layanan Cross-Border Market Entry, Feasibility Studies, hingga pencarian mitra lokal\u2014yuk hubungi tim kami melalui tautan kontak berikut!",
-    ko: "\uAD6C\uCCB4\uC801\uC778 \uC138\uBB34 \uACC4\uC0B0\uC774\uB098 \uBC95\uC801 \uB4F1\uB85D \uC808\uCC28\uB294 \uC804\uBB38 \uC138\uBB34\xB7\uBC95\uB960 \uC790\uBB38\uACFC \uD568\uAED8 \uC9C4\uD589\uD574\uC57C \uD558\uC9C0\uB9CC, Inpartner\uB294 \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uC804\uB7B5, \uD0C0\uB2F9\uC131 \uC870\uC0AC \uBC0F \uD604\uC9C0 \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uC790\uBB38\uC744 \uD1B5\uD574 \uBE44\uC988\uB2C8\uC2A4 \uC131\uACF5\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9BD\uB2C8\uB2E4. \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+    ko: "\uAD6C\uCCB4\uC801\uC778 \uC138\uBB34 \uACC4\uC0B0\uC774\uB098 \uBC95\uC801 \uB4F1\uB85D \uC808\uCC28\uB294 \uC804\uBB38 \uC138\uBB34\xB7\uBC95\uB960 \uC790\uBB38\uACFC \uD568\uAED8 \uC9C4\uD589\uD574\uC57C \uD558\uC9C0\uB9CC, Inpartner\uB294 \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uC804\uB7B5, \uD0C0\uB2F9\uC131 \uC870\uC0AC \uBC0F \uD604\uC9C0 \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uC790\uBB38\uC744 \uD1B5\uD574 \uBE44\uC988\uB2C8\uC2A4 \uC131\uACF5\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9BD\uB2C8\uB2E4. \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+    ja: "\u5177\u4F53\u7684\u306A\u7A0E\u984D\u8A08\u7B97\u3084\u6CD5\u7684\u306A\u5C4A\u51FA\u624B\u7D9A\u304D\u306F\u3001\u8CC7\u683C\u3092\u6301\u3064\u7A0E\u7406\u58EB\u30FB\u5F01\u8B77\u58EB\u3068\u9023\u643A\u3057\u3066\u5BFE\u5FDC\u3059\u308B\u5FC5\u8981\u304C\u3042\u308A\u307E\u3059\u3002\u4E00\u65B9\u3067Inpartner\u306F\u3001Cross-Border Market Entry\u3001Feasibility Studies\u3001\u73FE\u5730\u30D1\u30FC\u30C8\u30CA\u30FC\u63A2\u7D22\u3092\u901A\u3058\u3066\u4E8B\u696D\u6226\u7565\u9762\u3092\u30B5\u30DD\u30FC\u30C8\u3057\u307E\u3059\u3002\u4E0B\u8A18\u306E\u9023\u7D61\u5148\u30EA\u30F3\u30AF\u304B\u3089\u30C1\u30FC\u30E0\u306B\u304A\u554F\u3044\u5408\u308F\u305B\u304F\u3060\u3055\u3044\uFF01",
+    zh: "\u5177\u4F53\u7684\u7A0E\u52A1\u8BA1\u7B97\u548C\u6CD5\u5B9A\u6CD5\u5F8B\u7533\u62A5\u9700\u8981\u7531\u6301\u724C\u7A0E\u52A1\u6216\u6CD5\u5F8B\u987E\u95EE\u5904\u7406\u3002\u4E0D\u8FC7\uFF0CInpartner \u53EF\u4EE5\u901A\u8FC7 Cross-Border Market Entry\u3001Feasibility Studies \u4EE5\u53CA\u672C\u5730\u5408\u4F5C\u4F19\u4F34\u5BFB\u627E\u670D\u52A1\uFF0C\u4E3A\u60A8\u7684\u5546\u4E1A\u6218\u7565\u63D0\u4F9B\u652F\u6301\u2014\u2014\u6B22\u8FCE\u901A\u8FC7\u4E0B\u65B9\u8054\u7CFB\u94FE\u63A5\u4E0E\u6211\u4EEC\u7684\u56E2\u961F\u8054\u7CFB\uFF01"
   },
   investment_advice: {
     en: "I do not provide personal stock, crypto, or retail financial speculation recommendations. However, if your company requires corporate advisory support, Inpartner is ready to assist through our Investment & Project Advisory, Feasibility Studies, and M&A Advisory services\u2014feel free to contact our team via the link below!",
     id: "Maaf ya, saya tidak melayani rekomendasi jual-beli saham, kripto, atau spekulasi keuangan pribadi. Namun jika perusahaan Anda membutuhkan pendampingan korporasi, tim Inpartner siap membantu lewat layanan Investment & Project Advisory, Feasibility Studies, maupun M&A Advisory\u2014yuk hubungi kami melalui tautan kontak berikut!",
-    ko: "\uAC1C\uC778 \uC8FC\uC2DD, \uC554\uD638\uD654\uD3D0 \uB610\uB294 \uAE08\uC735 \uD22C\uAE30 \uCD94\uCC9C\uC740 \uC81C\uACF5\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uB2E4\uB9CC \uAE30\uC5C5 \uCC28\uC6D0\uC758 \uC790\uBB38\uC774 \uD544\uC694\uD558\uC2DC\uB2E4\uBA74 Inpartner\uC758 \uD22C\uC790 \uBC0F \uD504\uB85C\uC81D\uD2B8 \uC790\uBB38(Investment & Project Advisory), \uD0C0\uB2F9\uC131 \uC870\uC0AC(Feasibility Studies), M&A \uC790\uBB38\uC744 \uD1B5\uD574 \uC9C0\uC6D0\uD574 \uB4DC\uB9B4 \uC218 \uC788\uC73C\uB2C8 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+    ko: "\uAC1C\uC778 \uC8FC\uC2DD, \uC554\uD638\uD654\uD3D0 \uB610\uB294 \uAE08\uC735 \uD22C\uAE30 \uCD94\uCC9C\uC740 \uC81C\uACF5\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uB2E4\uB9CC \uAE30\uC5C5 \uCC28\uC6D0\uC758 \uC790\uBB38\uC774 \uD544\uC694\uD558\uC2DC\uB2E4\uBA74 Inpartner\uC758 \uD22C\uC790 \uBC0F \uD504\uB85C\uC81D\uD2B8 \uC790\uBB38(Investment & Project Advisory), \uD0C0\uB2F9\uC131 \uC870\uC0AC(Feasibility Studies), M&A \uC790\uBB38\uC744 \uD1B5\uD574 \uC9C0\uC6D0\uD574 \uB4DC\uB9B4 \uC218 \uC788\uC73C\uB2C8 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+    ja: "\u500B\u4EBA\u5411\u3051\u306E\u682A\u5F0F\u30FB\u6697\u53F7\u8CC7\u7523\u306E\u58F2\u8CB7\u3084\u6295\u6A5F\u7684\u306A\u91D1\u878D\u30A2\u30C9\u30D0\u30A4\u30B9\u306F\u884C\u3063\u3066\u304A\u308A\u307E\u305B\u3093\u3002\u4F01\u696D\u3068\u3057\u3066\u306E\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC\u304C\u5FC5\u8981\u306A\u5834\u5408\u306F\u3001Investment & Project Advisory\u3001Feasibility Studies\u3001M&A Advisory\u3092\u901A\u3058\u3066Inpartner\u304C\u30B5\u30DD\u30FC\u30C8\u3044\u305F\u3057\u307E\u3059\u3002\u4E0B\u8A18\u306E\u30EA\u30F3\u30AF\u304B\u3089\u304A\u6C17\u8EFD\u306B\u3054\u9023\u7D61\u304F\u3060\u3055\u3044\uFF01",
+    zh: "\u6211\u4E0D\u63D0\u4F9B\u4E2A\u4EBA\u80A1\u7968\u3001\u52A0\u5BC6\u8D27\u5E01\u6216\u6295\u673A\u6027\u7406\u8D22\u5EFA\u8BAE\u3002\u5982\u679C\u8D35\u516C\u53F8\u9700\u8981\u4F01\u4E1A\u5C42\u9762\u7684\u54A8\u8BE2\u652F\u6301\uFF0CInpartner \u53EF\u4EE5\u901A\u8FC7 Investment & Project Advisory\u3001Feasibility Studies \u4EE5\u53CA M&A Advisory \u670D\u52A1\u4E3A\u60A8\u63D0\u4F9B\u5E2E\u52A9\u2014\u2014\u6B22\u8FCE\u901A\u8FC7\u4E0B\u65B9\u94FE\u63A5\u8054\u7CFB\u6211\u4EEC\u7684\u56E2\u961F\uFF01"
   },
   profanity_hate: {
     en: "Hello! Let us keep our conversation respectful and constructive. If your company needs support with Strategy & Corporate Advisory, market expansion, or distribution partner sourcing, the Inpartner team is always ready to help\u2014please reach out via the contact link below!",
     id: "Halo! Mari kita berdiskusi dengan nyaman dan santai ya. Jika perusahaan Anda membutuhkan pendampingan seputar Strategy & Corporate Advisory, ekspansi pasar, atau pencarian mitra distribusi, tim Inpartner selalu siap membantu\u2014silakan hubungi kami melalui tautan kontak berikut!",
-    ko: "\uC548\uB155\uD558\uC138\uC694! \uC6D0\uD65C\uD558\uACE0 \uC815\uC911\uD55C \uB300\uD654\uB97C \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uB610\uB294 \uC720\uD1B5 \uD30C\uD2B8\uB108 \uBC1C\uAD74\uC774 \uD544\uC694\uD558\uC2DC\uB2E4\uBA74 \uC5B8\uC81C\uB4E0 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB97C \uD1B5\uD574 Inpartner \uC790\uBB38\uD300\uC5D0 \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+    ko: "\uC548\uB155\uD558\uC138\uC694! \uC6D0\uD65C\uD558\uACE0 \uC815\uC911\uD55C \uB300\uD654\uB97C \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uB610\uB294 \uC720\uD1B5 \uD30C\uD2B8\uB108 \uBC1C\uAD74\uC774 \uD544\uC694\uD558\uC2DC\uB2E4\uBA74 \uC5B8\uC81C\uB4E0 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB97C \uD1B5\uD574 Inpartner \uC790\uBB38\uD300\uC5D0 \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+    ja: "\u3053\u3093\u306B\u3061\u306F\uFF01\u304A\u4E92\u3044\u306B\u6C17\u6301\u3061\u3088\u304F\u3001\u5EFA\u8A2D\u7684\u306A\u4F1A\u8A71\u3092\u5FC3\u304C\u3051\u307E\u3057\u3087\u3046\u3002Strategy & Corporate Advisory\u3001\u5E02\u5834\u62E1\u5927\u3001\u8CA9\u58F2\u30D1\u30FC\u30C8\u30CA\u30FC\u63A2\u7D22\u306B\u3064\u3044\u3066\u30B5\u30DD\u30FC\u30C8\u304C\u5FC5\u8981\u3067\u3057\u305F\u3089\u3001Inpartner\u30C1\u30FC\u30E0\u304C\u3044\u3064\u3067\u3082\u304A\u624B\u4F1D\u3044\u3057\u307E\u3059\u3002\u4E0B\u8A18\u306E\u9023\u7D61\u5148\u30EA\u30F3\u30AF\u304B\u3089\u304A\u554F\u3044\u5408\u308F\u305B\u304F\u3060\u3055\u3044\uFF01",
+    zh: "\u60A8\u597D\uFF01\u8BA9\u6211\u4EEC\u4FDD\u6301\u793C\u8C8C\u3001\u5EFA\u8BBE\u6027\u7684\u4EA4\u6D41\u3002\u5982\u679C\u8D35\u516C\u53F8\u5728 Strategy & Corporate Advisory\u3001\u5E02\u573A\u62D3\u5C55\u6216\u5206\u9500\u5408\u4F5C\u4F19\u4F34\u5BFB\u627E\u65B9\u9762\u9700\u8981\u652F\u6301\uFF0CInpartner \u56E2\u961F\u968F\u65F6\u4E50\u610F\u4E3A\u60A8\u670D\u52A1\u2014\u2014\u8BF7\u901A\u8FC7\u4E0B\u65B9\u8054\u7CFB\u94FE\u63A5\u4E0E\u6211\u4EEC\u8054\u7CFB\uFF01"
   },
   injection: {
     en: "Hello! I operate exclusively as the official Business Consultation Assistant for Inpartner Global. We are ready to support your company\u2019s growth through Strategy & Corporate Advisory, Cross-Border Market Entry, and distribution partner sourcing\u2014please connect with our team via the contact link below!",
     id: "Halo! Saya tetap beroperasi sebagai Asisten Konsultasi Bisnis resmi dari Inpartner Global. Kami siap mendampingi pertumbuhan perusahaan Anda melalui layanan Strategy & Corporate Advisory, Cross-Border Market Entry, hingga pencarian mitra distribusi\u2014silakan hubungi tim kami lewat tautan kontak berikut ya!",
-    ko: "\uC548\uB155\uD558\uC138\uC694! \uC800\uB294 Inpartner Global\uC758 \uACF5\uC2DD \uBE44\uC988\uB2C8\uC2A4 \uCEE8\uC124\uD305 \uC5B4\uC2DC\uC2A4\uD134\uD2B8\uB85C \uC6B4\uC601\uB418\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uBC0F \uC720\uD1B5 \uD30C\uD2B8\uB108 \uBC1C\uAD74\uC744 \uD1B5\uD574 \uADC0\uC0AC\uC758 \uC131\uC7A5\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9AC\uB2C8 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+    ko: "\uC548\uB155\uD558\uC138\uC694! \uC800\uB294 Inpartner Global\uC758 \uACF5\uC2DD \uBE44\uC988\uB2C8\uC2A4 \uCEE8\uC124\uD305 \uC5B4\uC2DC\uC2A4\uD134\uD2B8\uB85C \uC6B4\uC601\uB418\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uBC0F \uC720\uD1B5 \uD30C\uD2B8\uB108 \uBC1C\uAD74\uC744 \uD1B5\uD574 \uADC0\uC0AC\uC758 \uC131\uC7A5\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9AC\uB2C8 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+    ja: "\u3053\u3093\u306B\u3061\u306F\uFF01\u79C1\u306FInpartner Global\u306E\u516C\u5F0F\u30D3\u30B8\u30CD\u30B9\u30B3\u30F3\u30B5\u30EB\u30C6\u30A3\u30F3\u30B0\u30A2\u30B7\u30B9\u30BF\u30F3\u30C8\u3068\u3057\u3066\u306E\u307F\u52D5\u4F5C\u3057\u3066\u3044\u307E\u3059\u3002Strategy & Corporate Advisory\u3001Cross-Border Market Entry\u3001\u8CA9\u58F2\u30D1\u30FC\u30C8\u30CA\u30FC\u63A2\u7D22\u3092\u901A\u3058\u3066\u8CB4\u793E\u306E\u6210\u9577\u3092\u30B5\u30DD\u30FC\u30C8\u3057\u307E\u3059\u306E\u3067\u3001\u4E0B\u8A18\u306E\u9023\u7D61\u5148\u30EA\u30F3\u30AF\u304B\u3089\u30C1\u30FC\u30E0\u306B\u3054\u9023\u7D61\u304F\u3060\u3055\u3044\uFF01",
+    zh: "\u60A8\u597D\uFF01\u6211\u4EC5\u4F5C\u4E3A Inpartner Global \u7684\u5B98\u65B9\u5546\u4E1A\u54A8\u8BE2\u52A9\u624B\u4E3A\u60A8\u670D\u52A1\u3002\u6211\u4EEC\u53EF\u4EE5\u901A\u8FC7 Strategy & Corporate Advisory\u3001Cross-Border Market Entry \u4EE5\u53CA\u5206\u9500\u5408\u4F5C\u4F19\u4F34\u5BFB\u627E\u670D\u52A1\u652F\u6301\u8D35\u516C\u53F8\u7684\u53D1\u5C55\u2014\u2014\u8BF7\u901A\u8FC7\u4E0B\u65B9\u8054\u7CFB\u94FE\u63A5\u4E0E\u6211\u4EEC\u7684\u56E2\u961F\u8054\u7CFB\uFF01"
   },
   medical: {
     en: FALLBACK_MESSAGES.en,
     id: FALLBACK_MESSAGES.id,
-    ko: FALLBACK_MESSAGES.ko
+    ko: FALLBACK_MESSAGES.ko,
+    ja: FALLBACK_MESSAGES.ja,
+    zh: FALLBACK_MESSAGES.zh
   },
   unrelated: {
     en: FALLBACK_MESSAGES.en,
     id: FALLBACK_MESSAGES.id,
-    ko: FALLBACK_MESSAGES.ko
+    ko: FALLBACK_MESSAGES.ko,
+    ja: FALLBACK_MESSAGES.ja,
+    zh: FALLBACK_MESSAGES.zh
   }
 };
 var MISSING_ANSWER_MESSAGES = {
   price: {
     en: "Advisory fees at Inpartner are tailored flexibly to your project scope and the consulting services you need. Our team is ready to assist you with Market Entry, Partner Sourcing, or Strategy & Corporate Advisory\u2014please reach out via the contact link below for a tailored proposal!",
     id: "Halo! Besaran biaya atau fee konsultasi di Inpartner disesuaikan secara fleksibel dengan ruang lingkup proyek Anda. Tim kami siap mendampingi lewat layanan Market Entry, Distribution Partner Sourcing, maupun Strategy & Corporate Advisory\u2014yuk hubungi kami melalui tautan kontak berikut untuk penawaran terbaik!",
-    ko: "Inpartner\uC758 \uC790\uBB38 \uBE44\uC6A9\uC740 \uD504\uB85C\uC81D\uD2B8 \uBC94\uC704\uC640 \uD544\uC694\uD55C \uC790\uBB38 \uC11C\uBE44\uC2A4\uC5D0 \uB9DE\uCDB0 \uC720\uC5F0\uD558\uAC8C \uC0B0\uC815\uB429\uB2C8\uB2E4. \uC2DC\uC7A5 \uC9C4\uCD9C, \uD30C\uD2B8\uB108 \uBC1C\uAD74, \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38 \uB4F1 \uB9DE\uCDA4\uD615 \uACAC\uC801\uC740 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uD3B8\uD558\uAC8C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+    ko: "Inpartner\uC758 \uC790\uBB38 \uBE44\uC6A9\uC740 \uD504\uB85C\uC81D\uD2B8 \uBC94\uC704\uC640 \uD544\uC694\uD55C \uC790\uBB38 \uC11C\uBE44\uC2A4\uC5D0 \uB9DE\uCDB0 \uC720\uC5F0\uD558\uAC8C \uC0B0\uC815\uB429\uB2C8\uB2E4. \uC2DC\uC7A5 \uC9C4\uCD9C, \uD30C\uD2B8\uB108 \uBC1C\uAD74, \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38 \uB4F1 \uB9DE\uCDA4\uD615 \uACAC\uC801\uC740 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uD3B8\uD558\uAC8C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+    ja: "Inpartner\u306E\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC\u8CBB\u7528\u306F\u3001\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u7BC4\u56F2\u3068\u5FC5\u8981\u306A\u30B5\u30FC\u30D3\u30B9\u306B\u5408\u308F\u305B\u3066\u67D4\u8EDF\u306B\u8A2D\u5B9A\u3057\u3066\u3044\u307E\u3059\u3002Market Entry\u3001Partner Sourcing\u3001Strategy & Corporate Advisory\u306A\u3069\u3001\u6700\u9069\u306A\u3054\u63D0\u6848\u306E\u305F\u3081\u306B\u4E0B\u8A18\u306E\u9023\u7D61\u5148\u30EA\u30F3\u30AF\u304B\u3089\u304A\u554F\u3044\u5408\u308F\u305B\u304F\u3060\u3055\u3044\uFF01",
+    zh: "Inpartner \u7684\u54A8\u8BE2\u8D39\u7528\u4F1A\u6839\u636E\u60A8\u7684\u9879\u76EE\u8303\u56F4\u548C\u6240\u9700\u670D\u52A1\u7075\u6D3B\u786E\u5B9A\u3002\u65E0\u8BBA\u662F Market Entry\u3001Partner Sourcing \u8FD8\u662F Strategy & Corporate Advisory\uFF0C\u6B22\u8FCE\u901A\u8FC7\u4E0B\u65B9\u8054\u7CFB\u94FE\u63A5\u83B7\u53D6\u91CF\u8EAB\u5B9A\u5236\u7684\u65B9\u6848\uFF01"
   },
   duration: {
     en: "Project timelines at Inpartner are tailored to your product readiness, industry complexity, and target market scope. Through our Distribution Partner Sourcing and Cross-Border Market Entry services, our team is ready to accelerate your expansion\u2014please contact us below for a timeline estimate!",
     id: "Durasi proses pendampingan di Inpartner sangat fleksibel mengikuti kesiapan produk, sektor industri, dan cakupan pasar Anda. Melalui layanan Distribution Partner Sourcing Advisory maupun Cross-Border Market Entry kami, tim Inpartner siap membantu mempercepat ekspansi bisnis Anda\u2014silakan hubungi kami lewat tautan kontak berikut!",
-    ko: "Inpartner\uC758 \uD504\uB85C\uC81D\uD2B8 \uC18C\uC694 \uAE30\uAC04\uC740 \uC81C\uD488 \uC900\uBE44\uB3C4\uC640 \uBAA9\uD45C \uC2DC\uC7A5 \uBC94\uC704\uC5D0 \uB530\uB77C \uB9DE\uCDA4\uD615\uC73C\uB85C \uC9C4\uD589\uB429\uB2C8\uB2E4. \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uBC0F \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uC790\uBB38\uC744 \uD1B5\uD574 \uC2E0\uC18D\uD55C \uC131\uC7A5\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9AC\uB2C8 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+    ko: "Inpartner\uC758 \uD504\uB85C\uC81D\uD2B8 \uC18C\uC694 \uAE30\uAC04\uC740 \uC81C\uD488 \uC900\uBE44\uB3C4\uC640 \uBAA9\uD45C \uC2DC\uC7A5 \uBC94\uC704\uC5D0 \uB530\uB77C \uB9DE\uCDA4\uD615\uC73C\uB85C \uC9C4\uD589\uB429\uB2C8\uB2E4. \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uBC0F \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uC790\uBB38\uC744 \uD1B5\uD574 \uC2E0\uC18D\uD55C \uC131\uC7A5\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9AC\uB2C8 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+    ja: "Inpartner\u306E\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u671F\u9593\u306F\u3001\u88FD\u54C1\u306E\u6E96\u5099\u72B6\u6CC1\u3001\u696D\u754C\u306E\u8907\u96D1\u3055\u3001\u5BFE\u8C61\u5E02\u5834\u306E\u7BC4\u56F2\u306B\u5FDC\u3058\u3066\u8ABF\u6574\u3055\u308C\u307E\u3059\u3002Distribution Partner Sourcing\u3084Cross-Border Market Entry\u3092\u901A\u3058\u3066\u4E8B\u696D\u62E1\u5927\u3092\u52A0\u901F\u3059\u308B\u304A\u624B\u4F1D\u3044\u3092\u3057\u307E\u3059\u306E\u3067\u3001\u671F\u9593\u306E\u76EE\u5B89\u306F\u4E0B\u8A18\u304B\u3089\u304A\u554F\u3044\u5408\u308F\u305B\u304F\u3060\u3055\u3044\uFF01",
+    zh: "Inpartner \u7684\u9879\u76EE\u5468\u671F\u4F1A\u6839\u636E\u60A8\u7684\u4EA7\u54C1\u51C6\u5907\u60C5\u51B5\u3001\u884C\u4E1A\u590D\u6742\u5EA6\u548C\u76EE\u6807\u5E02\u573A\u8303\u56F4\u8FDB\u884C\u8C03\u6574\u3002\u901A\u8FC7 Distribution Partner Sourcing \u548C Cross-Border Market Entry \u670D\u52A1\uFF0C\u6211\u4EEC\u7684\u56E2\u961F\u53EF\u4EE5\u5E2E\u52A9\u52A0\u5FEB\u60A8\u7684\u4E1A\u52A1\u62D3\u5C55\u2014\u2014\u8BF7\u901A\u8FC7\u4E0B\u65B9\u94FE\u63A5\u54A8\u8BE2\u65F6\u95F4\u9884\u4F30\uFF01"
   },
   clients: {
     en: "Inpartner has delivered 90+ advisory projects for 70+ corporate, private, and state-owned clients and 10+ cross-border clients. While specific client names are kept confidential under NDA, our team would love to support your business through our strategic and partner sourcing services\u2014reach out via the link below!",
     id: "Inpartner telah menangani 90 proyek konsultasi lebih untuk 70+ klien korporasi, swasta, dan BUMN, serta 10+ klien lintas negara. Nama perusahaan klien dijaga kerahasiaannya (NDA), namun tim kami siap mendampingi pertumbuhan bisnis Anda lewat layanan konsultasi strategis dan pencarian mitra kami\u2014yuk hubungi kami lewat tautan kontak berikut!",
-    ko: "Inpartner\uB294 70\uAC1C \uC774\uC0C1\uC758 \uAE30\uC5C5\xB7\uBBFC\uAC04\xB7\uAD6D\uC601 \uACE0\uAC1D\uC0AC \uBC0F 10\uAC1C \uC774\uC0C1\uC758 \uC678\uAD6D\uACC4 \uACE0\uAC1D\uC0AC\uC640 \uD568\uAED8 90\uAC74 \uC774\uC0C1\uC758 \uC790\uBB38 \uD504\uB85C\uC81D\uD2B8\uB97C \uC218\uD589\uD588\uC2B5\uB2C8\uB2E4. \uAE30\uBC00 \uC720\uC9C0(NDA)\uC5D0 \uB530\uB77C \uACE0\uAC1D\uC0AC\uBA85\uC740 \uBE44\uACF5\uAC1C\uC774\uB098, \uADC0\uC0AC\uB97C \uC704\uD55C \uB9DE\uCDA4\uD615 \uC804\uB7B5 \uBC0F \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uC790\uBB38\uC744 \uAE30\uAEBC\uC774 \uB3C4\uC640\uB4DC\uB9AC\uACA0\uC2B5\uB2C8\uB2E4!"
+    ko: "Inpartner\uB294 70\uAC1C \uC774\uC0C1\uC758 \uAE30\uC5C5\xB7\uBBFC\uAC04\xB7\uAD6D\uC601 \uACE0\uAC1D\uC0AC \uBC0F 10\uAC1C \uC774\uC0C1\uC758 \uC678\uAD6D\uACC4 \uACE0\uAC1D\uC0AC\uC640 \uD568\uAED8 90\uAC74 \uC774\uC0C1\uC758 \uC790\uBB38 \uD504\uB85C\uC81D\uD2B8\uB97C \uC218\uD589\uD588\uC2B5\uB2C8\uB2E4. \uAE30\uBC00 \uC720\uC9C0(NDA)\uC5D0 \uB530\uB77C \uACE0\uAC1D\uC0AC\uBA85\uC740 \uBE44\uACF5\uAC1C\uC774\uB098, \uADC0\uC0AC\uB97C \uC704\uD55C \uB9DE\uCDA4\uD615 \uC804\uB7B5 \uBC0F \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uC790\uBB38\uC744 \uAE30\uAEBC\uC774 \uB3C4\uC640\uB4DC\uB9AC\uACA0\uC2B5\uB2C8\uB2E4!",
+    ja: "Inpartner\u306F\u300170\u793E\u4EE5\u4E0A\u306E\u4F01\u696D\u30FB\u6C11\u9593\u30FB\u56FD\u55B6\u4F01\u696D\u306E\u30AF\u30E9\u30A4\u30A2\u30F3\u30C8\u304A\u3088\u307310\u793E\u4EE5\u4E0A\u306E\u30AF\u30ED\u30B9\u30DC\u30FC\u30C0\u30FC\u30AF\u30E9\u30A4\u30A2\u30F3\u30C8\u306B\u5BFE\u3057\u300190\u4EF6\u4EE5\u4E0A\u306E\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3092\u624B\u304C\u3051\u3066\u304D\u307E\u3057\u305F\u3002\u30AF\u30E9\u30A4\u30A2\u30F3\u30C8\u540D\u306FNDA\u306B\u3088\u308A\u975E\u516C\u958B\u3067\u3059\u304C\u3001\u6226\u7565\u304A\u3088\u3073\u30D1\u30FC\u30C8\u30CA\u30FC\u63A2\u7D22\u306E\u30B5\u30FC\u30D3\u30B9\u3067\u8CB4\u793E\u3092\u30B5\u30DD\u30FC\u30C8\u3044\u305F\u3057\u307E\u3059\u3002\u4E0B\u8A18\u306E\u30EA\u30F3\u30AF\u304B\u3089\u3054\u9023\u7D61\u304F\u3060\u3055\u3044\uFF01",
+    zh: "Inpartner \u5DF2\u4E3A 70 \u591A\u5BB6\u4F01\u4E1A\u3001\u6C11\u8425\u53CA\u56FD\u6709\u5BA2\u6237\u4EE5\u53CA 10 \u591A\u5BB6\u8DE8\u5883\u5BA2\u6237\u5B8C\u6210\u4E86 90 \u591A\u4E2A\u54A8\u8BE2\u9879\u76EE\u3002\u6839\u636E\u4FDD\u5BC6\u534F\u8BAE\uFF08NDA\uFF09\uFF0C\u5177\u4F53\u5BA2\u6237\u540D\u79F0\u4E0D\u4E88\u516C\u5F00\uFF0C\u4F46\u6211\u4EEC\u7684\u56E2\u961F\u975E\u5E38\u4E50\u610F\u901A\u8FC7\u6218\u7565\u54A8\u8BE2\u548C\u5408\u4F5C\u4F19\u4F34\u5BFB\u627E\u670D\u52A1\u652F\u6301\u60A8\u7684\u4E1A\u52A1\u2014\u2014\u6B22\u8FCE\u901A\u8FC7\u4E0B\u65B9\u94FE\u63A5\u8054\u7CFB\u6211\u4EEC\uFF01"
   },
   hours: {
     en: "Our office is at Pakuwon Tower Unit J 10th Floor, South Jakarta. We would be delighted to assist you with our business consulting and market expansion services\u2014please reach out via the contact link below to schedule a meeting!",
     id: "Kantor kami berlokasi di Pakuwon Tower Unit J Lantai 10, Jakarta Selatan. Tim Inpartner siap membantu kebutuhan konsultasi bisnis dan ekspansi pasar Anda\u2014silakan hubungi kami melalui tautan kontak berikut untuk menjadwalkan meeting langsung ya!",
-    ko: "Inpartner \uC0AC\uBB34\uC2E4\uC740 \uB0A8\uBD80 \uC790\uCE74\uB974\uD0C0 Pakuwon Tower 10\uCE35(Unit J)\uC5D0 \uC704\uCE58\uD574 \uC788\uC2B5\uB2C8\uB2E4. \uBE44\uC988\uB2C8\uC2A4 \uC790\uBB38 \uBC0F \uC2DC\uC7A5 \uC9C4\uCD9C \uC0C1\uB2F4\uC744 \uC704\uD55C \uBC29\uBB38 \uBBF8\uD305\uC740 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB97C \uD1B5\uD574 \uD3B8\uD558\uAC8C \uC608\uC57D\uD574 \uC8FC\uC138\uC694!"
+    ko: "Inpartner \uC0AC\uBB34\uC2E4\uC740 \uB0A8\uBD80 \uC790\uCE74\uB974\uD0C0 Pakuwon Tower 10\uCE35(Unit J)\uC5D0 \uC704\uCE58\uD574 \uC788\uC2B5\uB2C8\uB2E4. \uBE44\uC988\uB2C8\uC2A4 \uC790\uBB38 \uBC0F \uC2DC\uC7A5 \uC9C4\uCD9C \uC0C1\uB2F4\uC744 \uC704\uD55C \uBC29\uBB38 \uBBF8\uD305\uC740 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB97C \uD1B5\uD574 \uD3B8\uD558\uAC8C \uC608\uC57D\uD574 \uC8FC\uC138\uC694!",
+    ja: "\u5F0A\u793E\u30AA\u30D5\u30A3\u30B9\u306F\u5357\u30B8\u30E3\u30AB\u30EB\u30BF\u306EPakuwon Tower Unit J 10\u968E\u306B\u3042\u308A\u307E\u3059\u3002\u30D3\u30B8\u30CD\u30B9\u30B3\u30F3\u30B5\u30EB\u30C6\u30A3\u30F3\u30B0\u3084\u5E02\u5834\u62E1\u5927\u306E\u3054\u76F8\u8AC7\u3092\u627F\u3063\u3066\u304A\u308A\u307E\u3059\u306E\u3067\u3001\u30DF\u30FC\u30C6\u30A3\u30F3\u30B0\u306E\u3054\u4E88\u7D04\u306F\u4E0B\u8A18\u306E\u9023\u7D61\u5148\u30EA\u30F3\u30AF\u304B\u3089\u304A\u9858\u3044\u3044\u305F\u3057\u307E\u3059\uFF01",
+    zh: "\u6211\u4EEC\u7684\u529E\u516C\u5BA4\u4F4D\u4E8E\u5357\u96C5\u52A0\u8FBE Pakuwon Tower Unit J 10\u697C\u3002\u6211\u4EEC\u5F88\u4E50\u610F\u4E3A\u60A8\u63D0\u4F9B\u5546\u4E1A\u54A8\u8BE2\u548C\u5E02\u573A\u62D3\u5C55\u670D\u52A1\u2014\u2014\u8BF7\u901A\u8FC7\u4E0B\u65B9\u8054\u7CFB\u94FE\u63A5\u9884\u7EA6\u4F1A\u9762\uFF01"
   },
   office_location: {
     en: "Inpartner is headquartered at Pakuwon Tower Unit J 10th Floor, Raya Casablanca Street Kav. 88, South Jakarta, with cross-border coverage across Southeast Asia, East Asia, and the Middle East. Our team is ready to support your business expansion\u2014please connect with us via the link below!",
     id: "Kantor pusat Inpartner berada di Pakuwon Tower Unit J Lantai 10, Jl. Raya Casablanca Kav. 88, Jakarta Selatan, dengan layanan lintas negara di Asia Tenggara, Asia Timur, dan Timur Tengah. Kami siap mendampingi ekspansi dan kemitraan bisnis Anda\u2014yuk hubungi tim kami melalui tautan kontak berikut!",
-    ko: "Inpartner \uBCF8\uC0AC\uB294 \uB0A8\uBD80 \uC790\uCE74\uB974\uD0C0 Pakuwon Tower 10\uCE35(Unit J)\uC5D0 \uC704\uCE58\uD558\uBA70 \uB3D9\uB0A8\uC544, \uB3D9\uC544\uC2DC\uC544, \uC911\uB3D9 \uC804\uC5ED\uC758 \uD06C\uB85C\uC2A4\uBCF4\uB354 \uC790\uBB38\uC744 \uC81C\uACF5\uD569\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uC131\uACF5\uC801\uC778 \uC2DC\uC7A5 \uC9C4\uCD9C\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9B4 \uC900\uBE44\uAC00 \uB418\uC5B4 \uC788\uC73C\uB2C8 \uC544\uB798 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+    ko: "Inpartner \uBCF8\uC0AC\uB294 \uB0A8\uBD80 \uC790\uCE74\uB974\uD0C0 Pakuwon Tower 10\uCE35(Unit J)\uC5D0 \uC704\uCE58\uD558\uBA70 \uB3D9\uB0A8\uC544, \uB3D9\uC544\uC2DC\uC544, \uC911\uB3D9 \uC804\uC5ED\uC758 \uD06C\uB85C\uC2A4\uBCF4\uB354 \uC790\uBB38\uC744 \uC81C\uACF5\uD569\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uC131\uACF5\uC801\uC778 \uC2DC\uC7A5 \uC9C4\uCD9C\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9B4 \uC900\uBE44\uAC00 \uB418\uC5B4 \uC788\uC73C\uB2C8 \uC544\uB798 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!",
+    ja: "Inpartner\u306E\u672C\u793E\u306F\u5357\u30B8\u30E3\u30AB\u30EB\u30BF\u306EPakuwon Tower Unit J 10\u968E\uFF08Raya Casablanca Street Kav. 88\uFF09\u306B\u3042\u308A\u3001\u6771\u5357\u30A2\u30B8\u30A2\u3001\u6771\u30A2\u30B8\u30A2\u3001\u4E2D\u6771\u3092\u30AB\u30D0\u30FC\u3059\u308B\u30AF\u30ED\u30B9\u30DC\u30FC\u30C0\u30FC\u652F\u63F4\u3092\u63D0\u4F9B\u3057\u3066\u3044\u307E\u3059\u3002\u8CB4\u793E\u306E\u4E8B\u696D\u62E1\u5927\u3092\u30B5\u30DD\u30FC\u30C8\u3057\u307E\u3059\u306E\u3067\u3001\u4E0B\u8A18\u306E\u30EA\u30F3\u30AF\u304B\u3089\u304A\u554F\u3044\u5408\u308F\u305B\u304F\u3060\u3055\u3044\uFF01",
+    zh: "Inpartner \u603B\u90E8\u4F4D\u4E8E\u5357\u96C5\u52A0\u8FBE Pakuwon Tower Unit J 10\u697C\uFF08Raya Casablanca Street Kav. 88\uFF09\uFF0C\u8DE8\u5883\u670D\u52A1\u8986\u76D6\u4E1C\u5357\u4E9A\u3001\u4E1C\u4E9A\u548C\u4E2D\u4E1C\u3002\u6211\u4EEC\u7684\u56E2\u961F\u968F\u65F6\u51C6\u5907\u652F\u6301\u60A8\u7684\u4E1A\u52A1\u62D3\u5C55\u2014\u2014\u8BF7\u901A\u8FC7\u4E0B\u65B9\u94FE\u63A5\u4E0E\u6211\u4EEC\u8054\u7CFB\uFF01"
   }
 };
-var LANGUAGE_NAMES = { en: "English", id: "Bahasa Indonesia", ko: "Korean (\uD55C\uAD6D\uC5B4)" };
+var LANGUAGE_NAMES = {
+  en: "English",
+  id: "Bahasa Indonesia",
+  ko: "Korean (\uD55C\uAD6D\uC5B4)",
+  ja: "Japanese (\u65E5\u672C\u8A9E)",
+  zh: "Simplified Chinese (\u7B80\u4F53\u4E2D\u6587)"
+};
 var FEW_SHOTS = {
   en: 'FEW-SHOT EXAMPLES:\nExample 1 (Service inquiry):\nUser: "Can Inpartner help us find overseas distributors?"\nResponse: {"answer": "Certainly! Through our Distribution Partner Sourcing Advisory service, we help identify and shortlist relevant distributors, conduct due diligence, and support commercial negotiations. We would love to help connect your product with the right partners\u2014feel free to share your target market with us!", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (Specific details not in sources):\nUser: "How much do your advisory services cost?"\nResponse: {"answer": "Our advisory fees are tailored to your project scope and business goals. Please reach out to our team so we can recommend the right consulting service and proposal for you.", "source_ids": [], "grounded": false}\n\nExample 3 (Identity / Greeting):\nUser: "Who are you?"\nResponse: {"answer": "Hello! I am the Inpartner Business Consultation Assistant from Inpartner Global. We are ready to support your business through our Strategy & Corporate Advisory, Market Access & Business Expansion, and Partner Sourcing services\u2014how can we help your business grow today?", "source_ids": ["S1"], "grounded": true}',
   id: 'FEW-SHOT EXAMPLES:\nExample 1 (Layanan Inpartner):\nUser: "Apakah Inpartner bisa membantu saya mencari distributor di luar negeri?"\nResponse: {"answer": "Tentu bisa! Melalui layanan Distribution Partner Sourcing Advisory, tim Inpartner siap membantu menyeleksi distributor yang tepat, melakukan due diligence, hingga mendampingi negosiasi komersial. Kami siap membantu memperluas jaringan distribusi produk Anda\u2014apakah ada target pasar tertentu yang sedang Anda rencanakan?", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (Informasi tidak lengkap di situs):\nUser: "Berapa biaya jasa konsultasi per bulan?"\nResponse: {"answer": "Untuk rincian biaya, tim Inpartner menyesuaikannya dengan skala proyek dan layanan yang Anda butuhkan. Silakan hubungi tim konsultan kami untuk mendiskusikan solusi yang paling pas bagi bisnis Anda.", "source_ids": [], "grounded": false}\n\nExample 3 (Perkenalan / Sapaan):\nUser: "Kamu siapa?"\nResponse: {"answer": "Halo! Saya Asisten Konsultasi Bisnis dari Inpartner Global. Kami siap mendampingi pertumbuhan perusahaan Anda lewat layanan Strategy & Corporate Advisory, Cross-Border Market Entry, hingga pencarian mitra distribusi\u2014ada rencana bisnis yang bisa kami bantu hari ini?", "source_ids": ["S1"], "grounded": true}',
-  ko: 'FEW-SHOT EXAMPLES:\nExample 1 (\uC11C\uBE44\uC2A4 \uBB38\uC758):\nUser: "Inpartner\uAC00 \uD574\uC678 \uC720\uD1B5\uC0AC\uB97C \uCC3E\uB294 \uB370 \uB3C4\uC6C0\uC744 \uC904 \uC218 \uC788\uB098\uC694?"\nResponse: {"answer": "\uBB3C\uB860\uC785\uB2C8\uB2E4! Inpartner\uB294 Distribution Partner Sourcing Advisory \uC11C\uBE44\uC2A4\uB97C \uD1B5\uD574 \uC801\uD569\uD55C \uD30C\uD2B8\uB108 \uBC1C\uAD74, \uC2E4\uC0AC(Due Diligence) \uBC0F \uC0C1\uC5C5 \uD611\uC0C1\uC744 \uCCB4\uACC4\uC801\uC73C\uB85C \uC9C0\uC6D0\uD569\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uC131\uACF5\uC801\uC778 \uC720\uD1B5\uB9DD \uAD6C\uCD95\uC744 \uAE30\uAEBC\uC774 \uB3C4\uC640\uB4DC\uB9B4 \uC218 \uC788\uC73C\uB2C8 \uBAA9\uD45C \uC2DC\uC7A5\uC744 \uD3B8\uD558\uAC8C \uC54C\uB824\uC8FC\uC138\uC694!", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (\uC0AC\uC774\uD2B8\uC5D0 \uC5C6\uB294 \uC138\uBD80 \uC815\uBCF4):\nUser: "\uC790\uBB38 \uC11C\uBE44\uC2A4 \uBE44\uC6A9\uC740 \uC5BC\uB9C8\uC778\uAC00\uC694?"\nResponse: {"answer": "\uAD6C\uCCB4\uC801\uC778 \uBE44\uC6A9 \uAD6C\uC870\uB294 \uD504\uB85C\uC81D\uD2B8 \uBC94\uC704\uC640 \uD544\uC694\uD55C \uC790\uBB38 \uC11C\uBE44\uC2A4\uC5D0 \uB9DE\uCDB0 \uC548\uB0B4\uD574 \uB4DC\uB9BD\uB2C8\uB2E4. \uC800\uD76C \uCEE8\uC124\uD305\uD300\uC5D0 \uD3B8\uD558\uAC8C \uBB38\uC758\uD574 \uC8FC\uC138\uC694.", "source_ids": [], "grounded": false}\n\nExample 3 (\uC790\uAE30\uC18C\uAC1C / \uC778\uC0AC):\nUser: "\uB108\uB294 \uB204\uAD6C\uB2C8?"\nResponse: {"answer": "\uC548\uB155\uD558\uC138\uC694! \uC800\uB294 Inpartner Global\uC758 \uBE44\uC988\uB2C8\uC2A4 \uCEE8\uC124\uD305 \uC5B4\uC2DC\uC2A4\uD134\uD2B8\uC785\uB2C8\uB2E4. \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C, \uC804\uB7B5\uC801 \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uB4F1 \uADC0\uC0AC\uC758 \uBE44\uC988\uB2C8\uC2A4 \uC131\uC7A5\uC744 \uC704\uD55C \uB9DE\uCDA4\uD615 \uC790\uBB38\uC744 \uC81C\uACF5\uD574 \uB4DC\uB9AC\uACE0 \uC788\uC73C\uB2C8 \uBB34\uC5C7\uC774\uB4E0 \uBB3C\uC5B4\uBCF4\uC138\uC694!", "source_ids": ["S1"], "grounded": true}'
+  ko: 'FEW-SHOT EXAMPLES:\nExample 1 (\uC11C\uBE44\uC2A4 \uBB38\uC758):\nUser: "Inpartner\uAC00 \uD574\uC678 \uC720\uD1B5\uC0AC\uB97C \uCC3E\uB294 \uB370 \uB3C4\uC6C0\uC744 \uC904 \uC218 \uC788\uB098\uC694?"\nResponse: {"answer": "\uBB3C\uB860\uC785\uB2C8\uB2E4! Inpartner\uB294 Distribution Partner Sourcing Advisory \uC11C\uBE44\uC2A4\uB97C \uD1B5\uD574 \uC801\uD569\uD55C \uD30C\uD2B8\uB108 \uBC1C\uAD74, \uC2E4\uC0AC(Due Diligence) \uBC0F \uC0C1\uC5C5 \uD611\uC0C1\uC744 \uCCB4\uACC4\uC801\uC73C\uB85C \uC9C0\uC6D0\uD569\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uC131\uACF5\uC801\uC778 \uC720\uD1B5\uB9DD \uAD6C\uCD95\uC744 \uAE30\uAEBC\uC774 \uB3C4\uC640\uB4DC\uB9B4 \uC218 \uC788\uC73C\uB2C8 \uBAA9\uD45C \uC2DC\uC7A5\uC744 \uD3B8\uD558\uAC8C \uC54C\uB824\uC8FC\uC138\uC694!", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (\uC0AC\uC774\uD2B8\uC5D0 \uC5C6\uB294 \uC138\uBD80 \uC815\uBCF4):\nUser: "\uC790\uBB38 \uC11C\uBE44\uC2A4 \uBE44\uC6A9\uC740 \uC5BC\uB9C8\uC778\uAC00\uC694?"\nResponse: {"answer": "\uAD6C\uCCB4\uC801\uC778 \uBE44\uC6A9 \uAD6C\uC870\uB294 \uD504\uB85C\uC81D\uD2B8 \uBC94\uC704\uC640 \uD544\uC694\uD55C \uC790\uBB38 \uC11C\uBE44\uC2A4\uC5D0 \uB9DE\uCDB0 \uC548\uB0B4\uD574 \uB4DC\uB9BD\uB2C8\uB2E4. \uC800\uD76C \uCEE8\uC124\uD305\uD300\uC5D0 \uD3B8\uD558\uAC8C \uBB38\uC758\uD574 \uC8FC\uC138\uC694.", "source_ids": [], "grounded": false}\n\nExample 3 (\uC790\uAE30\uC18C\uAC1C / \uC778\uC0AC):\nUser: "\uB108\uB294 \uB204\uAD6C\uB2C8?"\nResponse: {"answer": "\uC548\uB155\uD558\uC138\uC694! \uC800\uB294 Inpartner Global\uC758 \uBE44\uC988\uB2C8\uC2A4 \uCEE8\uC124\uD305 \uC5B4\uC2DC\uC2A4\uD134\uD2B8\uC785\uB2C8\uB2E4. \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C, \uC804\uB7B5\uC801 \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uB4F1 \uADC0\uC0AC\uC758 \uBE44\uC988\uB2C8\uC2A4 \uC131\uC7A5\uC744 \uC704\uD55C \uB9DE\uCDA4\uD615 \uC790\uBB38\uC744 \uC81C\uACF5\uD574 \uB4DC\uB9AC\uACE0 \uC788\uC73C\uB2C8 \uBB34\uC5C7\uC774\uB4E0 \uBB3C\uC5B4\uBCF4\uC138\uC694!", "source_ids": ["S1"], "grounded": true}',
+  ja: 'FEW-SHOT EXAMPLES:\nExample 1 (\u30B5\u30FC\u30D3\u30B9\u306B\u95A2\u3059\u308B\u304A\u554F\u3044\u5408\u308F\u305B):\nUser: "Inpartner\u306F\u6D77\u5916\u306E\u8CA9\u58F2\u4EE3\u7406\u5E97\u63A2\u3057\u3092\u624B\u4F1D\u3063\u3066\u3082\u3089\u3048\u307E\u3059\u304B\uFF1F"\nResponse: {"answer": "\u3082\u3061\u308D\u3093\u3067\u3059\uFF01Inpartner\u306FDistribution Partner Sourcing Advisory\u3092\u901A\u3058\u3066\u3001\u9069\u5207\u306A\u30D1\u30FC\u30C8\u30CA\u30FC\u306E\u9078\u5B9A\u3001\u30C7\u30E5\u30FC\u30C7\u30EA\u30B8\u30A7\u30F3\u30B9\u3001\u5546\u8AC7\u306E\u4EA4\u6E09\u307E\u3067\u3092\u4F53\u7CFB\u7684\u306B\u30B5\u30DD\u30FC\u30C8\u3057\u307E\u3059\u3002\u8CB4\u793E\u306E\u8CA9\u58F2\u7DB2\u3065\u304F\u308A\u3092\u305C\u3072\u304A\u624B\u4F1D\u3044\u3057\u305F\u3044\u306E\u3067\u3001\u76EE\u6A19\u3068\u3059\u308B\u5E02\u5834\u3092\u304A\u6C17\u8EFD\u306B\u304A\u77E5\u3089\u305B\u304F\u3060\u3055\u3044\uFF01", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (\u30B5\u30A4\u30C8\u306B\u306A\u3044\u8A73\u7D30\u60C5\u5831):\nUser: "\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC\u30B5\u30FC\u30D3\u30B9\u306E\u6599\u91D1\u306F\u3044\u304F\u3089\u3067\u3059\u304B\uFF1F"\nResponse: {"answer": "\u5177\u4F53\u7684\u306A\u8CBB\u7528\u306F\u3001\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u7BC4\u56F2\u3068\u5FC5\u8981\u306A\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC\u30B5\u30FC\u30D3\u30B9\u306B\u5408\u308F\u305B\u3066\u3054\u6848\u5185\u3057\u3066\u3044\u307E\u3059\u3002\u6700\u9069\u306A\u3054\u63D0\u6848\u306E\u305F\u3081\u3001\u30B3\u30F3\u30B5\u30EB\u30C6\u30A3\u30F3\u30B0\u30C1\u30FC\u30E0\u307E\u3067\u304A\u6C17\u8EFD\u306B\u304A\u554F\u3044\u5408\u308F\u305B\u304F\u3060\u3055\u3044\u3002", "source_ids": [], "grounded": false}\n\nExample 3 (\u81EA\u5DF1\u7D39\u4ECB / \u3042\u3044\u3055\u3064):\nUser: "\u3042\u306A\u305F\u306F\u8AB0\u3067\u3059\u304B\uFF1F"\nResponse: {"answer": "\u3053\u3093\u306B\u3061\u306F\uFF01\u79C1\u306FInpartner Global\u306E\u30D3\u30B8\u30CD\u30B9\u30B3\u30F3\u30B5\u30EB\u30C6\u30A3\u30F3\u30B0\u30A2\u30B7\u30B9\u30BF\u30F3\u30C8\u3067\u3059\u3002Strategy & Corporate Advisory\u3001\u6D77\u5916\u5E02\u5834\u9032\u51FA\u3001\u30D1\u30FC\u30C8\u30CA\u30FC\u63A2\u7D22\u306A\u3069\u3001\u8CB4\u793E\u306E\u6210\u9577\u306B\u5411\u3051\u305F\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC\u3092\u3054\u63D0\u4F9B\u3057\u3066\u3044\u307E\u3059\u306E\u3067\u3001\u4F55\u3067\u3082\u304A\u5C0B\u306D\u304F\u3060\u3055\u3044\uFF01", "source_ids": ["S1"], "grounded": true}',
+  zh: 'FEW-SHOT EXAMPLES:\nExample 1 (\u670D\u52A1\u54A8\u8BE2):\nUser: "Inpartner \u80FD\u5E2E\u6211\u4EEC\u5BFB\u627E\u6D77\u5916\u7ECF\u9500\u5546\u5417\uFF1F"\nResponse: {"answer": "\u5F53\u7136\u53EF\u4EE5\uFF01Inpartner \u901A\u8FC7 Distribution Partner Sourcing Advisory \u670D\u52A1\uFF0C\u7CFB\u7EDF\u5730\u534F\u52A9\u60A8\u7B5B\u9009\u5408\u9002\u7684\u5408\u4F5C\u4F19\u4F34\u3001\u5F00\u5C55\u5C3D\u804C\u8C03\u67E5\u5E76\u652F\u6301\u5546\u52A1\u8C08\u5224\u3002\u6211\u4EEC\u5F88\u4E50\u610F\u5E2E\u52A9\u8D35\u516C\u53F8\u642D\u5EFA\u5206\u9500\u7F51\u7EDC\u2014\u2014\u6B22\u8FCE\u544A\u8BC9\u6211\u4EEC\u60A8\u7684\u76EE\u6807\u5E02\u573A\uFF01", "source_ids": ["S1"], "grounded": true}\n\nExample 2 (\u7F51\u7AD9\u4E0A\u6CA1\u6709\u7684\u5177\u4F53\u4FE1\u606F):\nUser: "\u4F60\u4EEC\u7684\u54A8\u8BE2\u670D\u52A1\u6536\u8D39\u591A\u5C11\uFF1F"\nResponse: {"answer": "\u5177\u4F53\u8D39\u7528\u4F1A\u6839\u636E\u9879\u76EE\u8303\u56F4\u548C\u6240\u9700\u7684\u54A8\u8BE2\u670D\u52A1\u786E\u5B9A\u3002\u6B22\u8FCE\u8054\u7CFB\u6211\u4EEC\u7684\u987E\u95EE\u56E2\u961F\uFF0C\u6211\u4EEC\u5C06\u4E3A\u60A8\u63A8\u8350\u6700\u5408\u9002\u7684\u670D\u52A1\u548C\u65B9\u6848\u3002", "source_ids": [], "grounded": false}\n\nExample 3 (\u81EA\u6211\u4ECB\u7ECD / \u95EE\u5019):\nUser: "\u4F60\u662F\u8C01\uFF1F"\nResponse: {"answer": "\u60A8\u597D\uFF01\u6211\u662F Inpartner Global \u7684\u5546\u4E1A\u54A8\u8BE2\u52A9\u624B\u3002\u6211\u4EEC\u901A\u8FC7 Strategy & Corporate Advisory\u3001\u6D77\u5916\u5E02\u573A\u8FDB\u5165\u4EE5\u53CA\u5408\u4F5C\u4F19\u4F34\u5BFB\u627E\u7B49\u670D\u52A1\u652F\u6301\u8D35\u516C\u53F8\u7684\u4E1A\u52A1\u53D1\u5C55\u2014\u2014\u4ECA\u5929\u6709\u4EC0\u4E48\u53EF\u4EE5\u5E2E\u60A8\u7684\u5417\uFF1F", "source_ids": ["S1"], "grounded": true}'
 };
 var MAX_ANSWER_CHARS = 1500;
 var MAX_SOURCES = 3;
@@ -1659,7 +1735,7 @@ function buildSystemInstruction(language) {
     '5. If the SOURCES do not contain enough information to answer, set "grounded" to false, leave "source_ids" empty, and provide a polite, consultative answer explaining that custom requirements or specific inquiries can be discussed directly with the Inpartner team.',
     '6. When grounded, list in "source_ids" only the ids of the sources you actually used (for example ["S1"]).',
     `7. Write "answer" in ${LANGUAGE_NAMES[language]}, using a natural and fluent consultative style. Keep official service titles and proper nouns in their standard form, but translate descriptions, process steps, and industry sectors smoothly without inventing unsupported claims.`,
-    '8. Keep "answer" concise (under 70 words), plain text without markdown links, raw URLs, or HTML. Do not include URLs; links are shown separately.',
+    '8. Keep "answer" concise (under 70 words; for Japanese or Chinese, under 150 characters), plain text without markdown links, raw URLs, or HTML. Do not include URLs; links are shown separately.',
     "   Only write numbers, e-mail addresses or phone numbers that appear verbatim in the SOURCES.",
     "   Do not include any images, markdown images (![]()), photos, audio tags, voice notes, or media. Output consultative plain text only.",
     '9. If something is general context rather than a fact from the sources, say so explicitly (for example "In general, ...").',
@@ -2458,6 +2534,146 @@ var KOREAN_EXPANSIONS = [
   ["\uACFC\uC815", ["approach", "process"]],
   ["\uB2E8\uACC4", ["approach", "step"]]
 ];
+var JAPANESE_EXPANSIONS = [
+  ["\u3053\u3093\u306B\u3061\u306F", ["about", "service"]],
+  ["\u624B\u4F1D", ["service", "advisory"]],
+  ["\u30B5\u30DD\u30FC\u30C8", ["service", "advisory"]],
+  ["\u652F\u63F4", ["service", "advisory"]],
+  ["\u30A4\u30F3\u30D1\u30FC\u30C8\u30CA\u30FC", ["inpartner"]],
+  ["\u30B5\u30FC\u30D3\u30B9", ["service", "advisory"]],
+  ["\u63D0\u4F9B", ["service", "advisory"]],
+  ["\u30A2\u30C9\u30D0\u30A4\u30B6\u30EA\u30FC", ["advisory", "advisor"]],
+  ["\u52A9\u8A00", ["advisory", "advisor"]],
+  ["\u30B3\u30F3\u30B5\u30EB", ["advisory", "consultation"]],
+  ["\u76F8\u8AC7", ["advisory", "consultation"]],
+  ["\u30D1\u30FC\u30C8\u30CA\u30FC\u30B7\u30C3\u30D7", ["partner", "partnership"]],
+  ["\u30D1\u30FC\u30C8\u30CA\u30FC", ["partner"]],
+  ["\u63D0\u643A", ["partner", "partnership"]],
+  ["\u5354\u529B", ["partner", "partnership"]],
+  ["\u8CA9\u58F2\u4EE3\u7406\u5E97", ["distributor", "distribution"]],
+  ["\u4EE3\u7406\u5E97", ["distributor", "reseller"]],
+  ["\u6D41\u901A", ["distribution", "distributor"]],
+  ["\u8CA9\u58F2\u7DB2", ["distribution", "distributor"]],
+  ["\u30C7\u30A3\u30B9\u30C8\u30EA\u30D3\u30E5\u30FC\u30BF\u30FC", ["distributor", "distribution"]],
+  ["\u30EA\u30BB\u30E9\u30FC", ["reseller", "distributor"]],
+  ["\u5E02\u5834", ["market"]],
+  ["\u30DE\u30FC\u30B1\u30C3\u30C8", ["market"]],
+  ["\u9032\u51FA", ["entry", "enter", "market"]],
+  ["\u53C2\u5165", ["entry", "enter", "market"]],
+  ["\u62E1\u5927", ["expansion", "expand"]],
+  ["\u5C55\u958B", ["expansion", "expand"]],
+  ["\u6210\u9577", ["growth"]],
+  ["\u9023\u7D61", ["contact"]],
+  ["\u554F\u3044\u5408\u308F\u305B", ["contact"]],
+  ["\u554F\u5408\u305B", ["contact"]],
+  ["\u4F4F\u6240", ["address", "tower", "jakarta"]],
+  ["\u6240\u5728\u5730", ["address", "tower", "jakarta"]],
+  ["\u30AA\u30D5\u30A3\u30B9", ["office", "tower", "jakarta"]],
+  ["\u4E8B\u52D9\u6240", ["office", "tower", "jakarta"]],
+  ["\u62E0\u70B9", ["office", "location"]],
+  ["\u5834\u6240", ["location", "tower", "jakarta"]],
+  ["\u30E1\u30FC\u30EB", ["email"]],
+  ["\u96FB\u8A71", ["call", "phone", "contact"]],
+  ["\u30EF\u30C3\u30C4\u30A2\u30C3\u30D7", ["call", "phone", "contact"]],
+  ["\u4F1A\u793E", ["about", "company"]],
+  ["\u4F01\u696D", ["company"]],
+  ["\u7D39\u4ECB", ["about"]],
+  ["\u3069\u3093\u306A", ["about"]],
+  ["\u8AB0", ["who", "about"]],
+  ["\u8CB7\u53CE", ["acquisition", "cross", "border", "deal", "transaction"]],
+  ["\u5408\u4F75", ["merger", "cross", "border", "deal", "transaction"]],
+  ["\u6295\u8CC7", ["investment", "investor"]],
+  ["\u6226\u7565", ["strategy", "strategic"]],
+  ["\u904B\u55B6", ["operation", "operational"]],
+  ["\u30AA\u30DA\u30EC\u30FC\u30B7\u30E7\u30F3", ["operation", "operational"]],
+  ["\u30C7\u30E5\u30FC\u30C7\u30EA\u30B8\u30A7\u30F3\u30B9", ["due", "diligence"]],
+  ["\u4EA4\u6E09", ["negotiation"]],
+  ["\u8A55\u4FA1", ["assessment", "assess", "evaluation", "evaluate"]],
+  ["\u8ABF\u67FB", ["assessment", "research"]],
+  ["\u6771\u5357\u30A2\u30B8\u30A2", ["southeast", "asia"]],
+  ["\u6D77\u5916", ["international", "cross", "border", "foreign"]],
+  ["\u56FD\u5883", ["cross", "border"]],
+  ["\u30AF\u30ED\u30B9\u30DC\u30FC\u30C0\u30FC", ["cross", "border"]],
+  ["\u56FD\u969B", ["international", "cross", "border"]],
+  ["\u5916\u56FD", ["foreign"]],
+  ["\u30A4\u30F3\u30C9\u30CD\u30B7\u30A2", ["indonesia"]],
+  ["\u30A2\u30D7\u30ED\u30FC\u30C1", ["approach"]],
+  ["\u624B\u9806", ["approach", "process"]],
+  ["\u30D7\u30ED\u30BB\u30B9", ["approach", "process"]],
+  ["\u6D41\u308C", ["approach", "process"]],
+  ["\u6BB5\u968E", ["approach", "step"]],
+  ["\u30B9\u30C6\u30C3\u30D7", ["approach", "step"]]
+];
+var CHINESE_EXPANSIONS = [
+  ["\u4F60\u597D", ["about", "service"]],
+  ["\u60A8\u597D", ["about", "service"]],
+  ["\u5E2E\u52A9", ["service", "advisory"]],
+  ["\u5E2E", ["service", "advisory"]],
+  ["\u652F\u6301", ["service", "advisory"]],
+  ["\u670D\u52A1", ["service", "advisory"]],
+  ["\u63D0\u4F9B", ["service", "advisory"]],
+  ["\u54A8\u8BE2", ["advisory", "consultation"]],
+  ["\u987E\u95EE", ["advisory", "advisor"]],
+  ["\u5EFA\u8BAE", ["advisory"]],
+  ["\u5408\u4F5C\u4F19\u4F34", ["partner", "partnership"]],
+  ["\u4F19\u4F34", ["partner"]],
+  ["\u5408\u4F5C", ["partner", "partnership"]],
+  ["\u7ECF\u9500\u5546", ["distributor", "distribution"]],
+  ["\u5206\u9500", ["distribution", "distributor"]],
+  ["\u4EE3\u7406\u5546", ["distributor", "reseller"]],
+  ["\u6E20\u9053", ["distribution", "distributor"]],
+  ["\u7ECF\u9500", ["distribution", "distributor"]],
+  ["\u5E02\u573A", ["market"]],
+  ["\u8FDB\u5165", ["entry", "enter", "market"]],
+  ["\u8FDB\u519B", ["entry", "enter", "market"]],
+  ["\u5F00\u62D3", ["entry", "expansion", "market"]],
+  ["\u62D3\u5C55", ["expansion", "expand"]],
+  ["\u6269\u5F20", ["expansion", "expand"]],
+  ["\u6269\u5927", ["expansion", "expand"]],
+  ["\u589E\u957F", ["growth"]],
+  ["\u53D1\u5C55", ["growth"]],
+  ["\u8054\u7CFB", ["contact"]],
+  ["\u8054\u7EDC", ["contact"]],
+  ["\u5730\u5740", ["address", "tower", "jakarta"]],
+  ["\u529E\u516C\u5BA4", ["office", "tower", "jakarta"]],
+  ["\u529E\u4E8B\u5904", ["office", "tower", "jakarta"]],
+  ["\u4F4D\u7F6E", ["location", "tower", "jakarta"]],
+  ["\u5728\u54EA", ["location", "tower", "jakarta"]],
+  ["\u90AE\u7BB1", ["email"]],
+  ["\u90AE\u4EF6", ["email"]],
+  ["\u7535\u8BDD", ["call", "phone", "contact"]],
+  ["\u5FAE\u4FE1", ["call", "phone", "contact"]],
+  ["\u516C\u53F8", ["about", "company"]],
+  ["\u4F01\u4E1A", ["company"]],
+  ["\u4ECB\u7ECD", ["about"]],
+  ["\u662F\u8C01", ["who", "about"]],
+  ["\u4EC0\u4E48\u6837", ["about"]],
+  ["\u6536\u8D2D", ["acquisition", "cross", "border", "deal", "transaction"]],
+  ["\u5E76\u8D2D", ["merger", "acquisition", "cross", "border", "deal", "transaction"]],
+  ["\u5408\u5E76", ["merger", "cross", "border", "deal", "transaction"]],
+  ["\u6295\u8D44", ["investment", "investor"]],
+  ["\u6218\u7565", ["strategy", "strategic"]],
+  ["\u8FD0\u8425", ["operation", "operational"]],
+  ["\u5C3D\u804C\u8C03\u67E5", ["due", "diligence"]],
+  ["\u5C3D\u8C03", ["due", "diligence"]],
+  ["\u8C08\u5224", ["negotiation"]],
+  ["\u8BC4\u4F30", ["assessment", "assess", "evaluation", "evaluate"]],
+  ["\u8C03\u7814", ["assessment", "research"]],
+  ["\u4E1C\u5357\u4E9A", ["southeast", "asia"]],
+  ["\u6D77\u5916", ["international", "cross", "border", "foreign"]],
+  ["\u8DE8\u5883", ["cross", "border"]],
+  ["\u56FD\u9645", ["international", "cross", "border"]],
+  ["\u5916\u56FD", ["foreign"]],
+  ["\u5916\u8D44", ["foreign"]],
+  ["\u5370\u5EA6\u5C3C\u897F\u4E9A", ["indonesia"]],
+  ["\u5370\u5C3C", ["indonesia"]],
+  ["\u65B9\u6CD5", ["approach"]],
+  ["\u6D41\u7A0B", ["approach", "process"]],
+  ["\u8FC7\u7A0B", ["approach", "process"]],
+  ["\u6B65\u9AA4", ["approach", "step"]],
+  ["\u9636\u6BB5", ["approach", "step"]]
+];
+var SUBSTRING_EXPANSIONS = [...KOREAN_EXPANSIONS, ...JAPANESE_EXPANSIONS, ...CHINESE_EXPANSIONS];
 function stem(word) {
   if (word.length <= 3) return word;
   if (word.endsWith("ies") && word.length > 4) return word.slice(0, -3) + "y";
@@ -2488,8 +2704,8 @@ function stripIdClitic(word) {
 function tokenizeQuery(text) {
   const out = /* @__PURE__ */ new Set();
   const plain = text.replace(/<[^>]*>/g, " ");
-  const nfc = plain.normalize("NFC");
-  for (const [term, expansions] of KOREAN_EXPANSIONS) {
+  const nfc = plain.normalize("NFKC");
+  for (const [term, expansions] of SUBSTRING_EXPANSIONS) {
     if (nfc.includes(term)) for (const e of expansions) out.add(stem(e));
   }
   if (/\bwhat do you do\b/i.test(plain)) {

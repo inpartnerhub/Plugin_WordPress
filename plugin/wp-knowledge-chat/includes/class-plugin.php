@@ -282,13 +282,25 @@ final class Plugin {
 				'Distribution Partner Sourcing Advisory는 무엇인가요?',
 				'Inpartner에 어떻게 연락할 수 있나요?',
 			),
+			'ja' => array(
+				'Inpartnerはどのようなサービスを提供していますか？',
+				'インドネシア市場への進出をどのように支援していますか？',
+				'Distribution Partner Sourcing Advisoryとは何ですか？',
+				'Inpartnerにはどうやって連絡できますか？',
+			),
+			'zh' => array(
+				'Inpartner 提供哪些服务？',
+				'你们如何帮助企业进入印度尼西亚市场？',
+				'什么是 Distribution Partner Sourcing Advisory？',
+				'如何联系 Inpartner？',
+			),
 		);
 
 		/**
 		 * Filters the suggested questions shown in the widget.
 		 *
 		 * @param string[] $questions Questions for the language.
-		 * @param string   $language  'en', 'id' or 'ko'.
+		 * @param string   $language  'en', 'id', 'ko', 'ja' or 'zh'.
 		 */
 		$questions = apply_filters( 'wp_knowledge_chat_suggested_questions', $defaults[ $language ] ?? $defaults['en'], $language );
 		if ( ! is_array( $questions ) ) {

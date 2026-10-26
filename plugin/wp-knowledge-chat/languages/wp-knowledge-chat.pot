@@ -2,22 +2,23 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Knowledge Chat 0.2.0\n"
+"Project-Id-Version: WP Knowledge Chat 1.0.6\n"
 "Report-Msgid-Bugs-To: https://github.com/inpartnerhub/Plugin_WordPress/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T16:58:55+00:00\n"
+"POT-Creation-Date: 2026-10-26T02:42:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-knowledge-chat\n"
 
 #. Plugin Name of the plugin
 #: wp-knowledge-chat.php
-#: includes/class-admin-page.php:30
-#: includes/class-admin-page.php:31
+#: includes/class-admin-page.php:56
+#: includes/class-admin-page.php:57
+#: includes/class-plugin.php:115
 msgid "WP Knowledge Chat"
 msgstr ""
 
@@ -31,224 +32,638 @@ msgstr ""
 msgid "Inpartner"
 msgstr ""
 
-#: includes/class-admin-page.php:40
-#: includes/class-admin-page.php:174
+#: includes/class-admin-page.php:66
+#: includes/class-admin-page.php:239
 msgid "WP Knowledge Chat Settings"
 msgstr ""
 
-#: includes/class-admin-page.php:41
-#: includes/class-plugin.php:76
+#: includes/class-admin-page.php:67
+#: includes/class-plugin.php:190
 msgid "Settings"
 msgstr ""
 
-#: includes/class-admin-page.php:49
+#: includes/class-admin-page.php:74
+msgid "Knowledge Base Sync"
+msgstr ""
+
+#: includes/class-admin-page.php:75
+msgid "Knowledge Base"
+msgstr ""
+
+#: includes/class-admin-page.php:82
+#: includes/class-admin-page.php:595
+msgid "Analytics & Consultation Leads"
+msgstr ""
+
+#: includes/class-admin-page.php:83
+msgid "Analytics & Leads"
+msgstr ""
+
+#: includes/class-admin-page.php:91
 msgid "Chat widget"
 msgstr ""
 
-#: includes/class-admin-page.php:52
+#: includes/class-admin-page.php:94
 msgid "Enable Chatbot"
 msgstr ""
 
-#: includes/class-admin-page.php:53
-#: includes/class-admin-page.php:102
+#: includes/class-admin-page.php:95
+#: includes/class-admin-page.php:146
 msgid "Greeting Messages"
 msgstr ""
 
-#: includes/class-admin-page.php:54
+#: includes/class-admin-page.php:96
 msgid "Default Language"
 msgstr ""
 
-#: includes/class-admin-page.php:55
+#: includes/class-admin-page.php:97
 msgid "Language Switcher"
 msgstr ""
 
-#: includes/class-admin-page.php:56
+#: includes/class-admin-page.php:98
 msgid "Browser Language"
 msgstr ""
 
-#: includes/class-admin-page.php:57
+#: includes/class-admin-page.php:99
 msgid "Contact URL"
 msgstr ""
 
-#: includes/class-admin-page.php:97
+#: includes/class-admin-page.php:141
 msgid "Show the chat widget on the public site."
 msgstr ""
 
 #. translators: %d: maximum characters.
-#: includes/class-admin-page.php:120
+#: includes/class-admin-page.php:164
 #, php-format
 msgid "Shown when the chat opens, in the visitor's language. Plain text only (HTML is removed). Maximum %d characters. Leave a field empty to restore its default."
 msgstr ""
 
-#: includes/class-admin-page.php:132
+#: includes/class-admin-page.php:176
 msgid "Interface language and preferred answer language when the visitor has not chosen one. Source content is not altered."
 msgstr ""
 
-#: includes/class-admin-page.php:138
-msgid "Let visitors switch between English, Bahasa Indonesia and 한국어 in the chat header."
+#: includes/class-admin-page.php:182
+msgid "Let visitors switch between English, Bahasa Indonesia, 한국어, 日本語 and 简体中文 in the chat header."
 msgstr ""
 
-#: includes/class-admin-page.php:139
+#: includes/class-admin-page.php:183
 msgid "Start in the visitor's browser language when it is supported; otherwise use the default language."
 msgstr ""
 
 #. translators: %s: approved hostnames.
-#: includes/class-admin-page.php:159
+#: includes/class-admin-page.php:203
 #, php-format
-msgid "Absolute https:// URL on an approved domain: %s."
+msgid "WhatsApp number (e.g. +6281234567890), email address (e.g. info@inpartnerglobal.com), or an absolute https:// URL on an approved domain: %s."
 msgstr ""
 
-#: includes/class-admin-page.php:170
+#: includes/class-admin-page.php:222
+msgid "Inpartner AI Assistant"
+msgstr ""
+
+#: includes/class-admin-page.php:233
+#: includes/class-admin-page.php:315
 msgid "You do not have permission to manage these settings."
 msgstr ""
 
-#: includes/class-admin-page.php:196
+#: includes/class-admin-page.php:240
+msgid "Configure the AI consultation assistant, language defaults, and backend connectivity."
+msgstr ""
+
+#: includes/class-admin-page.php:264
 msgid "AI backend"
 msgstr ""
 
-#: includes/class-admin-page.php:198
+#: includes/class-admin-page.php:266
 msgid "Configured."
 msgstr ""
 
-#: includes/class-admin-page.php:199
+#: includes/class-admin-page.php:267
 msgid "The backend URL and shared secret are read from wp-config.php and are never shown here or sent to browsers."
 msgstr ""
 
-#: includes/class-admin-page.php:201
+#: includes/class-admin-page.php:269
 msgid "Not configured."
 msgstr ""
 
-#: includes/class-admin-page.php:202
+#: includes/class-admin-page.php:270
 msgid "The widget stays hidden until WP_KNOWLEDGE_CHAT_BACKEND_URL (https) and WP_KNOWLEDGE_CHAT_SHARED_SECRET (32+ characters) are defined in wp-config.php."
 msgstr ""
 
-#: includes/class-admin-page.php:208
+#: includes/class-admin-page.php:276
 msgid "Connection test: backend is reachable, the shared secret is accepted and the knowledge base is ready."
 msgstr ""
 
-#: includes/class-admin-page.php:210
+#: includes/class-admin-page.php:278
 msgid "Connection test failed: the backend rejected the shared secret. Check that WP_KNOWLEDGE_CHAT_SHARED_SECRET matches CHAT_SHARED_SECRET and that the server clock is correct."
 msgstr ""
 
-#: includes/class-admin-page.php:212
+#: includes/class-admin-page.php:280
 msgid "Connection test failed: the backend is running but its knowledge base is empty."
 msgstr ""
 
 #. translators: %d: HTTP status code, 0 when unreachable.
-#: includes/class-admin-page.php:215
+#: includes/class-admin-page.php:283
 #, php-format
 msgid "Connection test failed (HTTP status %d). Check the backend URL and that the service is running."
 msgstr ""
 
-#: includes/class-admin-page.php:223
+#: includes/class-admin-page.php:291
 msgid "Test connection"
 msgstr ""
 
-#: includes/class-admin-page.php:231
+#: includes/class-admin-page.php:294
+msgid "Index API token configured."
+msgstr ""
+
+#: includes/class-admin-page.php:295
+msgid "Knowledge base synchronization from WordPress pages is enabled."
+msgstr ""
+
+#: includes/class-admin-page.php:297
+msgid "Note: To enable page synchronization to the AI backend, define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php."
+msgstr ""
+
+#: includes/class-admin-page.php:305
+#: includes/class-admin-page.php:511
+#: includes/class-admin-page.php:787
 msgid "You do not have permission to do this."
 msgstr ""
 
-#: includes/class-settings.php:139
+#: includes/class-admin-page.php:330
+msgid "Knowledge Base Synchronization"
+msgstr ""
+
+#: includes/class-admin-page.php:331
+msgid "Sync published WordPress pages directly into the AI knowledge base. Content is cleaned and indexed by the AI backend."
+msgstr ""
+
+#: includes/class-admin-page.php:347
+msgid "Automatic updates failed:"
+msgstr ""
+
+#: includes/class-admin-page.php:348
+msgid "the AI backend still has an outdated copy of these pages (an unpublished page may still be answered from). They are retried every few minutes."
+msgstr ""
+
+#. translators: 1: page title or ID, 2: error code, 3: attempts, 4: date.
+#: includes/class-admin-page.php:357
+#, php-format
+msgid "%1$s — %2$s, %3$d attempt(s) since %4$s UTC"
+msgstr ""
+
+#: includes/class-admin-page.php:371
+msgid "Retry now"
+msgstr ""
+
+#: includes/class-admin-page.php:377
+msgid "Only pages you sync here enter the knowledge base. After that, edits are sent automatically; unpublishing, trashing, password-protecting or deleting a page removes it. New pages are never added automatically, and password-protected pages are never indexed."
+msgstr ""
+
+#: includes/class-admin-page.php:383
+msgid "Sync not ready:"
+msgstr ""
+
+#: includes/class-admin-page.php:384
+msgid "Define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php to enable synchronizing pages with the AI backend."
+msgstr ""
+
+#: includes/class-admin-page.php:395
+#: includes/class-admin-page.php:498
+msgid "Sync Selected Pages"
+msgstr ""
+
+#: includes/class-admin-page.php:398
+#: includes/class-admin-page.php:501
+msgid "Sync All Eligible Pages"
+msgstr ""
+
+#: includes/class-admin-page.php:402
+msgid "Replace entire backend knowledge base (prune unselected)"
+msgstr ""
+
+#: includes/class-admin-page.php:412
+#: includes/class-admin-page.php:488
+msgid "Page Title"
+msgstr ""
+
+#: includes/class-admin-page.php:413
+#: includes/class-admin-page.php:489
+msgid "Category"
+msgstr ""
+
+#: includes/class-admin-page.php:414
+#: includes/class-admin-page.php:490
+msgid "Content Size"
+msgstr ""
+
+#: includes/class-admin-page.php:415
+#: includes/class-admin-page.php:491
+msgid "Last Modified"
+msgstr ""
+
+#: includes/class-admin-page.php:421
+msgid "No published pages found."
+msgstr ""
+
+#: includes/class-admin-page.php:436
+msgid "View"
+msgstr ""
+
+#: includes/class-admin-page.php:450
+msgid "Password protected (never indexed)"
+msgstr ""
+
+#. translators: %d: character count
+#: includes/class-admin-page.php:456
+#, php-format
+msgid "%d chars (Ready)"
+msgstr ""
+
+#. translators: %d: character count
+#: includes/class-admin-page.php:466
+#, php-format
+msgid "%d chars (Too short)"
+msgstr ""
+
+#: includes/class-admin-page.php:476
+msgid "In knowledge base"
+msgstr ""
+
+#: includes/class-admin-page.php:525
+msgid "All pending knowledge-base updates were applied."
+msgstr ""
+
+#. translators: %d: number of pages.
+#: includes/class-admin-page.php:527
+#, php-format
+msgid "%d page update(s) still failing. Check the backend and try again."
+msgstr ""
+
+#: includes/class-admin-page.php:572
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: includes/class-admin-page.php:596
+msgid "Monitor chatbot engagement, question trends, and visitor consultation requests. Leads contain personal data: keep them only as long as needed."
+msgstr ""
+
+#: includes/class-admin-page.php:605
+msgid "Total Conversations"
+msgstr ""
+
+#: includes/class-admin-page.php:607
+msgid "Total questions asked by visitors"
+msgstr ""
+
+#: includes/class-admin-page.php:610
+msgid "Answered from Knowledge"
+msgstr ""
+
+#: includes/class-admin-page.php:612
+msgid "Supported by official website sources"
+msgstr ""
+
+#: includes/class-admin-page.php:615
+msgid "Consultation Fallbacks"
+msgstr ""
+
+#: includes/class-admin-page.php:617
+msgid "Directed to consultation / contact link"
+msgstr ""
+
+#: includes/class-admin-page.php:620
+msgid "Captured Leads"
+msgstr ""
+
+#: includes/class-admin-page.php:622
+msgid "Prospective clients requesting consultation"
+msgstr ""
+
+#: includes/class-admin-page.php:625
+msgid "Threats & Spam Blocked"
+msgstr ""
+
+#: includes/class-admin-page.php:627
+msgid "Honeypots, disposable emails & abuse limits"
+msgstr ""
+
+#: includes/class-admin-page.php:631
+msgid "Captured Consultation Leads"
+msgstr ""
+
+#. translators: 1: leads shown, 2: total leads.
+#: includes/class-admin-page.php:636
+#, php-format
+msgid "Showing the newest %1$d of %2$d leads. Export CSV includes all of them."
+msgstr ""
+
+#: includes/class-admin-page.php:641
+msgid "Export CSV"
+msgstr ""
+
+#: includes/class-admin-page.php:642
+msgid "Delete all leads"
+msgstr ""
+
+#: includes/class-admin-page.php:642
+msgid "Permanently delete all leads? This cannot be undone."
+msgstr ""
+
+#: includes/class-admin-page.php:643
+msgid "Reset metrics"
+msgstr ""
+
+#: includes/class-admin-page.php:643
+msgid "Reset all conversation counts and recent questions?"
+msgstr ""
+
+#: includes/class-admin-page.php:648
+#: includes/class-admin-page.php:682
+#: includes/class-admin-page.php:719
+#: includes/class-analytics.php:580
+msgid "Date (UTC)"
+msgstr ""
+
+#: includes/class-admin-page.php:649
+#: includes/class-analytics.php:584
+msgid "Name"
+msgstr ""
+
+#: includes/class-admin-page.php:650
+#: includes/class-analytics.php:588
+msgid "Email"
+msgstr ""
+
+#: includes/class-admin-page.php:651
+#: includes/class-analytics.php:592
+msgid "Company"
+msgstr ""
+
+#: includes/class-admin-page.php:652
+#: includes/class-analytics.php:596
+msgid "Inquiry Message"
+msgstr ""
+
+#: includes/class-admin-page.php:653
+msgid "Notification"
+msgstr ""
+
+#: includes/class-admin-page.php:654
+msgid "Actions"
+msgstr ""
+
+#: includes/class-admin-page.php:660
+msgid "No leads captured yet. Prospective clients who request consultation via the chat widget will appear here."
+msgstr ""
+
+#: includes/class-admin-page.php:671
+msgid "Delete"
+msgstr ""
+
+#: includes/class-admin-page.php:671
+msgid "Permanently delete this lead?"
+msgstr ""
+
+#: includes/class-admin-page.php:678
+msgid "Recent Visitor Questions (Privacy-Safe Snippets)"
+msgstr ""
+
+#: includes/class-admin-page.php:683
+msgid "Question"
+msgstr ""
+
+#: includes/class-admin-page.php:684
+#: includes/class-admin-page.php:721
+msgid "Language"
+msgstr ""
+
+#: includes/class-admin-page.php:685
+msgid "Outcome"
+msgstr ""
+
+#: includes/class-admin-page.php:691
+msgid "No questions recorded yet."
+msgstr ""
+
+#: includes/class-admin-page.php:701
+msgid "Grounded"
+msgstr ""
+
+#: includes/class-admin-page.php:703
+msgid "Fallback"
+msgstr ""
+
+#: includes/class-admin-page.php:712
+msgid "Knowledge Gaps & Unanswered Topics"
+msgstr ""
+
+#: includes/class-admin-page.php:714
+msgid "Questions where the chatbot could not find sufficient evidence and triggered a consultation fallback. Use these topics to expand your Knowledge Base."
+msgstr ""
+
+#: includes/class-admin-page.php:720
+msgid "Unanswered Question (Redacted)"
+msgstr ""
+
+#: includes/class-admin-page.php:722
+msgid "Suggested Action"
+msgstr ""
+
+#: includes/class-admin-page.php:728
+msgid "No knowledge gaps recorded yet."
+msgstr ""
+
+#: includes/class-admin-page.php:736
+msgid "Add to Knowledge"
+msgstr ""
+
+#: includes/class-admin-page.php:748
+msgid "Service"
+msgstr ""
+
+#: includes/class-admin-page.php:749
+msgid "About"
+msgstr ""
+
+#: includes/class-admin-page.php:750
+msgid "Contact"
+msgstr ""
+
+#: includes/class-admin-page.php:751
+msgid "FAQ"
+msgstr ""
+
+#: includes/class-admin-page.php:752
+msgid "Home"
+msgstr ""
+
+#: includes/class-admin-page.php:753
+msgid "Article"
+msgstr ""
+
+#: includes/class-admin-page.php:760
+msgid "Sent"
+msgstr ""
+
+#: includes/class-admin-page.php:761
+msgid "Failed"
+msgstr ""
+
+#: includes/class-admin-page.php:762
+msgid "Pending"
+msgstr ""
+
+#: includes/class-admin-page.php:763
+msgid "Before 0.2.1"
+msgstr ""
+
+#: includes/class-admin-page.php:796
+msgid "Lead deleted."
+msgstr ""
+
+#: includes/class-admin-page.php:796
+msgid "Lead not found."
+msgstr ""
+
+#. translators: %d: number of leads.
+#: includes/class-admin-page.php:800
+#, php-format
+msgid "%d lead(s) deleted."
+msgstr ""
+
+#: includes/class-admin-page.php:804
+msgid "Metrics reset."
+msgstr ""
+
+#: includes/class-admin-page.php:810
+msgid "Unknown action."
+msgstr ""
+
+#: includes/class-analytics.php:69
+#: includes/class-analytics.php:649
+#: includes/class-analytics.php:661
+msgid "WP Knowledge Chat leads"
+msgstr ""
+
+#: includes/class-analytics.php:576
+msgid "Consultation requests (WP Knowledge Chat)"
+msgstr ""
+
+#: includes/class-backend-client.php:82
+msgid "Backend is not configured."
+msgstr ""
+
+#: includes/class-backend-client.php:175
+msgid "Index token or backend URL is not configured."
+msgstr ""
+
+#: includes/class-content-sync.php:299
+msgid "No pages selected for synchronization."
+msgstr ""
+
+#: includes/class-content-sync.php:306
+msgid "Index API Token is not configured. Please define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php."
+msgstr ""
+
+#: includes/class-content-sync.php:335
+msgid "None of the selected pages contain sufficient public text content to be indexed (minimum 40 characters; password-protected pages are never indexed)."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/class-content-sync.php:345
+#, php-format
+msgid "Synchronization failed: %s"
+msgstr ""
+
+#: includes/class-content-sync.php:357
+msgid "Unexpected response from AI backend."
+msgstr ""
+
+#. translators: 1: status code, 2: message
+#: includes/class-content-sync.php:362
+#, php-format
+msgid "Backend rejected synchronization (HTTP %1$d): %2$s"
+msgstr ""
+
+#. translators: 1: upserted count, 2: unchanged count, 3: total count
+#: includes/class-content-sync.php:393
+#, php-format
+msgid "Knowledge Base synchronized successfully! %1$d document(s) updated, %2$d unchanged. Total documents in AI Backend: %3$d."
+msgstr ""
+
+#: includes/class-content-sync.php:399
+msgid "Warning: the backend could not save the knowledge base to disk; the update will be lost when it restarts."
+msgstr ""
+
+#: includes/class-plugin.php:120
+msgid "Chat assistant"
+msgstr ""
+
+#: includes/class-plugin.php:121
+msgid "Questions and answers"
+msgstr ""
+
+#: includes/class-plugin.php:122
+msgid "Visitors can ask questions in a chat assistant. The text of each question is sent to our AI backend service and, together with excerpts of public pages of this website, to Google Gemini to write the answer. The visitor's IP address, cookies and identity are not sent; a salted one-way identifier is used for rate limiting."
+msgstr ""
+
+#: includes/class-plugin.php:123
+msgid "Conversation storage"
+msgstr ""
+
+#: includes/class-plugin.php:124
+msgid "The conversation is kept only in the visitor's browser (session storage) and is cleared when the tab is closed. This site stores short-lived rate-limit counters, aggregate counts of questions and the 25 most recent question snippets, from which e-mail addresses, phone numbers, links and long numbers have been removed."
+msgstr ""
+
+#: includes/class-plugin.php:125
+msgid "Consultation requests"
+msgstr ""
+
+#: includes/class-plugin.php:126
+msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgstr ""
+
+#: includes/class-plugin.php:149
+msgid "Every Four Minutes"
+msgstr ""
+
+#: includes/class-settings.php:144
 msgid "Settings were not saved: invalid input."
 msgstr ""
 
-#: includes/class-settings.php:148
+#: includes/class-settings.php:153
 msgid "Enable Chatbot must be checked or unchecked."
 msgstr ""
 
-#: includes/class-settings.php:149
+#: includes/class-settings.php:154
 msgid "Language Switcher must be checked or unchecked."
 msgstr ""
 
-#: includes/class-settings.php:150
+#: includes/class-settings.php:155
 msgid "Browser Language must be checked or unchecked."
 msgstr ""
 
-#: includes/class-settings.php:184
-#: includes/class-settings.php:214
+#: includes/class-settings.php:189
+#: includes/class-settings.php:219
 msgid "Greeting message must be text."
 msgstr ""
 
-#: includes/class-settings.php:192
-msgid "Default language must be English (en), Indonesian (id) or Korean (ko)."
+#: includes/class-settings.php:197
+msgid "Default language must be English (en), Indonesian (id), Korean (ko), Japanese (ja) or Simplified Chinese (zh)."
 msgstr ""
 
-#: includes/class-settings.php:221
+#: includes/class-settings.php:226
 msgid "Greeting message is required."
 msgstr ""
 
 #. translators: %d: maximum number of characters.
-#: includes/class-settings.php:225
+#: includes/class-settings.php:230
 #, php-format
 msgid "Greeting message must be %d characters or fewer."
 msgstr ""
 
 #. translators: %s: comma-separated list of approved hostnames.
-#: includes/class-settings.php:243
+#: includes/class-settings.php:279
 #, php-format
-msgid "Contact URL must be an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
-msgstr ""
-
-#: includes
-msgid "WP Knowledge Chat leads"
-msgstr ""
-
-#: includes
-msgid "Backend is not configured."
-msgstr ""
-
-#: includes
-msgid "Index token or backend URL is not configured."
-msgstr ""
-
-#: includes
-msgid "Service"
-msgstr ""
-
-#: includes
-msgid "About"
-msgstr ""
-
-#: includes
-msgid "Contact"
-msgstr ""
-
-#: includes
-msgid "FAQ"
-msgstr ""
-
-#: includes
-msgid "Home"
-msgstr ""
-
-#: includes
-msgid "Article"
-msgstr ""
-
-#: includes/class-plugin.php
-msgid "Chat assistant"
-msgstr ""
-
-#: includes/class-plugin.php
-msgid "Questions and answers"
-msgstr ""
-
-#: includes/class-plugin.php
-msgid "Conversation storage"
-msgstr ""
-
-#: includes/class-plugin.php
-msgid "Consultation requests"
-msgstr ""
-
-#: includes/class-plugin.php
-msgid "Visitors can ask questions in a chat assistant. The text of each question is sent to our AI backend service and, together with excerpts of public pages of this website, to Google Gemini to write the answer. The visitor's IP address, cookies and identity are not sent; a salted one-way identifier is used for rate limiting."
-msgstr ""
-
-#: includes/class-plugin.php
-msgid "The conversation is kept only in the visitor's browser (session storage) and is cleared when the tab is closed. This site stores short-lived rate-limit counters, aggregate counts of questions and the 25 most recent question snippets, from which e-mail addresses, phone numbers, links and long numbers have been removed."
-msgstr ""
-
-#: includes/class-plugin.php
-msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgid "Contact URL must be a valid WhatsApp number, email address, or an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
 msgstr ""
