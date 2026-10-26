@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-26
+
+### Changed
+- **Request Consultation now appears when the chat turns to a consultation**, not only on answers that could not be grounded. The widget shows the button when the visitor asks to consult, meet or get a price (`CONSULT_INTENT_RE`), or when the answer points them to the team (`CONSULT_INVITE_RE`), in all five languages. When the visitor's question shows that intent, the consultation form opens by itself once per page load, pre-filled with the question. Widget-only change; the backend and REST contract are unchanged.
+
 ## [1.1.0] - 2026-10-26
 
 ### Added

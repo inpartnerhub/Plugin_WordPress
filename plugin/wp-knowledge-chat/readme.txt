@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,10 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 
 == Changelog ==
 
+= 1.1.1 =
+* The "Request Consultation" button now appears whenever the conversation turns to a consultation: when a visitor asks to consult, schedule a meeting or get a price, or when the assistant suggests contacting the Inpartner team. Before, it only appeared when the assistant could not answer.
+* When a visitor asks for a consultation, the consultation form opens right away (once per visit) with their question already filled in.
+
 = 1.1.0 =
 * New languages: Japanese (日本語) and Simplified Chinese (简体中文). Visitors can pick them in the chat's language menu, or start in them automatically when their browser is set to Japanese or any Chinese variant (including Traditional). Interface text, greetings, suggested questions, error messages and the consultation form are all translated.
 * Answers in Japanese and Chinese: the AI backend answers in the selected language, finds the right service pages for Japanese and Chinese questions, and applies the same safety rules (no investment, tax/legal or medical advice, no guarantees, prompt-injection and abuse blocking) as in English, Indonesian and Korean.
@@ -246,6 +250,9 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 * Initial MVP: chat widget, four admin settings, signed REST proxy to the AI backend, rate limiting, source links, fallback, English and Indonesian interface.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Shows the consultation form when visitors ask for a consultation. Widget-only change; no backend update needed. Purge the page cache after upgrading.
 
 = 1.1.0 =
 Adds Japanese and Simplified Chinese. The AI backend must run the same release (it already accepts `ja`/`zh` once `main` is deployed); with an older backend, questions in these two languages fail. Purge the page cache after upgrading.
