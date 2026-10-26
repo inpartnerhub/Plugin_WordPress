@@ -671,8 +671,8 @@ msgid "Contact URL must be a valid WhatsApp number, email address, or an absolut
 msgstr "联系链接必须是有效的 WhatsApp 号码、电子邮箱地址，或已批准域名（%s）上的绝对 https:// URL，且不得包含凭据或自定义端口。"
 
 #: includes/class-admin-page.php
-msgid "Job Title / Function"
-msgstr "职位 / 职能"
+msgid "Company / Role"
+msgstr "公司 / 职位"
 
 #: includes/class-analytics.php
 msgid "Job Title"
@@ -717,3 +717,15 @@ msgstr "法务 / 合规"
 #: includes/class-analytics.php
 msgid "Other"
 msgstr "其他"
+
+#: includes/class-admin-page.php
+msgid "Contact details"
+msgstr "联系方式"
+
+#: includes/class-admin-page.php
+msgid "Show more"
+msgstr "显示更多"
+
+#: includes/class-admin-page.php
+msgid "Show less"
+msgstr "收起"

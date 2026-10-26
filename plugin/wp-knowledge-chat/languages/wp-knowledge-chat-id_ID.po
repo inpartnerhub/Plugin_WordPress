@@ -662,8 +662,8 @@ msgstr ""
 #~ msgstr "URL Kontak harus berupa URL https:// absolut pada domain yang disetujui (%s), tanpa kredensial atau port khusus."
 
 #: includes/class-admin-page.php
-msgid "Job Title / Function"
-msgstr "Jabatan / Fungsi"
+msgid "Company / Role"
+msgstr "Perusahaan / Peran"
 
 #: includes/class-analytics.php
 msgid "Job Title"
@@ -708,3 +708,15 @@ msgstr "Hukum / Kepatuhan"
 #: includes/class-analytics.php
 msgid "Other"
 msgstr "Lainnya"
+
+#: includes/class-admin-page.php
+msgid "Contact details"
+msgstr "Detail Kontak"
+
+#: includes/class-admin-page.php
+msgid "Show more"
+msgstr "Tampilkan selengkapnya"
+
+#: includes/class-admin-page.php
+msgid "Show less"
+msgstr "Tampilkan lebih sedikit"

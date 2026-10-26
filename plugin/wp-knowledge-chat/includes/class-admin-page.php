@@ -23,6 +23,8 @@ final class Admin_Page {
 	public const SYNC_ACTION   = 'wkc_sync_kb';
 	public const SYNC_NONCE    = 'wkc_sync_nonce';
 	public const LEADS_ACTION  = 'wkc_leads_action';
+	/** Characters of a lead message shown before "Show more". */
+	private const MESSAGE_PREVIEW = 160;
 
 	public function hooks(): void {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
@@ -642,40 +644,50 @@ final class Admin_Page {
 				<?php $this->leads_button( 'delete_all', __( 'Delete all leads', 'wp-knowledge-chat' ), 'button button-link-delete', __( 'Permanently delete all leads? This cannot be undone.', 'wp-knowledge-chat' ) ); ?>
 				<?php $this->leads_button( 'reset_metrics', __( 'Reset metrics', 'wp-knowledge-chat' ), 'button', __( 'Reset all conversation counts and recent questions?', 'wp-knowledge-chat' ) ); ?>
 			</div>
-			<table class="wp-list-table widefat fixed striped wkc-mb-lg">
-				<thead>
-					<tr>
-						<th scope="col" class="wkc-w-150"><?php esc_html_e( 'Date (UTC)', 'wp-knowledge-chat' ); ?></th>
-						<th scope="col" class="wkc-w-150"><?php esc_html_e( 'Name', 'wp-knowledge-chat' ); ?></th>
-						<th scope="col" class="wkc-w-190"><?php esc_html_e( 'Email', 'wp-knowledge-chat' ); ?></th>
-						<th scope="col" class="wkc-w-150"><?php esc_html_e( 'Company', 'wp-knowledge-chat' ); ?></th>
-						<th scope="col" class="wkc-w-150"><?php esc_html_e( 'Job Title / Function', 'wp-knowledge-chat' ); ?></th>
-						<th scope="col"><?php esc_html_e( 'Inquiry Message', 'wp-knowledge-chat' ); ?></th>
-						<th scope="col" class="wkc-w-110"><?php esc_html_e( 'Notification', 'wp-knowledge-chat' ); ?></th>
-						<th scope="col" class="wkc-w-90"><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'wp-knowledge-chat' ); ?></span></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php if ( empty( $leads ) ) : ?>
+			<div class="wkc-table-scroll wkc-mb-lg">
+				<table class="wp-list-table widefat fixed striped wkc-leads-table">
+					<thead>
 						<tr>
-							<td colspan="8"><?php esc_html_e( 'No leads captured yet. Prospective clients who request consultation via the chat widget will appear here.', 'wp-knowledge-chat' ); ?></td>
+							<th scope="col" class="wkc-col-date"><?php esc_html_e( 'Date (UTC)', 'wp-knowledge-chat' ); ?></th>
+							<th scope="col" class="wkc-col-contact"><?php esc_html_e( 'Contact details', 'wp-knowledge-chat' ); ?></th>
+							<th scope="col" class="wkc-col-company"><?php esc_html_e( 'Company / Role', 'wp-knowledge-chat' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Inquiry Message', 'wp-knowledge-chat' ); ?></th>
+							<th scope="col" class="wkc-col-status"><?php esc_html_e( 'Notification', 'wp-knowledge-chat' ); ?></th>
+							<th scope="col" class="wkc-col-action"><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'wp-knowledge-chat' ); ?></span></th>
 						</tr>
-					<?php else : ?>
-						<?php foreach ( $leads as $lead ) : ?>
+					</thead>
+					<tbody>
+						<?php if ( empty( $leads ) ) : ?>
 							<tr>
-								<td><?php echo esc_html( $lead['created_at'] ); ?></td>
-								<td><strong><?php echo esc_html( $lead['name'] ); ?></strong></td>
-								<td><a href="<?php echo esc_url( 'mailto:' . $lead['email'] ); ?>"><?php echo esc_html( $lead['email'] ); ?></a></td>
-								<td><?php echo esc_html( $lead['company'] ?: '—' ); ?></td>
-								<td><?php echo esc_html( implode( ' · ', array_filter( array( $lead['job_title'], Analytics::department_label( $lead['department'] ) ) ) ) ?: '—' ); ?></td>
-								<td><?php echo esc_html( $lead['message'] ?: '—' ); ?></td>
-								<td><?php echo esc_html( self::mail_status_label( $lead['mail_status'] ) ); ?></td>
-								<td><?php $this->leads_button( 'delete', __( 'Delete', 'wp-knowledge-chat' ), 'button-link button-link-delete', __( 'Permanently delete this lead?', 'wp-knowledge-chat' ), (int) $lead['id'] ); ?></td>
+								<td colspan="6"><?php esc_html_e( 'No leads captured yet. Prospective clients who request consultation via the chat widget will appear here.', 'wp-knowledge-chat' ); ?></td>
 							</tr>
-						<?php endforeach; ?>
-					<?php endif; ?>
-				</tbody>
-			</table>
+						<?php else : ?>
+							<?php foreach ( $leads as $lead ) : ?>
+								<?php $role = implode( ' · ', array_filter( array( $lead['job_title'], Analytics::department_label( $lead['department'] ) ) ) ); ?>
+								<tr>
+									<td>
+										<?php echo esc_html( substr( $lead['created_at'], 0, 10 ) ); ?>
+										<span class="wkc-sub"><?php echo esc_html( substr( $lead['created_at'], 11 ) ); ?></span>
+									</td>
+									<td>
+										<strong><?php echo esc_html( $lead['name'] ); ?></strong>
+										<a class="wkc-sub" href="<?php echo esc_url( 'mailto:' . $lead['email'] ); ?>"><?php echo esc_html( $lead['email'] ); ?></a>
+									</td>
+									<td>
+										<?php echo esc_html( $lead['company'] ?: '—' ); ?>
+										<?php if ( '' !== $role ) : ?>
+											<span class="wkc-sub"><?php echo esc_html( $role ); ?></span>
+										<?php endif; ?>
+									</td>
+									<td><?php $this->lead_message( $lead['message'] ); ?></td>
+									<td><?php echo esc_html( self::mail_status_label( $lead['mail_status'] ) ); ?></td>
+									<td><?php $this->leads_button( 'delete', __( 'Delete', 'wp-knowledge-chat' ), 'button-link button-link-delete', __( 'Permanently delete this lead?', 'wp-knowledge-chat' ), (int) $lead['id'] ); ?></td>
+								</tr>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</tbody>
+				</table>
+			</div>
 
 			<h2><?php esc_html_e( 'Recent Visitor Questions (Privacy-Safe Snippets)', 'wp-knowledge-chat' ); ?></h2>
 			<table class="wp-list-table widefat fixed striped">
@@ -755,6 +767,31 @@ final class Admin_Page {
 			'article' => __( 'Article', 'wp-knowledge-chat' ),
 		);
 		return $labels[ $category ] ?? ucfirst( $category );
+	}
+
+	/**
+	 * Prints a lead message; a long one shows a preview that expands in place.
+	 */
+	private function lead_message( string $message ): void {
+		if ( '' === $message ) {
+			echo '—';
+			return;
+		}
+		if ( mb_strlen( $message ) <= self::MESSAGE_PREVIEW ) {
+			echo '<div class="wkc-lead-msg">' . esc_html( $message ) . '</div>';
+			return;
+		}
+		$preview = rtrim( mb_substr( $message, 0, self::MESSAGE_PREVIEW ) ) . '…';
+		?>
+		<details class="wkc-lead-msg">
+			<summary>
+				<span class="wkc-msg-preview"><?php echo esc_html( $preview ); ?></span>
+				<span class="wkc-msg-toggle wkc-more"><?php esc_html_e( 'Show more', 'wp-knowledge-chat' ); ?></span>
+				<span class="wkc-msg-toggle wkc-less"><?php esc_html_e( 'Show less', 'wp-knowledge-chat' ); ?></span>
+			</summary>
+			<div class="wkc-msg-full"><?php echo esc_html( $message ); ?></div>
+		</details>
+		<?php
 	}
 
 	private static function mail_status_label( string $status ): string {
