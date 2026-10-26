@@ -118,6 +118,8 @@ final class Admin_Page {
 			'en' => 'English',
 			'id' => 'Bahasa Indonesia',
 			'ko' => '한국어',
+			'ja' => '日本語',
+			'zh' => '简体中文',
 		);
 	}
 
@@ -177,7 +179,7 @@ final class Admin_Page {
 			case 'language_switcher':
 			case 'detect_browser_language':
 				$texts = array(
-					'language_switcher'       => __( 'Let visitors switch between English, Bahasa Indonesia and 한국어 in the chat header.', 'wp-knowledge-chat' ),
+					'language_switcher'       => __( 'Let visitors switch between English, Bahasa Indonesia, 한국어, 日本語 and 简体中文 in the chat header.', 'wp-knowledge-chat' ),
 					'detect_browser_language' => __( 'Start in the visitor\'s browser language when it is supported; otherwise use the default language.', 'wp-knowledge-chat' ),
 				);
 				printf(

@@ -323,6 +323,16 @@ final class Rest_Controller {
 				'lead_invalid' => '올바른 성함과 이메일 주소를 입력해 주세요(각 항목의 글자 수 제한을 지켜 주세요).',
 				'lead_failed'  => '요청을 저장하지 못했습니다. 연락처 링크를 이용해 주세요.',
 			),
+			'ja' => array(
+				'lead_sent'    => 'ありがとうございます！ご相談のリクエストをInpartnerチームに送信しました。',
+				'lead_invalid' => '有効なお名前とメールアドレスを入力してください（各項目の文字数制限内でご記入ください）。',
+				'lead_failed'  => 'リクエストを保存できませんでした。連絡先リンクをご利用ください。',
+			),
+			'zh' => array(
+				'lead_sent'    => '谢谢！您的咨询请求已发送给 Inpartner 团队。',
+				'lead_invalid' => '请填写有效的姓名和电子邮箱地址（每个字段请勿超过长度限制）。',
+				'lead_failed'  => '无法保存您的请求，请改用联系链接。',
+			),
 		);
 		$lang     = isset( $messages[ $language ] ) ? $language : 'en';
 		$response = new \WP_REST_Response(
@@ -578,6 +588,20 @@ final class Rest_Controller {
 				'invalid'      => '질문을 입력해 주세요.',
 				'too_long'     => sprintf( '질문은 %d자 이내로 입력해 주세요.', self::MAX_MESSAGE_CHARS ),
 				'rate_limited' => '메시지를 너무 빠르게 보내고 있습니다. 잠시 후 다시 시도해 주세요.',
+			),
+			'ja' => array(
+				'unavailable'  => '現在アシスタントをご利用いただけません。しばらくしてから再度お試しいただくか、直接お問い合わせください。',
+				'forbidden'    => 'このリクエストは許可されていません。',
+				'invalid'      => '質問を入力してください。',
+				'too_long'     => sprintf( '質問は%d文字以内で入力してください。', self::MAX_MESSAGE_CHARS ),
+				'rate_limited' => 'メッセージの送信が速すぎます。少し待ってから再度お試しください。',
+			),
+			'zh' => array(
+				'unavailable'  => '助手暂时无法使用。请稍后再试，或直接与我们联系。',
+				'forbidden'    => '此请求不被允许。',
+				'invalid'      => '请输入您的问题。',
+				'too_long'     => sprintf( '问题请控制在 %d 个字符以内。', self::MAX_MESSAGE_CHARS ),
+				'rate_limited' => '您发送消息的速度过快，请稍等片刻后再试。',
 			),
 		);
 		$lang = isset( $messages[ $language ] ) ? $language : 'en';

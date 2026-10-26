@@ -328,6 +328,18 @@ final class RestControllerTest extends TestCase {
 		$this->assertStringContainsString( 'The assistant is unavailable', $this->chat( array( 'message' => 'hello', 'language' => 'en' ) )->get_data()['message'] );
 		$this->assertStringContainsString( '어시스턴트를 이용할 수 없습니다', $this->chat( array( 'message' => '안녕하세요', 'language' => 'ko' ) )->get_data()['message'] );
 		$this->assertSame( '질문을 입력해 주세요.', $this->chat( array( 'message' => '   ', 'language' => 'ko' ) )->get_data()['message'] );
+		$this->assertStringContainsString( 'アシスタントをご利用いただけません', $this->chat( array( 'message' => 'こんにちは', 'language' => 'ja' ) )->get_data()['message'] );
+		$this->assertSame( '質問を入力してください。', $this->chat( array( 'message' => '   ', 'language' => 'ja' ) )->get_data()['message'] );
+		$this->assertStringContainsString( '助手暂时无法使用', $this->chat( array( 'message' => '你好', 'language' => 'zh' ) )->get_data()['message'] );
+		$this->assertSame( '请输入您的问题。', $this->chat( array( 'message' => '   ', 'language' => 'zh' ) )->get_data()['message'] );
+	}
+
+	public function test_japanese_and_chinese_questions_are_forwarded_unchanged(): void {
+		$this->backend( array( 200, self::GOOD ) );
+		$this->chat( array( 'message' => 'Inpartnerはどのようなサービスを提供していますか？', 'language' => 'ja' ) );
+		$this->chat( array( 'message' => 'Inpartner 提供哪些服务？', 'language' => 'zh' ) );
+		$this->assertSame( array( 'message' => 'Inpartnerはどのようなサービスを提供していますか？', 'language' => 'ja' ), json_decode( $this->calls[0]['args']['body'], true ) );
+		$this->assertSame( array( 'message' => 'Inpartner 提供哪些服务？', 'language' => 'zh' ), json_decode( $this->calls[1]['args']['body'], true ) );
 	}
 
 	public function test_korean_question_is_forwarded_in_korean(): void {

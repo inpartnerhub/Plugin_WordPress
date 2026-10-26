@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- **Japanese (`ja`) and Simplified Chinese (`zh`)** as the fourth and fifth languages, end to end:
+  - Widget: interface strings, switcher entries (日本語, 简体中文), greetings, suggested questions and CJK font/line-breaking rules. Browser tags `ja-*` and every `zh-*` region (including `zh-TW`) start in the matching language.
+  - WordPress: `Settings::LANGUAGES`, REST error and lead messages, analytics counters, admin labels; admin screens translated into `ja` and `zh_CN` (`.po`/`.mo`/`.l10n.php`). The `.pot` was regenerated (56 → 149 strings); Indonesian and Korean keep their existing translations.
+  - Backend: answers, fallback and scope messages, few-shot examples and prompt language names; Japanese and Chinese term maps for retrieval (substring match on NFKC text) and guardrail patterns for every scope category and answer type.
+  - Eval: 36 design-set and 14 held-out ja/zh items (all pass).
+
 ### Fixed
 - **Timeout chain (`llm.ts`, `env.ts`, `class-backend-client.php`)**: Primary and failover provider now share one deadline (`LLM_TOTAL_TIMEOUT_MS`, default 18 s, with a 6 s reserve for the secondary) instead of each getting a full 25 s. The WordPress backend timeout is 22 s and the widget's 30 s, so each layer answers before the one in front gives up. `GEMINI_TIMEOUT_MS` default restored to the documented 12 s.
 

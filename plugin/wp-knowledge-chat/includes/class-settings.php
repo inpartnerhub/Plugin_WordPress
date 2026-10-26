@@ -18,7 +18,7 @@ final class Settings {
 	public const OPTION             = 'wp_knowledge_chat_settings';
 	public const GROUP              = 'wp_knowledge_chat';
 	public const GREETING_MAX_CHARS = 500;
-	public const LANGUAGES          = array( 'en', 'id', 'ko' );
+	public const LANGUAGES          = array( 'en', 'id', 'ko', 'ja', 'zh' );
 
 	/** Greeting used before per-language greetings existed (0.1.x); see get(). */
 	private const LEGACY_DEFAULT_GREETING = "Hello! How can I help you explore Inpartner's services?";
@@ -53,6 +53,8 @@ final class Settings {
 			'en' => self::LEGACY_DEFAULT_GREETING,
 			'id' => 'Halo! Ada yang bisa saya bantu terkait layanan Inpartner?',
 			'ko' => '안녕하세요! Inpartner의 서비스에 대해 무엇을 도와드릴까요?',
+			'ja' => 'こんにちは！Inpartnerのサービスについて、どのようなことをお手伝いできますか？',
+			'zh' => '您好！关于 Inpartner 的服务，有什么可以帮您？',
 		);
 	}
 
@@ -192,7 +194,7 @@ final class Settings {
 			if ( is_string( $input['language'] ) && in_array( $input['language'], self::LANGUAGES, true ) ) {
 				$clean['language'] = $input['language'];
 			} else {
-				self::error( 'language', __( 'Default language must be English (en), Indonesian (id) or Korean (ko).', 'wp-knowledge-chat' ) );
+				self::error( 'language', __( 'Default language must be English (en), Indonesian (id), Korean (ko), Japanese (ja) or Simplified Chinese (zh).', 'wp-knowledge-chat' ) );
 			}
 		}
 

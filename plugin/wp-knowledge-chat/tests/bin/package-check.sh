@@ -23,7 +23,7 @@ ok "sha256 matches $(basename "$ZIP").sha256"
 unzip -Z1 "$ZIP" | grep -qE '(^|/)(tests|node_modules|vendor|\.env)(/|$)' && fail "ZIP contains development or secret files"
 # Read the listing once: with pipefail, grep -q closing the pipe early would fail unzip with SIGPIPE.
 LISTING="$(unzip -Z1 "$ZIP")"
-for f in wp-knowledge-chat.pot wp-knowledge-chat-id_ID.mo wp-knowledge-chat-ko_KR.mo; do
+for f in wp-knowledge-chat.pot wp-knowledge-chat-id_ID.mo wp-knowledge-chat-ko_KR.mo wp-knowledge-chat-ja.mo wp-knowledge-chat-zh_CN.mo; do
   grep -qx "wp-knowledge-chat/languages/$f" <<<"$LISTING" || fail "ZIP is missing languages/$f"
 done
 ok "ZIP contains the translations and no tests, vendor, node_modules or .env"

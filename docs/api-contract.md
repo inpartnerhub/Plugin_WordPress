@@ -22,7 +22,7 @@ Public (anonymous visitors). Same-origin only when an `Origin` header is present
 | Field | Type | Rules |
 |---|---|---|
 | `message` | string | required; control characters removed; trimmed; 1–500 characters (multibyte-aware) |
-| `language` | `"en"` \| `"id"` \| `"ko"` | optional; defaults to the *Default Language* setting. The widget sends the language the visitor has selected |
+| `language` | `"en"` \| `"id"` \| `"ko"` \| `"ja"` \| `"zh"` | optional; defaults to the *Default Language* setting. The widget sends the language the visitor has selected |
 | `history` | array | optional; at most 4 turns: `[ { "role": "user" \| "model", "text": string } ]` |
 
 **200 response**: re-validated by WordPress before it reaches the browser.
@@ -75,7 +75,7 @@ Public (consultation request form). Allows visitors to submit inquiries directly
 | `email` | string | required; valid email format; disposable email domains automatically rejected |
 | `message` | string | required; 1–2000 characters |
 | `company` | string | optional; max 100 characters |
-| `language` | string | optional; `"en"`, `"id"`, or `"ko"` |
+| `language` | string | optional; `"en"`, `"id"`, `"ko"`, `"ja"` (Japanese) or `"zh"` (Simplified Chinese) |
 | `website` | string | honeypot field; must remain empty (if filled, silently rejected as spam) |
 
 **200 response**: `{ "success": true, "message": "Your consultation request has been received." }`

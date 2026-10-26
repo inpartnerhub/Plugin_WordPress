@@ -1,0 +1,671 @@
+# Copyright (C) 2026 Inpartner
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Knowledge Chat 1.0.6\n"
+"Report-Msgid-Bugs-To: https://github.com/inpartnerhub/Plugin_WordPress/issues\n"
+"Last-Translator: Inpartner\n"
+"Language-Team: Chinese (China)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-26T02:42:23+00:00\n"
+"PO-Revision-Date: 2026-10-26 00:00+0000\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp-knowledge-chat\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. Plugin Name of the plugin
+#: wp-knowledge-chat.php
+#: includes/class-admin-page.php:56
+#: includes/class-admin-page.php:57
+#: includes/class-plugin.php:115
+msgid "WP Knowledge Chat"
+msgstr "WP Knowledge Chat"
+
+#. Description of the plugin
+#: wp-knowledge-chat.php
+msgid "Inpartner AI Business Consultation Assistant: a floating chat widget that answers visitor questions from approved website content via a separate AI backend."
+msgstr "Inpartner AI 商业咨询助手：一个悬浮聊天窗口，通过独立的 AI 后端，根据已批准的网站内容回答访客问题。"
+
+#. Author of the plugin
+#: wp-knowledge-chat.php
+msgid "Inpartner"
+msgstr "Inpartner"
+
+#: includes/class-admin-page.php:66
+#: includes/class-admin-page.php:239
+msgid "WP Knowledge Chat Settings"
+msgstr "WP Knowledge Chat 设置"
+
+#: includes/class-admin-page.php:67
+#: includes/class-plugin.php:190
+msgid "Settings"
+msgstr "设置"
+
+#: includes/class-admin-page.php:74
+msgid "Knowledge Base Sync"
+msgstr "知识库同步"
+
+#: includes/class-admin-page.php:75
+msgid "Knowledge Base"
+msgstr "知识库"
+
+#: includes/class-admin-page.php:82
+#: includes/class-admin-page.php:595
+msgid "Analytics & Consultation Leads"
+msgstr "数据分析与咨询线索"
+
+#: includes/class-admin-page.php:83
+msgid "Analytics & Leads"
+msgstr "数据分析与线索"
+
+#: includes/class-admin-page.php:91
+msgid "Chat widget"
+msgstr "聊天窗口"
+
+#: includes/class-admin-page.php:94
+msgid "Enable Chatbot"
+msgstr "启用聊天机器人"
+
+#: includes/class-admin-page.php:95
+#: includes/class-admin-page.php:146
+msgid "Greeting Messages"
+msgstr "问候语"
+
+#: includes/class-admin-page.php:96
+msgid "Default Language"
+msgstr "默认语言"
+
+#: includes/class-admin-page.php:97
+msgid "Language Switcher"
+msgstr "语言切换"
+
+#: includes/class-admin-page.php:98
+msgid "Browser Language"
+msgstr "浏览器语言"
+
+#: includes/class-admin-page.php:99
+msgid "Contact URL"
+msgstr "联系链接"
+
+#: includes/class-admin-page.php:141
+msgid "Show the chat widget on the public site."
+msgstr "在公开网站上显示聊天窗口。"
+
+#. translators: %d: maximum characters.
+#: includes/class-admin-page.php:164
+#, php-format
+msgid "Shown when the chat opens, in the visitor's language. Plain text only (HTML is removed). Maximum %d characters. Leave a field empty to restore its default."
+msgstr "打开聊天时以访客的语言显示。仅限纯文本（HTML 会被移除）。最多 %d 个字符。留空则恢复默认值。"
+
+#: includes/class-admin-page.php:176
+msgid "Interface language and preferred answer language when the visitor has not chosen one. Source content is not altered."
+msgstr "访客未选择语言时使用的界面语言和首选回答语言。不会修改源内容。"
+
+#: includes/class-admin-page.php:182
+msgid "Let visitors switch between English, Bahasa Indonesia, 한국어, 日本語 and 简体中文 in the chat header."
+msgstr "允许访客在聊天标题栏中切换 English、Bahasa Indonesia、한국어、日本語 和 简体中文。"
+
+#: includes/class-admin-page.php:183
+msgid "Start in the visitor's browser language when it is supported; otherwise use the default language."
+msgstr "如果支持访客的浏览器语言，则以该语言开始；否则使用默认语言。"
+
+#. translators: %s: approved hostnames.
+#: includes/class-admin-page.php:203
+#, php-format
+msgid "WhatsApp number (e.g. +6281234567890), email address (e.g. info@inpartnerglobal.com), or an absolute https:// URL on an approved domain: %s."
+msgstr "WhatsApp 号码（例如 +6281234567890）、电子邮箱地址（例如 info@inpartnerglobal.com），或已批准域名上的绝对 https:// URL：%s。"
+
+#: includes/class-admin-page.php:222
+msgid "Inpartner AI Assistant"
+msgstr "Inpartner AI 助手"
+
+#: includes/class-admin-page.php:233
+#: includes/class-admin-page.php:315
+msgid "You do not have permission to manage these settings."
+msgstr "您没有管理这些设置的权限。"
+
+#: includes/class-admin-page.php:240
+msgid "Configure the AI consultation assistant, language defaults, and backend connectivity."
+msgstr "配置 AI 咨询助手、默认语言和后端连接。"
+
+#: includes/class-admin-page.php:264
+msgid "AI backend"
+msgstr "AI 后端"
+
+#: includes/class-admin-page.php:266
+msgid "Configured."
+msgstr "已配置。"
+
+#: includes/class-admin-page.php:267
+msgid "The backend URL and shared secret are read from wp-config.php and are never shown here or sent to browsers."
+msgstr "后端 URL 和共享密钥从 wp-config.php 读取，不会在此处显示，也不会发送到浏览器。"
+
+#: includes/class-admin-page.php:269
+msgid "Not configured."
+msgstr "未配置。"
+
+#: includes/class-admin-page.php:270
+msgid "The widget stays hidden until WP_KNOWLEDGE_CHAT_BACKEND_URL (https) and WP_KNOWLEDGE_CHAT_SHARED_SECRET (32+ characters) are defined in wp-config.php."
+msgstr "在 wp-config.php 中定义 WP_KNOWLEDGE_CHAT_BACKEND_URL（https）和 WP_KNOWLEDGE_CHAT_SHARED_SECRET（至少 32 个字符）之前，聊天窗口将保持隐藏。"
+
+#: includes/class-admin-page.php:276
+msgid "Connection test: backend is reachable, the shared secret is accepted and the knowledge base is ready."
+msgstr "连接测试：后端可以访问，共享密钥已被接受，知识库已就绪。"
+
+#: includes/class-admin-page.php:278
+msgid "Connection test failed: the backend rejected the shared secret. Check that WP_KNOWLEDGE_CHAT_SHARED_SECRET matches CHAT_SHARED_SECRET and that the server clock is correct."
+msgstr "连接测试失败：后端拒绝了共享密钥。请检查 WP_KNOWLEDGE_CHAT_SHARED_SECRET 是否与 CHAT_SHARED_SECRET 一致，以及服务器时间是否正确。"
+
+#: includes/class-admin-page.php:280
+msgid "Connection test failed: the backend is running but its knowledge base is empty."
+msgstr "连接测试失败：后端正在运行，但其知识库为空。"
+
+#. translators: %d: HTTP status code, 0 when unreachable.
+#: includes/class-admin-page.php:283
+#, php-format
+msgid "Connection test failed (HTTP status %d). Check the backend URL and that the service is running."
+msgstr "连接测试失败（HTTP 状态 %d）。请检查后端 URL 以及服务是否正在运行。"
+
+#: includes/class-admin-page.php:291
+msgid "Test connection"
+msgstr "测试连接"
+
+#: includes/class-admin-page.php:294
+msgid "Index API token configured."
+msgstr "已配置索引 API 令牌。"
+
+#: includes/class-admin-page.php:295
+msgid "Knowledge base synchronization from WordPress pages is enabled."
+msgstr "已启用从 WordPress 页面同步知识库。"
+
+#: includes/class-admin-page.php:297
+msgid "Note: To enable page synchronization to the AI backend, define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php."
+msgstr "注意：要启用向 AI 后端同步页面，请在 wp-config.php 中定义 WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN。"
+
+#: includes/class-admin-page.php:305
+#: includes/class-admin-page.php:511
+#: includes/class-admin-page.php:787
+msgid "You do not have permission to do this."
+msgstr "您没有执行此操作的权限。"
+
+#: includes/class-admin-page.php:330
+msgid "Knowledge Base Synchronization"
+msgstr "知识库同步"
+
+#: includes/class-admin-page.php:331
+msgid "Sync published WordPress pages directly into the AI knowledge base. Content is cleaned and indexed by the AI backend."
+msgstr "将已发布的 WordPress 页面直接同步到 AI 知识库。内容由 AI 后端清理并建立索引。"
+
+#: includes/class-admin-page.php:347
+msgid "Automatic updates failed:"
+msgstr "自动更新失败："
+
+#: includes/class-admin-page.php:348
+msgid "the AI backend still has an outdated copy of these pages (an unpublished page may still be answered from). They are retried every few minutes."
+msgstr "AI 后端仍保留这些页面的旧版本（已取消发布的页面仍可能被用于回答）。系统每隔几分钟会重试一次。"
+
+#. translators: 1: page title or ID, 2: error code, 3: attempts, 4: date.
+#: includes/class-admin-page.php:357
+#, php-format
+msgid "%1$s — %2$s, %3$d attempt(s) since %4$s UTC"
+msgstr "%1$s — %2$s，自 %4$s UTC 起已尝试 %3$d 次"
+
+#: includes/class-admin-page.php:371
+msgid "Retry now"
+msgstr "立即重试"
+
+#: includes/class-admin-page.php:377
+msgid "Only pages you sync here enter the knowledge base. After that, edits are sent automatically; unpublishing, trashing, password-protecting or deleting a page removes it. New pages are never added automatically, and password-protected pages are never indexed."
+msgstr "只有在此处同步的页面才会进入知识库。此后，编辑内容会自动发送；取消发布、移至回收站、设置密码保护或删除页面会将其移除。新页面不会被自动添加，受密码保护的页面也永远不会被索引。"
+
+#: includes/class-admin-page.php:383
+msgid "Sync not ready:"
+msgstr "同步尚未就绪："
+
+#: includes/class-admin-page.php:384
+msgid "Define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php to enable synchronizing pages with the AI backend."
+msgstr "请在 wp-config.php 中定义 WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN，以启用与 AI 后端的页面同步。"
+
+#: includes/class-admin-page.php:395
+#: includes/class-admin-page.php:498
+msgid "Sync Selected Pages"
+msgstr "同步所选页面"
+
+#: includes/class-admin-page.php:398
+#: includes/class-admin-page.php:501
+msgid "Sync All Eligible Pages"
+msgstr "同步所有符合条件的页面"
+
+#: includes/class-admin-page.php:402
+msgid "Replace entire backend knowledge base (prune unselected)"
+msgstr "替换整个后端知识库（删除未选中的内容）"
+
+#: includes/class-admin-page.php:412
+#: includes/class-admin-page.php:488
+msgid "Page Title"
+msgstr "页面标题"
+
+#: includes/class-admin-page.php:413
+#: includes/class-admin-page.php:489
+msgid "Category"
+msgstr "分类"
+
+#: includes/class-admin-page.php:414
+#: includes/class-admin-page.php:490
+msgid "Content Size"
+msgstr "内容大小"
+
+#: includes/class-admin-page.php:415
+#: includes/class-admin-page.php:491
+msgid "Last Modified"
+msgstr "最后修改"
+
+#: includes/class-admin-page.php:421
+msgid "No published pages found."
+msgstr "未找到已发布的页面。"
+
+#: includes/class-admin-page.php:436
+msgid "View"
+msgstr "查看"
+
+#: includes/class-admin-page.php:450
+msgid "Password protected (never indexed)"
+msgstr "受密码保护（不会被索引）"
+
+#. translators: %d: character count
+#: includes/class-admin-page.php:456
+#, php-format
+msgid "%d chars (Ready)"
+msgstr "%d 个字符（就绪）"
+
+#. translators: %d: character count
+#: includes/class-admin-page.php:466
+#, php-format
+msgid "%d chars (Too short)"
+msgstr "%d 个字符（太短）"
+
+#: includes/class-admin-page.php:476
+msgid "In knowledge base"
+msgstr "已在知识库中"
+
+#: includes/class-admin-page.php:525
+msgid "All pending knowledge-base updates were applied."
+msgstr "所有待处理的知识库更新均已应用。"
+
+#. translators: %d: number of pages.
+#: includes/class-admin-page.php:527
+#, php-format
+msgid "%d page update(s) still failing. Check the backend and try again."
+msgstr "仍有 %d 个页面更新失败。请检查后端后重试。"
+
+#: includes/class-admin-page.php:572
+msgid "You do not have permission to access this page."
+msgstr "您没有访问此页面的权限。"
+
+#: includes/class-admin-page.php:596
+msgid "Monitor chatbot engagement, question trends, and visitor consultation requests. Leads contain personal data: keep them only as long as needed."
+msgstr "查看聊天机器人的使用情况、问题趋势和访客咨询请求。线索包含个人数据：请仅在必要期间内保留。"
+
+#: includes/class-admin-page.php:605
+msgid "Total Conversations"
+msgstr "对话总数"
+
+#: includes/class-admin-page.php:607
+msgid "Total questions asked by visitors"
+msgstr "访客提问总数"
+
+#: includes/class-admin-page.php:610
+msgid "Answered from Knowledge"
+msgstr "基于知识回答"
+
+#: includes/class-admin-page.php:612
+msgid "Supported by official website sources"
+msgstr "有官方网站来源支持"
+
+#: includes/class-admin-page.php:615
+msgid "Consultation Fallbacks"
+msgstr "咨询引导"
+
+#: includes/class-admin-page.php:617
+msgid "Directed to consultation / contact link"
+msgstr "引导至咨询 / 联系链接"
+
+#: includes/class-admin-page.php:620
+msgid "Captured Leads"
+msgstr "已获取的线索"
+
+#: includes/class-admin-page.php:622
+msgid "Prospective clients requesting consultation"
+msgstr "申请咨询的潜在客户"
+
+#: includes/class-admin-page.php:625
+msgid "Threats & Spam Blocked"
+msgstr "已拦截的威胁与垃圾信息"
+
+#: includes/class-admin-page.php:627
+msgid "Honeypots, disposable emails & abuse limits"
+msgstr "蜜罐、一次性邮箱和滥用限制"
+
+#: includes/class-admin-page.php:631
+msgid "Captured Consultation Leads"
+msgstr "已获取的咨询线索"
+
+#. translators: 1: leads shown, 2: total leads.
+#: includes/class-admin-page.php:636
+#, php-format
+msgid "Showing the newest %1$d of %2$d leads. Export CSV includes all of them."
+msgstr "显示 %2$d 条线索中最新的 %1$d 条。导出的 CSV 包含全部线索。"
+
+#: includes/class-admin-page.php:641
+msgid "Export CSV"
+msgstr "导出 CSV"
+
+#: includes/class-admin-page.php:642
+msgid "Delete all leads"
+msgstr "删除所有线索"
+
+#: includes/class-admin-page.php:642
+msgid "Permanently delete all leads? This cannot be undone."
+msgstr "要永久删除所有线索吗？此操作无法撤销。"
+
+#: includes/class-admin-page.php:643
+msgid "Reset metrics"
+msgstr "重置指标"
+
+#: includes/class-admin-page.php:643
+msgid "Reset all conversation counts and recent questions?"
+msgstr "要重置所有对话计数和最近的问题吗？"
+
+#: includes/class-admin-page.php:648
+#: includes/class-admin-page.php:682
+#: includes/class-admin-page.php:719
+#: includes/class-analytics.php:580
+msgid "Date (UTC)"
+msgstr "日期（UTC）"
+
+#: includes/class-admin-page.php:649
+#: includes/class-analytics.php:584
+msgid "Name"
+msgstr "姓名"
+
+#: includes/class-admin-page.php:650
+#: includes/class-analytics.php:588
+msgid "Email"
+msgstr "电子邮箱"
+
+#: includes/class-admin-page.php:651
+#: includes/class-analytics.php:592
+msgid "Company"
+msgstr "公司"
+
+#: includes/class-admin-page.php:652
+#: includes/class-analytics.php:596
+msgid "Inquiry Message"
+msgstr "咨询内容"
+
+#: includes/class-admin-page.php:653
+msgid "Notification"
+msgstr "通知"
+
+#: includes/class-admin-page.php:654
+msgid "Actions"
+msgstr "操作"
+
+#: includes/class-admin-page.php:660
+msgid "No leads captured yet. Prospective clients who request consultation via the chat widget will appear here."
+msgstr "暂无线索。通过聊天窗口申请咨询的潜在客户将显示在这里。"
+
+#: includes/class-admin-page.php:671
+msgid "Delete"
+msgstr "删除"
+
+#: includes/class-admin-page.php:671
+msgid "Permanently delete this lead?"
+msgstr "要永久删除此线索吗？"
+
+#: includes/class-admin-page.php:678
+msgid "Recent Visitor Questions (Privacy-Safe Snippets)"
+msgstr "最近的访客问题（隐私安全摘要）"
+
+#: includes/class-admin-page.php:683
+msgid "Question"
+msgstr "问题"
+
+#: includes/class-admin-page.php:684
+#: includes/class-admin-page.php:721
+msgid "Language"
+msgstr "语言"
+
+#: includes/class-admin-page.php:685
+msgid "Outcome"
+msgstr "结果"
+
+#: includes/class-admin-page.php:691
+msgid "No questions recorded yet."
+msgstr "暂无问题记录。"
+
+#: includes/class-admin-page.php:701
+msgid "Grounded"
+msgstr "有依据"
+
+#: includes/class-admin-page.php:703
+msgid "Fallback"
+msgstr "咨询引导"
+
+#: includes/class-admin-page.php:712
+msgid "Knowledge Gaps & Unanswered Topics"
+msgstr "知识缺口与未回答的主题"
+
+#: includes/class-admin-page.php:714
+msgid "Questions where the chatbot could not find sufficient evidence and triggered a consultation fallback. Use these topics to expand your Knowledge Base."
+msgstr "聊天机器人未能找到足够依据、因而转为咨询引导的问题。请利用这些主题扩充您的知识库。"
+
+#: includes/class-admin-page.php:720
+msgid "Unanswered Question (Redacted)"
+msgstr "未回答的问题（已脱敏）"
+
+#: includes/class-admin-page.php:722
+msgid "Suggested Action"
+msgstr "建议操作"
+
+#: includes/class-admin-page.php:728
+msgid "No knowledge gaps recorded yet."
+msgstr "暂无知识缺口记录。"
+
+#: includes/class-admin-page.php:736
+msgid "Add to Knowledge"
+msgstr "添加到知识库"
+
+#: includes/class-admin-page.php:748
+msgid "Service"
+msgstr "服务"
+
+#: includes/class-admin-page.php:749
+msgid "About"
+msgstr "关于"
+
+#: includes/class-admin-page.php:750
+msgid "Contact"
+msgstr "联系"
+
+#: includes/class-admin-page.php:751
+msgid "FAQ"
+msgstr "常见问题"
+
+#: includes/class-admin-page.php:752
+msgid "Home"
+msgstr "首页"
+
+#: includes/class-admin-page.php:753
+msgid "Article"
+msgstr "文章"
+
+#: includes/class-admin-page.php:760
+msgid "Sent"
+msgstr "已发送"
+
+#: includes/class-admin-page.php:761
+msgid "Failed"
+msgstr "失败"
+
+#: includes/class-admin-page.php:762
+msgid "Pending"
+msgstr "待处理"
+
+#: includes/class-admin-page.php:763
+msgid "Before 0.2.1"
+msgstr "0.2.1 之前"
+
+#: includes/class-admin-page.php:796
+msgid "Lead deleted."
+msgstr "线索已删除。"
+
+#: includes/class-admin-page.php:796
+msgid "Lead not found."
+msgstr "未找到线索。"
+
+#. translators: %d: number of leads.
+#: includes/class-admin-page.php:800
+#, php-format
+msgid "%d lead(s) deleted."
+msgstr "已删除 %d 条线索。"
+
+#: includes/class-admin-page.php:804
+msgid "Metrics reset."
+msgstr "指标已重置。"
+
+#: includes/class-admin-page.php:810
+msgid "Unknown action."
+msgstr "未知操作。"
+
+#: includes/class-analytics.php:69
+#: includes/class-analytics.php:649
+#: includes/class-analytics.php:661
+msgid "WP Knowledge Chat leads"
+msgstr "WP Knowledge Chat 线索"
+
+#: includes/class-analytics.php:576
+msgid "Consultation requests (WP Knowledge Chat)"
+msgstr "咨询请求（WP Knowledge Chat）"
+
+#: includes/class-backend-client.php:82
+msgid "Backend is not configured."
+msgstr "后端未配置。"
+
+#: includes/class-backend-client.php:175
+msgid "Index token or backend URL is not configured."
+msgstr "索引令牌或后端 URL 未配置。"
+
+#: includes/class-content-sync.php:299
+msgid "No pages selected for synchronization."
+msgstr "未选择要同步的页面。"
+
+#: includes/class-content-sync.php:306
+msgid "Index API Token is not configured. Please define WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN in wp-config.php."
+msgstr "索引 API 令牌未配置。请在 wp-config.php 中定义 WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN。"
+
+#: includes/class-content-sync.php:335
+msgid "None of the selected pages contain sufficient public text content to be indexed (minimum 40 characters; password-protected pages are never indexed)."
+msgstr "所选页面均没有足够的公开文本内容可供索引（至少 40 个字符；受密码保护的页面永远不会被索引）。"
+
+#. translators: %s: error message
+#: includes/class-content-sync.php:345
+#, php-format
+msgid "Synchronization failed: %s"
+msgstr "同步失败：%s"
+
+#: includes/class-content-sync.php:357
+msgid "Unexpected response from AI backend."
+msgstr "AI 后端返回了意外的响应。"
+
+#. translators: 1: status code, 2: message
+#: includes/class-content-sync.php:362
+#, php-format
+msgid "Backend rejected synchronization (HTTP %1$d): %2$s"
+msgstr "后端拒绝了同步（HTTP %1$d）：%2$s"
+
+#. translators: 1: upserted count, 2: unchanged count, 3: total count
+#: includes/class-content-sync.php:393
+#, php-format
+msgid "Knowledge Base synchronized successfully! %1$d document(s) updated, %2$d unchanged. Total documents in AI Backend: %3$d."
+msgstr "知识库同步成功！已更新 %1$d 个文档，%2$d 个未变更。AI 后端文档总数：%3$d。"
+
+#: includes/class-content-sync.php:399
+msgid "Warning: the backend could not save the knowledge base to disk; the update will be lost when it restarts."
+msgstr "警告：后端无法将知识库保存到磁盘；重启后更新将会丢失。"
+
+#: includes/class-plugin.php:120
+msgid "Chat assistant"
+msgstr "聊天助手"
+
+#: includes/class-plugin.php:121
+msgid "Questions and answers"
+msgstr "问题与回答"
+
+#: includes/class-plugin.php:122
+msgid "Visitors can ask questions in a chat assistant. The text of each question is sent to our AI backend service and, together with excerpts of public pages of this website, to Google Gemini to write the answer. The visitor's IP address, cookies and identity are not sent; a salted one-way identifier is used for rate limiting."
+msgstr "访客可以在聊天助手中提问。每个问题的文本会发送到我们的 AI 后端服务，并连同本网站公开页面的摘录一起发送给 Google Gemini 以生成回答。不会发送访客的 IP 地址、Cookie 或身份信息；速率限制使用加盐的单向标识符。"
+
+#: includes/class-plugin.php:123
+msgid "Conversation storage"
+msgstr "对话存储"
+
+#: includes/class-plugin.php:124
+msgid "The conversation is kept only in the visitor's browser (session storage) and is cleared when the tab is closed. This site stores short-lived rate-limit counters, aggregate counts of questions and the 25 most recent question snippets, from which e-mail addresses, phone numbers, links and long numbers have been removed."
+msgstr "咨询请求"
+
+#: includes/class-plugin.php:125
+msgid "Consultation requests"
+msgstr "对话仅保存在访客的浏览器中（会话存储），关闭标签页后即被清除。本网站会存储短期的速率限制计数器、问题的汇总数量以及最近 25 条问题摘要（已移除电子邮箱地址、电话号码、链接和长数字）。"
+
+#: includes/class-plugin.php:126
+msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgstr "访客可以选择发送咨询请求。他们填写的姓名、电子邮箱地址、公司和留言会保存在本网站，并通过电子邮件发送给网站管理员。不会存储 IP 地址。请求会一直保留，直到管理员将其删除或达到网站所有者设定的保留期限，并可通过“工具”→“导出个人数据”和“抹除个人数据”进行导出或抹除。"
+
+#: includes/class-plugin.php:149
+msgid "Every Four Minutes"
+msgstr "每四分钟"
+
+#: includes/class-settings.php:144
+msgid "Settings were not saved: invalid input."
+msgstr "设置未保存：输入无效。"
+
+#: includes/class-settings.php:153
+msgid "Enable Chatbot must be checked or unchecked."
+msgstr "“启用聊天机器人”必须为勾选或未勾选。"
+
+#: includes/class-settings.php:154
+msgid "Language Switcher must be checked or unchecked."
+msgstr "“语言切换”必须为勾选或未勾选。"
+
+#: includes/class-settings.php:155
+msgid "Browser Language must be checked or unchecked."
+msgstr "“浏览器语言”必须为勾选或未勾选。"
+
+#: includes/class-settings.php:189
+#: includes/class-settings.php:219
+msgid "Greeting message must be text."
+msgstr "问候语必须是文本。"
+
+#: includes/class-settings.php:197
+msgid "Default language must be English (en), Indonesian (id), Korean (ko), Japanese (ja) or Simplified Chinese (zh)."
+msgstr "默认语言必须是英语（en）、印度尼西亚语（id）、韩语（ko）、日语（ja）或简体中文（zh）。"
+
+#: includes/class-settings.php:226
+msgid "Greeting message is required."
+msgstr "问候语为必填项。"
+
+#. translators: %d: maximum number of characters.
+#: includes/class-settings.php:230
+#, php-format
+msgid "Greeting message must be %d characters or fewer."
+msgstr "问候语不能超过 %d 个字符。"
+
+#. translators: %s: comma-separated list of approved hostnames.
+#: includes/class-settings.php:279
+#, php-format
+msgid "Contact URL must be a valid WhatsApp number, email address, or an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
+msgstr "联系链接必须是有效的 WhatsApp 号码、电子邮箱地址，或已批准域名（%s）上的绝对 https:// URL，且不得包含凭据或自定义端口。"

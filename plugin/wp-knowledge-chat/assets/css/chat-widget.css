@@ -510,6 +510,28 @@
 	overflow-wrap: anywhere;
 }
 
+/* Japanese and Simplified Chinese typography: lines may break between any two characters,
+   but strict rules keep closing punctuation (。、！) off the start of a line. */
+#wkc-root:lang(ja),
+#wkc-root:lang(ja) .wkc-title {
+	font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans CJK JP", system-ui, sans-serif;
+}
+
+#wkc-root:lang(zh),
+#wkc-root:lang(zh) .wkc-title {
+	font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", system-ui, sans-serif;
+}
+
+#wkc-root:lang(ja) .wkc-bubble,
+#wkc-root:lang(ja) .wkc-footer,
+#wkc-root:lang(ja) .wkc-chip,
+#wkc-root:lang(zh) .wkc-bubble,
+#wkc-root:lang(zh) .wkc-footer,
+#wkc-root:lang(zh) .wkc-chip {
+	line-break: strict;
+	overflow-wrap: anywhere;
+}
+
 /* Conversation log */
 #wkc-root .wkc-log {
 	flex: 1 1 auto;

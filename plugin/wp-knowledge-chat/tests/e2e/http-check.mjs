@@ -18,6 +18,8 @@ const DEFAULT_GREETINGS = {
 	en: "Hello! How can I help you explore Inpartner's services?",
 	id: 'Halo! Ada yang bisa saya bantu terkait layanan Inpartner?',
 	ko: '안녕하세요! Inpartner의 서비스에 대해 무엇을 도와드릴까요?',
+	ja: 'こんにちは！Inpartnerのサービスについて、どのようなことをお手伝いできますか？',
+	zh: '您好！关于 Inpartner 的服务，有什么可以帮您？',
 };
 
 const wpcli = (...args) => execFileSync(WP_CLI, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
@@ -177,7 +179,7 @@ describe('admin settings (real options.php flow)', () => {
 		assert.match(ok.headers.get('location') ?? '', /settings-updated=true/);
 		const saved = {
 			enabled: true,
-			greetings: { en: DEFAULT_GREETINGS.en, id: 'Halo! Ada yang bisa dibantu?', ko: '반갑습니다! 무엇을 도와드릴까요?' },
+			greetings: { ...DEFAULT_GREETINGS, id: 'Halo! Ada yang bisa dibantu?', ko: '반갑습니다! 무엇을 도와드릴까요?' },
 			language: 'ko',
 			contact_url: 'https://inpartnerglobal.com/contact/',
 			language_switcher: true,
@@ -196,7 +198,7 @@ describe('admin settings (real options.php flow)', () => {
 
 		const html = await (await fetch(`${WP}/`)).text();
 		assert.match(html, /"language":"ko"/);
-		assert.match(html, /"languages":\["en","id","ko"\]/);
+		assert.match(html, /"languages":\["en","id","ko","ja","zh"\]/);
 		assert.match(html, /"switcher":true,"detectBrowser":false/);
 		assert.ok(html.includes('반갑습니다! 무엇을 도와드릴까요?'), 'Korean greeting is embedded unescaped');
 	});

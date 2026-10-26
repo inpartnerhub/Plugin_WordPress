@@ -475,6 +475,56 @@ describe('languages', () => {
 		assert.deepEqual($$('.wkc-lang').map((b) => b.getAttribute('lang')), ['en', 'id', 'ko']);
 	});
 
+	const ALL = {
+		...MULTI,
+		languages: ['en', 'id', 'ko', 'ja', 'zh'],
+		greetings: { ...MULTI.greetings, ja: 'こんにちは！', zh: '您好！' },
+		suggestions: { ...MULTI.suggestions, ja: ['どのようなサービスがありますか？'], zh: ['你们提供哪些服务？'] },
+	};
+
+	it('renders the Japanese and Simplified Chinese interfaces', async () => {
+		const ja = await setup({ config: { ...ALL, language: 'ja', detectBrowser: false } });
+		assert.equal(ja.$('#wkc-root').getAttribute('lang'), 'ja');
+		assert.equal(ja.$('#wkc-title').textContent, 'Inpartner AIアシスタント');
+		assert.equal(ja.$('#wkc-input').getAttribute('placeholder'), '質問を入力してください…');
+		assert.equal(ja.$('.wkc-msg--bot .wkc-bubble').textContent, 'こんにちは！');
+		assert.equal(ja.$('.wkc-chip').textContent, 'どのようなサービスがありますか？');
+
+		const zh = await setup({ config: { ...ALL, language: 'zh', detectBrowser: false } });
+		assert.equal(zh.$('#wkc-root').getAttribute('lang'), 'zh');
+		assert.equal(zh.$('#wkc-title').textContent, 'Inpartner AI 助手');
+		assert.equal(zh.$('.wkc-launcher').getAttribute('aria-label'), '打开 Inpartner AI 助手');
+		assert.equal(zh.$('.wkc-msg--bot .wkc-bubble').textContent, '您好！');
+	});
+
+	it('maps ja-JP and every zh region onto the supported languages', async () => {
+		for (const [tags, expected] of [[['ja-JP'], 'ja'], [['zh-CN'], 'zh'], [['zh-TW'], 'zh'], [['zh-Hans-SG'], 'zh']]) {
+			const { $ } = await setup({ config: ALL, browserLanguages: tags });
+			assert.equal($('#wkc-root').getAttribute('lang'), expected, tags[0]);
+		}
+	});
+
+	it('lists all five languages in the switcher and sends ja/zh to the server', async () => {
+		const { $, $$, calls, flush, type, pressEnter } = await setup({ config: { ...ALL, detectBrowser: false } });
+		assert.deepEqual($$('.wkc-lang').map((b) => b.textContent), ['EN English', 'ID Bahasa Indonesia', '한국어', '日本語', '简体中文']);
+		assert.deepEqual($$('.wkc-lang').map((b) => b.getAttribute('lang')), ['en', 'id', 'ko', 'ja', 'zh']);
+
+		$('.wkc-lang[data-lang="ja"]').click();
+		assert.equal($('.wkc-send-label').textContent, '送信');
+		type('販売代理店を探しています');
+		pressEnter();
+		await flush();
+		assert.equal(calls[0].body.language, 'ja');
+
+		$('.wkc-lang[data-lang="zh"]').click();
+		assert.equal($('.wkc-send-label').textContent, '发送');
+		assert.match($('.wkc-disclaimer').textContent, /出错/);
+		type('我们在寻找经销商');
+		pressEnter();
+		await flush();
+		assert.equal(calls[1].body.language, 'zh');
+	});
+
 	it('dynamically updates rendered CTA buttons, speaker labels, edit buttons, quick actions, and open lead form when switching EN -> ID -> KO', async () => {
 		const { $, $$, flush, type, pressEnter } = await setup({
 			config: { ...MULTI, detectBrowser: false },

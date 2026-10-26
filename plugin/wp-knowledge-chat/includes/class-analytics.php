@@ -160,6 +160,8 @@ final class Analytics {
 				'en' => 0,
 				'id' => 0,
 				'ko' => 0,
+				'ja' => 0,
+				'zh' => 0,
 			),
 			'recent_queries'   => array(),
 			'security_events'  => array(

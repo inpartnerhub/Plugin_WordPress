@@ -11,8 +11,8 @@ import { type AnswerType, missingAnswerType, type ScopeViolation, scopeViolation
  * client always come from the knowledge base, never from model output.
  */
 
-export type Language = 'en' | 'id' | 'ko';
-export const LANGUAGES: readonly Language[] = ['en', 'id', 'ko'];
+export type Language = 'en' | 'id' | 'ko' | 'ja' | 'zh';
+export const LANGUAGES: readonly Language[] = ['en', 'id', 'ko', 'ja', 'zh'];
 
 export interface Source {
   title: string;
@@ -48,6 +48,8 @@ export const FALLBACK_MESSAGES: Record<Language, string> = {
   en: 'Hello! I specifically assist with Inpartner Global’s business consulting services—from Strategy & Corporate Advisory and Cross-Border Market Entry to Distribution Partner Sourcing. If you would like to discuss your business needs directly with our advisory team, please reach out through the contact link below!',
   id: 'Halo! Saat ini saya khusus melayani konsultasi seputar layanan bisnis Inpartner Global—mulai dari Strategy & Corporate Advisory, Cross-Border Market Entry, hingga pencarian mitra distribusi. Jika ada rencana ekspansi atau kebutuhan bisnis yang ingin didiskusikan bersama tim konsultan kami, yuk hubungi kami melalui tautan kontak berikut!',
   ko: '안녕하세요! 저는 Inpartner Global의 비즈니스 컨설팅 서비스(기업 전략 자문, 해외 시장 진출, 유통 파트너 발굴 등)를 전문적으로 안내해 드리고 있습니다. 귀사의 비즈니스에 맞춘 상담이 필요하시면 아래 연락처 링크를 통해 언제든지 저희 자문팀에 문의해 주세요!',
+  ja: 'こんにちは！私はInpartner Globalのビジネスコンサルティングサービス（Strategy & Corporate Advisory、Cross-Border Market Entry、販売パートナー探索など）を専門にご案内しています。ビジネスのご相談をアドバイザリーチームと直接されたい場合は、下記の連絡先リンクからお気軽にお問い合わせください！',
+  zh: '您好！我专门为您介绍 Inpartner Global 的商业咨询服务——从 Strategy & Corporate Advisory、Cross-Border Market Entry 到分销合作伙伴寻找。如需与我们的顾问团队直接沟通您的业务需求，欢迎通过下方联系链接与我们联系！',
 };
 
 export const SCOPE_FALLBACK_MESSAGES: Record<ScopeViolation, Record<Language, string>> = {
@@ -55,36 +57,50 @@ export const SCOPE_FALLBACK_MESSAGES: Record<ScopeViolation, Record<Language, st
     en: 'In business and market expansion, no advisory firm can ethically guarantee 100% outcomes. However, Inpartner helps minimize risks and maximize your success through structured Market Assessment, Due Diligence, and Strategy & Corporate Advisory—feel free to connect with our team via the link below!',
     id: 'Dalam dunia bisnis, tentu tidak ada pihak yang dapat menjamin hasil 100% secara mutlak. Namun, tim Inpartner siap membantu meminimalkan risiko dan memaksimalkan peluang sukses perusahaan Anda lewat layanan Market Assessment, Due Diligence, serta Strategy & Corporate Advisory—yuk diskusikan rencana bisnis Anda melalui tautan kontak berikut!',
     ko: '비즈니스와 시장 진출에서 결과를 100% 보장할 수는 없지만, Inpartner는 체계적인 시장 평가, 실사(Due Diligence) 및 전략 자문을 통해 리스크를 최소화하고 성공 가능성을 높여 드립니다. 아래 연락처 링크로 편하게 문의해 주세요!',
+    ja: 'ビジネスや市場進出において、成果を100%保証できるアドバイザリー会社はありません。ただしInpartnerは、体系的なMarket Assessment、Due Diligence、Strategy & Corporate Advisoryを通じてリスクを抑え、成功の可能性を高めるお手伝いをします。下記のリンクからお気軽にご相談ください！',
+    zh: '在商业和市场拓展中，没有任何咨询机构能够合乎职业道德地保证100%的结果。不过，Inpartner 可以通过系统的 Market Assessment、Due Diligence 以及 Strategy & Corporate Advisory 帮助您降低风险、提高成功率——欢迎通过下方链接联系我们的团队！',
   },
   legal_tax_advice: {
     en: 'Specific tax calculations and statutory legal filings are handled alongside licensed tax or legal counsel. However, Inpartner is ready to guide your commercial strategy through our Cross-Border Market Entry, Feasibility Studies, and local partner sourcing services—reach out to our team via the contact link below!',
     id: 'Untuk perhitungan pajak spesifik atau pengurusan legalitas teknis, hal tersebut perlu ditangani bersama konsultan pajak/hukum berlisensi. Namun, tim Inpartner siap mendampingi sisi strategis dan komersialnya lewat layanan Cross-Border Market Entry, Feasibility Studies, hingga pencarian mitra lokal—yuk hubungi tim kami melalui tautan kontak berikut!',
     ko: '구체적인 세무 계산이나 법적 등록 절차는 전문 세무·법률 자문과 함께 진행해야 하지만, Inpartner는 해외 시장 진출 전략, 타당성 조사 및 현지 파트너 발굴 자문을 통해 비즈니스 성공을 지원해 드립니다. 아래 연락처 링크로 문의해 주세요!',
+    ja: '具体的な税額計算や法的な届出手続きは、資格を持つ税理士・弁護士と連携して対応する必要があります。一方でInpartnerは、Cross-Border Market Entry、Feasibility Studies、現地パートナー探索を通じて事業戦略面をサポートします。下記の連絡先リンクからチームにお問い合わせください！',
+    zh: '具体的税务计算和法定法律申报需要由持牌税务或法律顾问处理。不过，Inpartner 可以通过 Cross-Border Market Entry、Feasibility Studies 以及本地合作伙伴寻找服务，为您的商业战略提供支持——欢迎通过下方联系链接与我们的团队联系！',
   },
   investment_advice: {
     en: 'I do not provide personal stock, crypto, or retail financial speculation recommendations. However, if your company requires corporate advisory support, Inpartner is ready to assist through our Investment & Project Advisory, Feasibility Studies, and M&A Advisory services—feel free to contact our team via the link below!',
     id: 'Maaf ya, saya tidak melayani rekomendasi jual-beli saham, kripto, atau spekulasi keuangan pribadi. Namun jika perusahaan Anda membutuhkan pendampingan korporasi, tim Inpartner siap membantu lewat layanan Investment & Project Advisory, Feasibility Studies, maupun M&A Advisory—yuk hubungi kami melalui tautan kontak berikut!',
     ko: '개인 주식, 암호화폐 또는 금융 투기 추천은 제공하지 않습니다. 다만 기업 차원의 자문이 필요하시다면 Inpartner의 투자 및 프로젝트 자문(Investment & Project Advisory), 타당성 조사(Feasibility Studies), M&A 자문을 통해 지원해 드릴 수 있으니 아래 연락처 링크로 문의해 주세요!',
+    ja: '個人向けの株式・暗号資産の売買や投機的な金融アドバイスは行っておりません。企業としてのアドバイザリーが必要な場合は、Investment & Project Advisory、Feasibility Studies、M&A Advisoryを通じてInpartnerがサポートいたします。下記のリンクからお気軽にご連絡ください！',
+    zh: '我不提供个人股票、加密货币或投机性理财建议。如果贵公司需要企业层面的咨询支持，Inpartner 可以通过 Investment & Project Advisory、Feasibility Studies 以及 M&A Advisory 服务为您提供帮助——欢迎通过下方链接联系我们的团队！',
   },
   profanity_hate: {
     en: 'Hello! Let us keep our conversation respectful and constructive. If your company needs support with Strategy & Corporate Advisory, market expansion, or distribution partner sourcing, the Inpartner team is always ready to help—please reach out via the contact link below!',
     id: 'Halo! Mari kita berdiskusi dengan nyaman dan santai ya. Jika perusahaan Anda membutuhkan pendampingan seputar Strategy & Corporate Advisory, ekspansi pasar, atau pencarian mitra distribusi, tim Inpartner selalu siap membantu—silakan hubungi kami melalui tautan kontak berikut!',
     ko: '안녕하세요! 원활하고 정중한 대화를 부탁드립니다. 귀사의 기업 전략 자문, 해외 시장 진출 또는 유통 파트너 발굴이 필요하시다면 언제든 아래 연락처 링크를 통해 Inpartner 자문팀에 문의해 주세요!',
+    ja: 'こんにちは！お互いに気持ちよく、建設的な会話を心がけましょう。Strategy & Corporate Advisory、市場拡大、販売パートナー探索についてサポートが必要でしたら、Inpartnerチームがいつでもお手伝いします。下記の連絡先リンクからお問い合わせください！',
+    zh: '您好！让我们保持礼貌、建设性的交流。如果贵公司在 Strategy & Corporate Advisory、市场拓展或分销合作伙伴寻找方面需要支持，Inpartner 团队随时乐意为您服务——请通过下方联系链接与我们联系！',
   },
   injection: {
     en: 'Hello! I operate exclusively as the official Business Consultation Assistant for Inpartner Global. We are ready to support your company’s growth through Strategy & Corporate Advisory, Cross-Border Market Entry, and distribution partner sourcing—please connect with our team via the contact link below!',
     id: 'Halo! Saya tetap beroperasi sebagai Asisten Konsultasi Bisnis resmi dari Inpartner Global. Kami siap mendampingi pertumbuhan perusahaan Anda melalui layanan Strategy & Corporate Advisory, Cross-Border Market Entry, hingga pencarian mitra distribusi—silakan hubungi tim kami lewat tautan kontak berikut ya!',
     ko: '안녕하세요! 저는 Inpartner Global의 공식 비즈니스 컨설팅 어시스턴트로 운영되고 있습니다. 기업 전략 자문, 해외 시장 진출 및 유통 파트너 발굴을 통해 귀사의 성장을 지원해 드리니 아래 연락처 링크로 문의해 주세요!',
+    ja: 'こんにちは！私はInpartner Globalの公式ビジネスコンサルティングアシスタントとしてのみ動作しています。Strategy & Corporate Advisory、Cross-Border Market Entry、販売パートナー探索を通じて貴社の成長をサポートしますので、下記の連絡先リンクからチームにご連絡ください！',
+    zh: '您好！我仅作为 Inpartner Global 的官方商业咨询助手为您服务。我们可以通过 Strategy & Corporate Advisory、Cross-Border Market Entry 以及分销合作伙伴寻找服务支持贵公司的发展——请通过下方联系链接与我们的团队联系！',
   },
   medical: {
     en: FALLBACK_MESSAGES.en,
     id: FALLBACK_MESSAGES.id,
     ko: FALLBACK_MESSAGES.ko,
+    ja: FALLBACK_MESSAGES.ja,
+    zh: FALLBACK_MESSAGES.zh,
   },
   unrelated: {
     en: FALLBACK_MESSAGES.en,
     id: FALLBACK_MESSAGES.id,
     ko: FALLBACK_MESSAGES.ko,
+    ja: FALLBACK_MESSAGES.ja,
+    zh: FALLBACK_MESSAGES.zh,
   },
 };
 
@@ -93,30 +109,46 @@ export const MISSING_ANSWER_MESSAGES: Partial<Record<AnswerType, Record<Language
     en: 'Advisory fees at Inpartner are tailored flexibly to your project scope and the consulting services you need. Our team is ready to assist you with Market Entry, Partner Sourcing, or Strategy & Corporate Advisory—please reach out via the contact link below for a tailored proposal!',
     id: 'Halo! Besaran biaya atau fee konsultasi di Inpartner disesuaikan secara fleksibel dengan ruang lingkup proyek Anda. Tim kami siap mendampingi lewat layanan Market Entry, Distribution Partner Sourcing, maupun Strategy & Corporate Advisory—yuk hubungi kami melalui tautan kontak berikut untuk penawaran terbaik!',
     ko: 'Inpartner의 자문 비용은 프로젝트 범위와 필요한 자문 서비스에 맞춰 유연하게 산정됩니다. 시장 진출, 파트너 발굴, 기업 전략 자문 등 맞춤형 견적은 아래 연락처 링크로 편하게 문의해 주세요!',
+    ja: 'Inpartnerのアドバイザリー費用は、プロジェクトの範囲と必要なサービスに合わせて柔軟に設定しています。Market Entry、Partner Sourcing、Strategy & Corporate Advisoryなど、最適なご提案のために下記の連絡先リンクからお問い合わせください！',
+    zh: 'Inpartner 的咨询费用会根据您的项目范围和所需服务灵活确定。无论是 Market Entry、Partner Sourcing 还是 Strategy & Corporate Advisory，欢迎通过下方联系链接获取量身定制的方案！',
   },
   duration: {
     en: 'Project timelines at Inpartner are tailored to your product readiness, industry complexity, and target market scope. Through our Distribution Partner Sourcing and Cross-Border Market Entry services, our team is ready to accelerate your expansion—please contact us below for a timeline estimate!',
     id: 'Durasi proses pendampingan di Inpartner sangat fleksibel mengikuti kesiapan produk, sektor industri, dan cakupan pasar Anda. Melalui layanan Distribution Partner Sourcing Advisory maupun Cross-Border Market Entry kami, tim Inpartner siap membantu mempercepat ekspansi bisnis Anda—silakan hubungi kami lewat tautan kontak berikut!',
     ko: 'Inpartner의 프로젝트 소요 기간은 제품 준비도와 목표 시장 범위에 따라 맞춤형으로 진행됩니다. 파트너 발굴 및 해외 시장 진출 자문을 통해 신속한 성장을 지원해 드리니 아래 연락처 링크로 문의해 주세요!',
+    ja: 'Inpartnerのプロジェクト期間は、製品の準備状況、業界の複雑さ、対象市場の範囲に応じて調整されます。Distribution Partner SourcingやCross-Border Market Entryを通じて事業拡大を加速するお手伝いをしますので、期間の目安は下記からお問い合わせください！',
+    zh: 'Inpartner 的项目周期会根据您的产品准备情况、行业复杂度和目标市场范围进行调整。通过 Distribution Partner Sourcing 和 Cross-Border Market Entry 服务，我们的团队可以帮助加快您的业务拓展——请通过下方链接咨询时间预估！',
   },
   clients: {
     en: 'Inpartner has delivered 90+ advisory projects for 70+ corporate, private, and state-owned clients and 10+ cross-border clients. While specific client names are kept confidential under NDA, our team would love to support your business through our strategic and partner sourcing services—reach out via the link below!',
     id: 'Inpartner telah menangani 90 proyek konsultasi lebih untuk 70+ klien korporasi, swasta, dan BUMN, serta 10+ klien lintas negara. Nama perusahaan klien dijaga kerahasiaannya (NDA), namun tim kami siap mendampingi pertumbuhan bisnis Anda lewat layanan konsultasi strategis dan pencarian mitra kami—yuk hubungi kami lewat tautan kontak berikut!',
     ko: 'Inpartner는 70개 이상의 기업·민간·국영 고객사 및 10개 이상의 외국계 고객사와 함께 90건 이상의 자문 프로젝트를 수행했습니다. 기밀 유지(NDA)에 따라 고객사명은 비공개이나, 귀사를 위한 맞춤형 전략 및 파트너 발굴 자문을 기꺼이 도와드리겠습니다!',
+    ja: 'Inpartnerは、70社以上の企業・民間・国営企業のクライアントおよび10社以上のクロスボーダークライアントに対し、90件以上のアドバイザリープロジェクトを手がけてきました。クライアント名はNDAにより非公開ですが、戦略およびパートナー探索のサービスで貴社をサポートいたします。下記のリンクからご連絡ください！',
+    zh: 'Inpartner 已为 70 多家企业、民营及国有客户以及 10 多家跨境客户完成了 90 多个咨询项目。根据保密协议（NDA），具体客户名称不予公开，但我们的团队非常乐意通过战略咨询和合作伙伴寻找服务支持您的业务——欢迎通过下方链接联系我们！',
   },
   hours: {
     en: 'Our office is at Pakuwon Tower Unit J 10th Floor, South Jakarta. We would be delighted to assist you with our business consulting and market expansion services—please reach out via the contact link below to schedule a meeting!',
     id: 'Kantor kami berlokasi di Pakuwon Tower Unit J Lantai 10, Jakarta Selatan. Tim Inpartner siap membantu kebutuhan konsultasi bisnis dan ekspansi pasar Anda—silakan hubungi kami melalui tautan kontak berikut untuk menjadwalkan meeting langsung ya!',
     ko: 'Inpartner 사무실은 남부 자카르타 Pakuwon Tower 10층(Unit J)에 위치해 있습니다. 비즈니스 자문 및 시장 진출 상담을 위한 방문 미팅은 아래 연락처 링크를 통해 편하게 예약해 주세요!',
+    ja: '弊社オフィスは南ジャカルタのPakuwon Tower Unit J 10階にあります。ビジネスコンサルティングや市場拡大のご相談を承っておりますので、ミーティングのご予約は下記の連絡先リンクからお願いいたします！',
+    zh: '我们的办公室位于南雅加达 Pakuwon Tower Unit J 10楼。我们很乐意为您提供商业咨询和市场拓展服务——请通过下方联系链接预约会面！',
   },
   office_location: {
     en: 'Inpartner is headquartered at Pakuwon Tower Unit J 10th Floor, Raya Casablanca Street Kav. 88, South Jakarta, with cross-border coverage across Southeast Asia, East Asia, and the Middle East. Our team is ready to support your business expansion—please connect with us via the link below!',
     id: 'Kantor pusat Inpartner berada di Pakuwon Tower Unit J Lantai 10, Jl. Raya Casablanca Kav. 88, Jakarta Selatan, dengan layanan lintas negara di Asia Tenggara, Asia Timur, dan Timur Tengah. Kami siap mendampingi ekspansi dan kemitraan bisnis Anda—yuk hubungi tim kami melalui tautan kontak berikut!',
     ko: 'Inpartner 본사는 남부 자카르타 Pakuwon Tower 10층(Unit J)에 위치하며 동남아, 동아시아, 중동 전역의 크로스보더 자문을 제공합니다. 귀사의 성공적인 시장 진출을 지원해 드릴 준비가 되어 있으니 아래 링크로 문의해 주세요!',
+    ja: 'Inpartnerの本社は南ジャカルタのPakuwon Tower Unit J 10階（Raya Casablanca Street Kav. 88）にあり、東南アジア、東アジア、中東をカバーするクロスボーダー支援を提供しています。貴社の事業拡大をサポートしますので、下記のリンクからお問い合わせください！',
+    zh: 'Inpartner 总部位于南雅加达 Pakuwon Tower Unit J 10楼（Raya Casablanca Street Kav. 88），跨境服务覆盖东南亚、东亚和中东。我们的团队随时准备支持您的业务拓展——请通过下方链接与我们联系！',
   },
 };
 
-const LANGUAGE_NAMES: Record<Language, string> = { en: 'English', id: 'Bahasa Indonesia', ko: 'Korean (한국어)' };
+const LANGUAGE_NAMES: Record<Language, string> = {
+  en: 'English',
+  id: 'Bahasa Indonesia',
+  ko: 'Korean (한국어)',
+  ja: 'Japanese (日本語)',
+  zh: 'Simplified Chinese (简体中文)',
+};
 
 const FEW_SHOTS: Record<Language, string> = {
   en:
@@ -152,6 +184,28 @@ const FEW_SHOTS: Record<Language, string> = {
     'Example 3 (자기소개 / 인사):\n' +
     'User: "너는 누구니?"\n' +
     'Response: {"answer": "안녕하세요! 저는 Inpartner Global의 비즈니스 컨설팅 어시스턴트입니다. 기업 전략 자문, 해외 시장 진출, 전략적 파트너 발굴 등 귀사의 비즈니스 성장을 위한 맞춤형 자문을 제공해 드리고 있으니 무엇이든 물어보세요!", "source_ids": ["S1"], "grounded": true}',
+  ja:
+    'FEW-SHOT EXAMPLES:\n' +
+    'Example 1 (サービスに関するお問い合わせ):\n' +
+    'User: "Inpartnerは海外の販売代理店探しを手伝ってもらえますか？"\n' +
+    'Response: {"answer": "もちろんです！InpartnerはDistribution Partner Sourcing Advisoryを通じて、適切なパートナーの選定、デューデリジェンス、商談の交渉までを体系的にサポートします。貴社の販売網づくりをぜひお手伝いしたいので、目標とする市場をお気軽にお知らせください！", "source_ids": ["S1"], "grounded": true}\n\n' +
+    'Example 2 (サイトにない詳細情報):\n' +
+    'User: "アドバイザリーサービスの料金はいくらですか？"\n' +
+    'Response: {"answer": "具体的な費用は、プロジェクトの範囲と必要なアドバイザリーサービスに合わせてご案内しています。最適なご提案のため、コンサルティングチームまでお気軽にお問い合わせください。", "source_ids": [], "grounded": false}\n\n' +
+    'Example 3 (自己紹介 / あいさつ):\n' +
+    'User: "あなたは誰ですか？"\n' +
+    'Response: {"answer": "こんにちは！私はInpartner Globalのビジネスコンサルティングアシスタントです。Strategy & Corporate Advisory、海外市場進出、パートナー探索など、貴社の成長に向けたアドバイザリーをご提供していますので、何でもお尋ねください！", "source_ids": ["S1"], "grounded": true}',
+  zh:
+    'FEW-SHOT EXAMPLES:\n' +
+    'Example 1 (服务咨询):\n' +
+    'User: "Inpartner 能帮我们寻找海外经销商吗？"\n' +
+    'Response: {"answer": "当然可以！Inpartner 通过 Distribution Partner Sourcing Advisory 服务，系统地协助您筛选合适的合作伙伴、开展尽职调查并支持商务谈判。我们很乐意帮助贵公司搭建分销网络——欢迎告诉我们您的目标市场！", "source_ids": ["S1"], "grounded": true}\n\n' +
+    'Example 2 (网站上没有的具体信息):\n' +
+    'User: "你们的咨询服务收费多少？"\n' +
+    'Response: {"answer": "具体费用会根据项目范围和所需的咨询服务确定。欢迎联系我们的顾问团队，我们将为您推荐最合适的服务和方案。", "source_ids": [], "grounded": false}\n\n' +
+    'Example 3 (自我介绍 / 问候):\n' +
+    'User: "你是谁？"\n' +
+    'Response: {"answer": "您好！我是 Inpartner Global 的商业咨询助手。我们通过 Strategy & Corporate Advisory、海外市场进入以及合作伙伴寻找等服务支持贵公司的业务发展——今天有什么可以帮您的吗？", "source_ids": ["S1"], "grounded": true}',
 };
 
 export const MAX_ANSWER_CHARS = 1500;
@@ -184,7 +238,7 @@ export function buildSystemInstruction(language: Language): string {
     '5. If the SOURCES do not contain enough information to answer, set "grounded" to false, leave "source_ids" empty, and provide a polite, consultative answer explaining that custom requirements or specific inquiries can be discussed directly with the Inpartner team.',
     '6. When grounded, list in "source_ids" only the ids of the sources you actually used (for example ["S1"]).',
     `7. Write "answer" in ${LANGUAGE_NAMES[language]}, using a natural and fluent consultative style. Keep official service titles and proper nouns in their standard form, but translate descriptions, process steps, and industry sectors smoothly without inventing unsupported claims.`,
-    '8. Keep "answer" concise (under 70 words), plain text without markdown links, raw URLs, or HTML. Do not include URLs; links are shown separately.',
+    '8. Keep "answer" concise (under 70 words; for Japanese or Chinese, under 150 characters), plain text without markdown links, raw URLs, or HTML. Do not include URLs; links are shown separately.',
     '   Only write numbers, e-mail addresses or phone numbers that appear verbatim in the SOURCES.',
     '   Do not include any images, markdown images (![]()), photos, audio tags, voice notes, or media. Output consultative plain text only.',
     '9. If something is general context rather than a fact from the sources, say so explicitly (for example "In general, ...").',
