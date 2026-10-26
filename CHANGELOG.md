@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-26
+
 ### Added
 - **Japanese (`ja`) and Simplified Chinese (`zh`)** as the fourth and fifth languages, end to end:
   - Widget: interface strings, switcher entries (日本語, 简体中文), greetings, suggested questions and CJK font/line-breaking rules. Browser tags `ja-*` and every `zh-*` region (including `zh-TW`) start in the matching language.

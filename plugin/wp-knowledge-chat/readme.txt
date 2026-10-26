@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.0.6
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,15 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 
 == Changelog ==
 
+= 1.1.0 =
+* New languages: Japanese (日本語) and Simplified Chinese (简体中文). Visitors can pick them in the chat's language menu, or start in them automatically when their browser is set to Japanese or any Chinese variant (including Traditional). Interface text, greetings, suggested questions, error messages and the consultation form are all translated.
+* Answers in Japanese and Chinese: the AI backend answers in the selected language, finds the right service pages for Japanese and Chinese questions, and applies the same safety rules (no investment, tax/legal or medical advice, no guarantees, prompt-injection and abuse blocking) as in English, Indonesian and Korean.
+* Admin screens translated into Japanese (`ja`) and Simplified Chinese (`zh_CN`). The translation template was regenerated (56 → 149 strings); existing Indonesian and Korean translations are kept.
+* New settings values: Default Language and the greeting fields now include Japanese and Simplified Chinese.
+* Fixed: slow AI responses. The primary and backup AI providers now share one 18-second budget, and WordPress waits 22 seconds (was 20), so a backup answer arrives before WordPress gives up instead of showing an error.
+* Fixed accessibility: stronger error-text contrast (WCAG 1.4.3), the language button's accessible name includes the visible language code (WCAG 2.5.3), and a 36 px language button on mobile.
+* Developer: pinned build tool for the Vercel bundle with a CI check that it matches the source; local end-to-end tests updated and now install Elementor automatically.
+
 = 1.0.6 =
 * Interactive Animations & Micro-Interactions: Added ambient floating launcher button, elastic pop badge entrance, smooth spring scale panel entrance (`cubic-bezier(0.16, 1, 0.3, 1)`), directional message entrance, progressive paragraph reveal for bot answers, glowing wave typing indicator, and staggered suggestions cascade.
 * Widget Layout & A11y Isolation: Isolated screen-reader status announcements (`left: -10000px; user-select: none;`), compacted suggestion container (`max-height: 170px`) with dedicated scrollbar, and enforced automatic scroll anchoring on new messages.
@@ -237,6 +246,9 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 * Initial MVP: chat widget, four admin settings, signed REST proxy to the AI backend, rate limiting, source links, fallback, English and Indonesian interface.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Adds Japanese and Simplified Chinese. The AI backend must run the same release (it already accepts `ja`/`zh` once `main` is deployed); with an older backend, questions in these two languages fail. Purge the page cache after upgrading.
 
 = 1.0.1 =
 Enables native one-click WordPress admin auto-updates directly from GitHub Releases.
