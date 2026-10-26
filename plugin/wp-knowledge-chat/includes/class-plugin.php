@@ -123,7 +123,7 @@ final class Plugin {
 		$html .= '<h3>' . esc_html__( 'Conversation storage', 'wp-knowledge-chat' ) . '</h3>';
 		$html .= '<p>' . esc_html__( 'The conversation is kept only in the visitor\'s browser (session storage) and is cleared when the tab is closed. This site stores short-lived rate-limit counters, aggregate counts of questions and the 25 most recent question snippets, from which e-mail addresses, phone numbers, links and long numbers have been removed.', 'wp-knowledge-chat' ) . '</p>';
 		$html .= '<h3>' . esc_html__( 'Consultation requests', 'wp-knowledge-chat' ) . '</h3>';
-		$html .= '<p>' . esc_html__( 'Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data.', 'wp-knowledge-chat' ) . '</p>';
+		$html .= '<p>' . esc_html__( 'Visitors can optionally send a consultation request. The name, e-mail address, company, job title, function and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data.', 'wp-knowledge-chat' ) . '</p>';
 		return $html;
 	}
 

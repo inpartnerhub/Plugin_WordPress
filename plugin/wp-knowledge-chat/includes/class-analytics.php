@@ -5,7 +5,7 @@
  * Aggregate conversation metrics are kept in one option, with recent question
  * snippets redacted of e-mail addresses, phone numbers, links and long numbers.
  *
- * Leads (name, e-mail, optional company and message that a visitor submits
+ * Leads (name, e-mail, optional company, job title, function and message that a visitor submits
  * voluntarily) are stored as posts of a private, non-public post type so that
  * each lead is an independent row: concurrent submissions cannot overwrite
  * each other, a flood of submissions cannot push older leads out, and every
@@ -51,10 +51,28 @@ final class Analytics {
 
 	/** Maximum characters per lead field. */
 	public const FIELD_LIMITS = array(
-		'name'    => 100,
-		'email'   => 254,
-		'company' => 150,
-		'message' => 2000,
+		'name'      => 100,
+		'email'     => 254,
+		'company'   => 150,
+		'job_title' => 100,
+		'message'   => 2000,
+	);
+
+	/**
+	 * Functions a visitor can pick on the lead form, stored by key. The English
+	 * labels are used in the notification e-mail; see department_label() for
+	 * the translated ones.
+	 */
+	public const DEPARTMENTS = array(
+		'founder'         => 'Owner / Founder',
+		'executive'       => 'C-level / Director',
+		'bizdev'          => 'Business Development / Strategy',
+		'sales_marketing' => 'Sales & Marketing',
+		'finance'         => 'Finance / Investment',
+		'operations'      => 'Operations / Supply Chain',
+		'hr'              => 'Human Resources',
+		'legal'           => 'Legal / Compliance',
+		'other'           => 'Other',
 	);
 
 	/** Identical e-mail + message within this window is treated as a resubmission. */
@@ -249,7 +267,7 @@ final class Analytics {
 	 * so a visitor never has part of their message silently dropped.
 	 *
 	 * @param array<string,mixed> $lead_data Raw fields.
-	 * @return array{name:string,email:string,company:string,message:string}|null
+	 * @return array{name:string,email:string,company:string,job_title:string,department:string,message:string}|null
 	 */
 	public static function clean_lead( array $lead_data ): ?array {
 		$clean = array();
@@ -264,6 +282,9 @@ final class Analytics {
 			$clean[ $field ] = trim( 'message' === $field ? sanitize_textarea_field( $raw ) : sanitize_text_field( $raw ) );
 		}
 		$clean['email'] = sanitize_email( $clean['email'] );
+		// An unknown function is dropped rather than failing the whole request.
+		$department          = $lead_data['department'] ?? '';
+		$clean['department'] = is_string( $department ) && isset( self::DEPARTMENTS[ $department ] ) ? $department : '';
 		if ( '' === $clean['name'] || ! is_email( $clean['email'] ) || self::is_disposable_email( $clean['email'] ) ) {
 			return null;
 		}
@@ -310,7 +331,7 @@ final class Analytics {
 	 * first, so a mail failure never loses it; the mail outcome is recorded on
 	 * the lead and shown on the dashboard.
 	 *
-	 * @param array<string,mixed> $lead_data name, email, company?, message?, language?.
+	 * @param array<string,mixed> $lead_data name, email, company?, job_title?, department?, message?, language?.
 	 * @return bool True when the lead is stored (or was an identical recent resubmission).
 	 */
 	public static function save_lead( array $lead_data ): bool {
@@ -335,7 +356,7 @@ final class Analytics {
 	}
 
 	/**
-	 * @param array{name:string,email:string,company:string,message:string} $lead
+	 * @param array{name:string,email:string,company:string,job_title:string,department:string,message:string} $lead
 	 * @return int Post ID, 0 on failure.
 	 */
 	private static function insert_lead( array $lead, string $language, string $created_gmt ): int {
@@ -351,6 +372,8 @@ final class Analytics {
 					self::META_PREFIX . 'name'        => $lead['name'],
 					self::META_PREFIX . 'email'       => $lead['email'],
 					self::META_PREFIX . 'company'     => $lead['company'],
+					self::META_PREFIX . 'job_title'   => $lead['job_title'],
+					self::META_PREFIX . 'department'  => $lead['department'],
 					self::META_PREFIX . 'message'     => $lead['message'],
 					self::META_PREFIX . 'language'    => $language,
 					self::META_PREFIX . 'fingerprint' => self::fingerprint( $lead['email'], $lead['message'] ),
@@ -363,7 +386,7 @@ final class Analytics {
 	}
 
 	/**
-	 * @param array{name:string,email:string,company:string,message:string} $lead
+	 * @param array{name:string,email:string,company:string,job_title:string,department:string,message:string} $lead
 	 */
 	private static function notify_admin( array $lead ): bool {
 		/**
@@ -378,10 +401,12 @@ final class Analytics {
 		// sanitize_text_field() removed line breaks from the name, so it cannot inject headers.
 		$subject = sprintf( '[Inpartner AI Lead] New inquiry from %s', $lead['name'] );
 		$body    = sprintf(
-			"New consultation inquiry captured by WP Knowledge Chat:\n\nName: %s\nEmail: %s\nCompany: %s\nMessage:\n%s\n\nSubmitted at: %s UTC\n\nAll leads: %s",
+			"New consultation inquiry captured by WP Knowledge Chat:\n\nName: %s\nEmail: %s\nCompany: %s\nJob Title: %s\nFunction: %s\nMessage:\n%s\n\nSubmitted at: %s UTC\n\nAll leads: %s",
 			$lead['name'],
 			$lead['email'],
 			'' !== $lead['company'] ? $lead['company'] : '-',
+			'' !== $lead['job_title'] ? $lead['job_title'] : '-',
+			'' !== $lead['department'] ? self::DEPARTMENTS[ $lead['department'] ] : '-',
 			'' !== $lead['message'] ? $lead['message'] : '-',
 			gmdate( 'Y-m-d H:i:s' ),
 			admin_url( 'admin.php?page=' . Admin_Page::LEADS_SLUG )
@@ -402,7 +427,7 @@ final class Analytics {
 	/**
 	 * Returns stored leads, newest first.
 	 *
-	 * @return array<int,array{id:string,created_at:string,name:string,email:string,company:string,message:string,language:string,mail_status:string}>
+	 * @return array<int,array{id:string,created_at:string,name:string,email:string,company:string,job_title:string,department:string,message:string,language:string,mail_status:string}>
 	 */
 	public static function get_leads( int $limit = self::MAX_LEADS, int $offset = 0 ): array {
 		$posts = get_posts(
@@ -428,6 +453,8 @@ final class Analytics {
 				'name'        => $meta( 'name' ),
 				'email'       => $meta( 'email' ),
 				'company'     => $meta( 'company' ),
+				'job_title'   => $meta( 'job_title' ),
+				'department'  => $meta( 'department' ),
 				'message'     => $meta( 'message' ),
 				'language'    => $meta( 'language' ),
 				'mail_status' => $meta( 'mail_status' ),
@@ -531,10 +558,12 @@ final class Analytics {
 				continue;
 			}
 			$lead = array(
-				'name'    => sanitize_text_field( (string) ( $record['name'] ?? '' ) ),
-				'email'   => sanitize_email( (string) ( $record['email'] ?? '' ) ),
-				'company' => sanitize_text_field( (string) ( $record['company'] ?? '' ) ),
-				'message' => sanitize_textarea_field( (string) ( $record['message'] ?? '' ) ),
+				'name'       => sanitize_text_field( (string) ( $record['name'] ?? '' ) ),
+				'email'      => sanitize_email( (string) ( $record['email'] ?? '' ) ),
+				'company'    => sanitize_text_field( (string) ( $record['company'] ?? '' ) ),
+				'job_title'  => '',
+				'department' => '',
+				'message'    => sanitize_textarea_field( (string) ( $record['message'] ?? '' ) ),
 			);
 			if ( '' === $lead['name'] && '' === $lead['email'] ) {
 				continue;
@@ -561,6 +590,34 @@ final class Analytics {
 	 */
 	public static function reset_metrics(): void {
 		delete_option( self::METRICS_OPTION );
+	}
+
+	/**
+	 * Translated label for a stored function key; '' for an empty or unknown key.
+	 */
+	public static function department_label( string $key ): string {
+		switch ( $key ) {
+			case 'founder':
+				return __( 'Owner / Founder', 'wp-knowledge-chat' );
+			case 'executive':
+				return __( 'C-level / Director', 'wp-knowledge-chat' );
+			case 'bizdev':
+				return __( 'Business Development / Strategy', 'wp-knowledge-chat' );
+			case 'sales_marketing':
+				return __( 'Sales & Marketing', 'wp-knowledge-chat' );
+			case 'finance':
+				return __( 'Finance / Investment', 'wp-knowledge-chat' );
+			case 'operations':
+				return __( 'Operations / Supply Chain', 'wp-knowledge-chat' );
+			case 'hr':
+				return __( 'Human Resources', 'wp-knowledge-chat' );
+			case 'legal':
+				return __( 'Legal / Compliance', 'wp-knowledge-chat' );
+			case 'other':
+				return __( 'Other', 'wp-knowledge-chat' );
+			default:
+				return '';
+		}
 	}
 
 	/**
@@ -591,6 +648,14 @@ final class Analytics {
 					array(
 						'name'  => __( 'Company', 'wp-knowledge-chat' ),
 						'value' => $lead['company'],
+					),
+					array(
+						'name'  => __( 'Job Title', 'wp-knowledge-chat' ),
+						'value' => $lead['job_title'],
+					),
+					array(
+						'name'  => __( 'Function', 'wp-knowledge-chat' ),
+						'value' => self::department_label( $lead['department'] ),
 					),
 					array(
 						'name'  => __( 'Inquiry Message', 'wp-knowledge-chat' ),
@@ -624,7 +689,7 @@ final class Analytics {
 	}
 
 	/**
-	 * @return array<int,array{id:string,created_at:string,name:string,email:string,company:string,message:string,language:string,mail_status:string}>
+	 * @return array<int,array{id:string,created_at:string,name:string,email:string,company:string,job_title:string,department:string,message:string,language:string,mail_status:string}>
 	 */
 	private static function leads_for_email( string $email ): array {
 		$email = strtolower( trim( $email ) );

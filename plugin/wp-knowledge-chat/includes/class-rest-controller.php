@@ -73,10 +73,20 @@ final class Rest_Controller {
 						'required'  => true,
 						'maxLength' => Analytics::FIELD_LIMITS['email'],
 					),
-					'company'  => array(
+					'company'    => array(
 						'type'      => 'string',
 						'required'  => false,
 						'maxLength' => Analytics::FIELD_LIMITS['company'],
+					),
+					'job_title'  => array(
+						'type'      => 'string',
+						'required'  => false,
+						'maxLength' => Analytics::FIELD_LIMITS['job_title'],
+					),
+					'department' => array(
+						'type'     => 'string',
+						'required' => false,
+						'enum'     => array_merge( array( '' ), array_keys( Analytics::DEPARTMENTS ) ),
 					),
 					'message'  => array(
 						'type'      => 'string',
@@ -260,7 +270,7 @@ final class Rest_Controller {
 		}
 
 		$fields = array();
-		foreach ( array( 'name', 'email', 'company', 'message' ) as $field ) {
+		foreach ( array( 'name', 'email', 'company', 'job_title', 'department', 'message' ) as $field ) {
 			$value            = $request->get_param( $field );
 			$fields[ $field ] = is_string( $value ) ? $value : '';
 		}

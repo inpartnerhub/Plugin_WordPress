@@ -52,6 +52,17 @@
 			leadName: 'Your Name',
 			leadEmail: 'Work Email',
 			leadCompany: 'Company (Optional)',
+			leadJobTitle: 'Job Title (Optional)',
+			leadDepartment: 'Function / Department (Optional)',
+			leadDept_founder: 'Owner / Founder',
+			leadDept_executive: 'C-level / Director',
+			leadDept_bizdev: 'Business Development / Strategy',
+			leadDept_sales_marketing: 'Sales & Marketing',
+			leadDept_finance: 'Finance / Investment',
+			leadDept_operations: 'Operations / Supply Chain',
+			leadDept_hr: 'Human Resources',
+			leadDept_legal: 'Legal / Compliance',
+			leadDept_other: 'Other',
 			leadMessage: 'Consultation Inquiry',
 			leadSubmit: 'Send Request',
 			leadCancel: 'Cancel',
@@ -103,6 +114,17 @@
 			leadName: 'Nama Anda',
 			leadEmail: 'Email Kerja',
 			leadCompany: 'Perusahaan (Opsional)',
+			leadJobTitle: 'Jabatan (Opsional)',
+			leadDepartment: 'Fungsi / Departemen (Opsional)',
+			leadDept_founder: 'Pemilik / Pendiri',
+			leadDept_executive: 'Direksi / C-level',
+			leadDept_bizdev: 'Pengembangan Bisnis / Strategi',
+			leadDept_sales_marketing: 'Penjualan & Pemasaran',
+			leadDept_finance: 'Keuangan / Investasi',
+			leadDept_operations: 'Operasional / Rantai Pasok',
+			leadDept_hr: 'Sumber Daya Manusia',
+			leadDept_legal: 'Hukum / Kepatuhan',
+			leadDept_other: 'Lainnya',
 			leadMessage: 'Kebutuhan Konsultasi',
 			leadSubmit: 'Kirim Permintaan',
 			leadCancel: 'Batal',
@@ -154,6 +176,17 @@
 			leadName: '성함',
 			leadEmail: '이메일',
 			leadCompany: '회사명 (선택)',
+			leadJobTitle: '직책 (선택)',
+			leadDepartment: '직무 / 부서 (선택)',
+			leadDept_founder: '대표 / 창업자',
+			leadDept_executive: '임원 (C-level / 이사)',
+			leadDept_bizdev: '사업개발 / 전략',
+			leadDept_sales_marketing: '영업 / 마케팅',
+			leadDept_finance: '재무 / 투자',
+			leadDept_operations: '운영 / 공급망',
+			leadDept_hr: '인사 (HR)',
+			leadDept_legal: '법무 / 컴플라이언스',
+			leadDept_other: '기타',
 			leadMessage: '상담 문의 내용',
 			leadSubmit: '요청 보내기',
 			leadCancel: '취소',
@@ -205,6 +238,17 @@
 			leadName: 'お名前',
 			leadEmail: 'メールアドレス',
 			leadCompany: '会社名（任意）',
+			leadJobTitle: '役職（任意）',
+			leadDepartment: '職種・部門（任意）',
+			leadDept_founder: 'オーナー・創業者',
+			leadDept_executive: '経営層（C-level・取締役）',
+			leadDept_bizdev: '事業開発・経営企画',
+			leadDept_sales_marketing: '営業・マーケティング',
+			leadDept_finance: '財務・投資',
+			leadDept_operations: 'オペレーション・サプライチェーン',
+			leadDept_hr: '人事',
+			leadDept_legal: '法務・コンプライアンス',
+			leadDept_other: 'その他',
 			leadMessage: 'ご相談内容',
 			leadSubmit: 'リクエストを送信',
 			leadCancel: 'キャンセル',
@@ -256,6 +300,17 @@
 			leadName: '姓名',
 			leadEmail: '电子邮箱',
 			leadCompany: '公司名称（选填）',
+			leadJobTitle: '职位（选填）',
+			leadDepartment: '职能 / 部门（选填）',
+			leadDept_founder: '所有者 / 创始人',
+			leadDept_executive: '高管（C-level / 董事）',
+			leadDept_bizdev: '业务拓展 / 战略',
+			leadDept_sales_marketing: '销售与市场',
+			leadDept_finance: '财务 / 投资',
+			leadDept_operations: '运营 / 供应链',
+			leadDept_hr: '人力资源',
+			leadDept_legal: '法务 / 合规',
+			leadDept_other: '其他',
 			leadMessage: '咨询内容',
 			leadSubmit: '提交申请',
 			leadCancel: '取消',
@@ -664,7 +719,9 @@
 		}
 
 		var leadFormCount = 0;
-		var LEAD_LIMITS = { name: 100, email: 254, company: 150, message: 2000 };
+		var LEAD_LIMITS = { name: 100, email: 254, company: 150, job_title: 100, message: 2000 };
+		/** Function keys stored with the lead; the labels come from the active language. */
+		var LEAD_DEPARTMENTS = ['founder', 'executive', 'bizdev', 'sales_marketing', 'finance', 'operations', 'hr', 'legal', 'other'];
 
 		function renderLeadForm(parentItem, prefill) {
 			if (parentItem.querySelector('.wkc-lead-card')) return;
@@ -691,6 +748,22 @@
 			var nameInput = field('name', 'input', { type: 'text', class: 'wkc-lead-input', autocomplete: 'name', required: 'required' }, 'leadName');
 			var emailInput = field('email', 'input', { type: 'email', class: 'wkc-lead-input', autocomplete: 'email', required: 'required' }, 'leadEmail');
 			var compInput = field('company', 'input', { type: 'text', class: 'wkc-lead-input', autocomplete: 'organization' }, 'leadCompany');
+			var titleInput = field('job_title', 'input', { type: 'text', class: 'wkc-lead-input', autocomplete: 'organization-title' }, 'leadJobTitle');
+
+			var deptId = uid + '-department';
+			var deptWrap = el('div', { class: 'wkc-lead-field' });
+			deptWrap.appendChild(el('label', { class: 'wkc-sr-only', for: deptId, 'data-label-key': 'leadDepartment' }, t.leadDepartment));
+			var deptSelect = el('select', { id: deptId, name: 'department', class: 'wkc-lead-input wkc-lead-select wkc-lead-select--empty' });
+			deptSelect.appendChild(el('option', { value: '', 'data-label-key': 'leadDepartment' }, t.leadDepartment));
+			LEAD_DEPARTMENTS.forEach(function (key) {
+				deptSelect.appendChild(el('option', { value: key, 'data-label-key': 'leadDept_' + key }, t['leadDept_' + key]));
+			});
+			deptSelect.addEventListener('change', function () {
+				deptSelect.classList.toggle('wkc-lead-select--empty', deptSelect.value === '');
+			});
+			deptWrap.appendChild(deptSelect);
+			card.appendChild(deptWrap);
+
 			var msgInput = field('message', 'textarea', { class: 'wkc-lead-textarea', rows: '2' }, 'leadMessage');
 			if (prefill) msgInput.value = String(prefill).slice(0, LEAD_LIMITS.message);
 
@@ -733,6 +806,8 @@
 						name: nameVal,
 						email: emailVal,
 						company: compInput.value.trim(),
+						job_title: titleInput.value.trim(),
+						department: deptSelect.value,
 						message: msgInput.value.trim(),
 						language: lang,
 						website: trap.value
@@ -990,7 +1065,7 @@
 				if (cardSub) cardSub.textContent = t.leadSubmit;
 				var cardCan = card.querySelector('.wkc-lead-cancel');
 				if (cardCan) cardCan.textContent = t.leadCancel;
-				Array.prototype.forEach.call(card.querySelectorAll('label[data-label-key]'), function (l) {
+				Array.prototype.forEach.call(card.querySelectorAll('label[data-label-key], option[data-label-key]'), function (l) {
 					var k = l.getAttribute('data-label-key');
 					if (k && t[k]) l.textContent = t[k];
 				});

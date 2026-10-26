@@ -620,7 +620,7 @@ msgid "Consultation requests"
 msgstr ""
 
 #: includes/class-plugin.php:126
-msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgid "Visitors can optionally send a consultation request. The name, e-mail address, company, job title, function and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
 msgstr ""
 
 #: includes/class-plugin.php:149
@@ -666,4 +666,52 @@ msgstr ""
 #: includes/class-settings.php:279
 #, php-format
 msgid "Contact URL must be a valid WhatsApp number, email address, or an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
+msgstr ""
+
+#: includes/class-admin-page.php
+msgid "Job Title / Function"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Job Title"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Function"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Owner / Founder"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "C-level / Director"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Business Development / Strategy"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Sales & Marketing"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Finance / Investment"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Operations / Supply Chain"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Human Resources"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Legal / Compliance"
+msgstr ""
+
+#: includes/class-analytics.php
+msgid "Other"
 msgstr ""

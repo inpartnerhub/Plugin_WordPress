@@ -649,6 +649,7 @@ final class Admin_Page {
 						<th scope="col" class="wkc-w-150"><?php esc_html_e( 'Name', 'wp-knowledge-chat' ); ?></th>
 						<th scope="col" class="wkc-w-190"><?php esc_html_e( 'Email', 'wp-knowledge-chat' ); ?></th>
 						<th scope="col" class="wkc-w-150"><?php esc_html_e( 'Company', 'wp-knowledge-chat' ); ?></th>
+						<th scope="col" class="wkc-w-150"><?php esc_html_e( 'Job Title / Function', 'wp-knowledge-chat' ); ?></th>
 						<th scope="col"><?php esc_html_e( 'Inquiry Message', 'wp-knowledge-chat' ); ?></th>
 						<th scope="col" class="wkc-w-110"><?php esc_html_e( 'Notification', 'wp-knowledge-chat' ); ?></th>
 						<th scope="col" class="wkc-w-90"><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'wp-knowledge-chat' ); ?></span></th>
@@ -657,7 +658,7 @@ final class Admin_Page {
 				<tbody>
 					<?php if ( empty( $leads ) ) : ?>
 						<tr>
-							<td colspan="7"><?php esc_html_e( 'No leads captured yet. Prospective clients who request consultation via the chat widget will appear here.', 'wp-knowledge-chat' ); ?></td>
+							<td colspan="8"><?php esc_html_e( 'No leads captured yet. Prospective clients who request consultation via the chat widget will appear here.', 'wp-knowledge-chat' ); ?></td>
 						</tr>
 					<?php else : ?>
 						<?php foreach ( $leads as $lead ) : ?>
@@ -666,6 +667,7 @@ final class Admin_Page {
 								<td><strong><?php echo esc_html( $lead['name'] ); ?></strong></td>
 								<td><a href="<?php echo esc_url( 'mailto:' . $lead['email'] ); ?>"><?php echo esc_html( $lead['email'] ); ?></a></td>
 								<td><?php echo esc_html( $lead['company'] ?: '—' ); ?></td>
+								<td><?php echo esc_html( implode( ' · ', array_filter( array( $lead['job_title'], Analytics::department_label( $lead['department'] ) ) ) ) ?: '—' ); ?></td>
 								<td><?php echo esc_html( $lead['message'] ?: '—' ); ?></td>
 								<td><?php echo esc_html( self::mail_status_label( $lead['mail_status'] ) ); ?></td>
 								<td><?php $this->leads_button( 'delete', __( 'Delete', 'wp-knowledge-chat' ), 'button-link button-link-delete', __( 'Permanently delete this lead?', 'wp-knowledge-chat' ), (int) $lead['id'] ); ?></td>
@@ -826,11 +828,11 @@ final class Admin_Page {
 	 */
 	public static function leads_csv(): string {
 		$handle = fopen( 'php://temp', 'r+' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
-		fputcsv( $handle, array( 'created_at_utc', 'name', 'email', 'company', 'message', 'language', 'notification' ), ',', '"', '' );
+		fputcsv( $handle, array( 'created_at_utc', 'name', 'email', 'company', 'job_title', 'department', 'message', 'language', 'notification' ), ',', '"', '' );
 		foreach ( Analytics::get_leads( 100000 ) as $lead ) {
 			fputcsv(
 				$handle,
-				array_map( array( self::class, 'csv_cell' ), array( $lead['created_at'], $lead['name'], $lead['email'], $lead['company'], $lead['message'], $lead['language'], $lead['mail_status'] ) ),
+				array_map( array( self::class, 'csv_cell' ), array( $lead['created_at'], $lead['name'], $lead['email'], $lead['company'], $lead['job_title'], $lead['department'], $lead['message'], $lead['language'], $lead['mail_status'] ) ),
 				',',
 				'"',
 				''

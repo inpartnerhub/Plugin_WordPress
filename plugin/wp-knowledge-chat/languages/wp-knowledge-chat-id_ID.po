@@ -600,8 +600,8 @@ msgid "Consultation requests"
 msgstr "Permintaan konsultasi"
 
 #: includes/class-plugin.php:126
-msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
-msgstr "Pengunjung dapat secara opsional mengirim permintaan konsultasi. Nama, alamat e-mail, perusahaan, dan pesan yang mereka isi disimpan di situs ini dan dikirim lewat e-mail ke administrator situs. Alamat IP tidak disimpan. Permintaan disimpan sampai administrator menghapusnya, atau selama masa retensi yang ditetapkan pemilik situs, dan dapat diekspor atau dihapus melalui Alat → Ekspor Data Pribadi dan Hapus Data Pribadi."
+msgid "Visitors can optionally send a consultation request. The name, e-mail address, company, job title, function and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgstr "Pengunjung dapat secara opsional mengirim permintaan konsultasi. Nama, alamat e-mail, perusahaan, jabatan, fungsi, dan pesan yang mereka isi disimpan di situs ini dan dikirim lewat e-mail ke administrator situs. Alamat IP tidak disimpan. Permintaan disimpan sampai administrator menghapusnya, atau selama masa retensi yang ditetapkan pemilik situs, dan dapat diekspor atau dihapus melalui Alat → Ekspor Data Pribadi dan Hapus Data Pribadi."
 
 #: includes/class-plugin.php:149
 msgid "Every Four Minutes"
@@ -660,3 +660,51 @@ msgstr ""
 #, php-format
 #~ msgid "Contact URL must be an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
 #~ msgstr "URL Kontak harus berupa URL https:// absolut pada domain yang disetujui (%s), tanpa kredensial atau port khusus."
+
+#: includes/class-admin-page.php
+msgid "Job Title / Function"
+msgstr "Jabatan / Fungsi"
+
+#: includes/class-analytics.php
+msgid "Job Title"
+msgstr "Jabatan"
+
+#: includes/class-analytics.php
+msgid "Function"
+msgstr "Fungsi"
+
+#: includes/class-analytics.php
+msgid "Owner / Founder"
+msgstr "Pemilik / Pendiri"
+
+#: includes/class-analytics.php
+msgid "C-level / Director"
+msgstr "Direksi / C-level"
+
+#: includes/class-analytics.php
+msgid "Business Development / Strategy"
+msgstr "Pengembangan Bisnis / Strategi"
+
+#: includes/class-analytics.php
+msgid "Sales & Marketing"
+msgstr "Penjualan & Pemasaran"
+
+#: includes/class-analytics.php
+msgid "Finance / Investment"
+msgstr "Keuangan / Investasi"
+
+#: includes/class-analytics.php
+msgid "Operations / Supply Chain"
+msgstr "Operasional / Rantai Pasok"
+
+#: includes/class-analytics.php
+msgid "Human Resources"
+msgstr "Sumber Daya Manusia"
+
+#: includes/class-analytics.php
+msgid "Legal / Compliance"
+msgstr "Hukum / Kepatuhan"
+
+#: includes/class-analytics.php
+msgid "Other"
+msgstr "Lainnya"
