@@ -390,6 +390,20 @@ final class AnalyticsAndLeadTest extends TestCase {
 		$this->assertStringContainsString( 'CTO · Sales &amp; Marketing', $html );
 	}
 
+	public function test_leads_page_collapses_long_messages(): void {
+		Analytics::save_lead( $this->valid_lead( array( 'message' => 'Short note' ) ) );
+		Analytics::save_lead( $this->valid_lead( array( 'email' => 'long@example.com', 'message' => str_repeat( 'testing ', 60 ) . 'END' ) ) );
+		wp_set_current_user( $this->user_id( 'admin' ) );
+		ob_start();
+		( new Admin_Page() )->render_leads_page();
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'wkc-table-scroll', $html );
+		$this->assertSame( 1, substr_count( $html, '<details class="wkc-lead-msg">' ), 'only the long message is collapsed' );
+		$this->assertStringContainsString( '<div class="wkc-lead-msg">Short note</div>', $html );
+		$this->assertStringContainsString( 'END</div>', $html, 'the full text stays in the page' );
+	}
+
 	public function test_csv_export_neutralises_formulas(): void {
 		Analytics::save_lead( $this->valid_lead( array( 'company' => '=HYPERLINK("http://evil.test")', 'message' => '+cmd' ) ) );
 		$csv = Admin_Page::leads_csv();

@@ -662,8 +662,8 @@ msgstr ""
 #~ msgstr "문의 URL은 승인된 도메인(%s)의 절대 https:// URL이어야 하며, 자격 증명이나 사용자 지정 포트를 포함할 수 없습니다."
 
 #: includes/class-admin-page.php
-msgid "Job Title / Function"
-msgstr "직책 / 직무"
+msgid "Company / Role"
+msgstr "회사 / 직책"
 
 #: includes/class-analytics.php
 msgid "Job Title"
@@ -708,3 +708,15 @@ msgstr "법무 / 컴플라이언스"
 #: includes/class-analytics.php
 msgid "Other"
 msgstr "기타"
+
+#: includes/class-admin-page.php
+msgid "Contact details"
+msgstr "연락처 정보"
+
+#: includes/class-admin-page.php
+msgid "Show more"
+msgstr "더 보기"
+
+#: includes/class-admin-page.php
+msgid "Show less"
+msgstr "접기"

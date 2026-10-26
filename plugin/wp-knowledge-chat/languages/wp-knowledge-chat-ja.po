@@ -671,8 +671,8 @@ msgid "Contact URL must be a valid WhatsApp number, email address, or an absolut
 msgstr "連絡先URLは、有効なWhatsApp番号、メールアドレス、または承認済みドメイン（%s）上の絶対 https:// URL にしてください。認証情報やカスタムポートは使用できません。"
 
 #: includes/class-admin-page.php
-msgid "Job Title / Function"
-msgstr "役職 / 職種"
+msgid "Company / Role"
+msgstr "会社 / 役職"
 
 #: includes/class-analytics.php
 msgid "Job Title"
@@ -717,3 +717,15 @@ msgstr "法務・コンプライアンス"
 #: includes/class-analytics.php
 msgid "Other"
 msgstr "その他"
+
+#: includes/class-admin-page.php
+msgid "Contact details"
+msgstr "連絡先"
+
+#: includes/class-admin-page.php
+msgid "Show more"
+msgstr "もっと見る"
+
+#: includes/class-admin-page.php
+msgid "Show less"
+msgstr "閉じる"

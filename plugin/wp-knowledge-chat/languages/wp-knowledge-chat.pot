@@ -669,7 +669,7 @@ msgid "Contact URL must be a valid WhatsApp number, email address, or an absolut
 msgstr ""
 
 #: includes/class-admin-page.php
-msgid "Job Title / Function"
+msgid "Company / Role"
 msgstr ""
 
 #: includes/class-analytics.php
@@ -714,4 +714,16 @@ msgstr ""
 
 #: includes/class-analytics.php
 msgid "Other"
+msgstr ""
+
+#: includes/class-admin-page.php
+msgid "Contact details"
+msgstr ""
+
+#: includes/class-admin-page.php
+msgid "Show more"
+msgstr ""
+
+#: includes/class-admin-page.php
+msgid "Show less"
 msgstr ""

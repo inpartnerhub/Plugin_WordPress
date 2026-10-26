@@ -98,6 +98,28 @@
 .wkc-w-160 { width: 160px; }
 .wkc-w-190 { width: 190px; }
 
+/* Leads Table: scrolls sideways on narrow screens instead of squeezing the message column */
+.wkc-table-scroll { overflow-x: auto; }
+.wkc-leads-table { min-width: 760px; }
+.wkc-leads-table td { vertical-align: top; overflow-wrap: anywhere; }
+.wkc-leads-table .wkc-col-date { width: 100px; }
+.wkc-leads-table .wkc-col-contact { width: 19%; }
+.wkc-leads-table .wkc-col-company { width: 18%; }
+.wkc-leads-table .wkc-col-status { width: 90px; }
+.wkc-leads-table .wkc-col-action { width: 60px; }
+.wkc-sub { display: block; margin-top: 2px; color: #646970; font-size: 12px; }
+a.wkc-sub { color: #2271b1; }
+div.wkc-lead-msg,
+.wkc-msg-full { white-space: pre-line; }
+.wkc-lead-msg summary { cursor: pointer; list-style: none; }
+.wkc-lead-msg summary::-webkit-details-marker { display: none; }
+.wkc-msg-toggle { display: block; margin-top: 4px; color: #2271b1; font-size: 12px; }
+.wkc-lead-msg summary:hover .wkc-msg-toggle,
+.wkc-lead-msg summary:focus-visible .wkc-msg-toggle { text-decoration: underline; }
+.wkc-lead-msg:not([open]) .wkc-less,
+.wkc-lead-msg[open] .wkc-more,
+.wkc-lead-msg[open] .wkc-msg-preview { display: none; }
+
 /* Status Colors */
 .wkc-good { color: #008a20; }
 .wkc-bad { color: #d63638; }
