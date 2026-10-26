@@ -4,7 +4,7 @@ Tags: chatbot, faq, ai assistant, knowledge base, gemini
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,10 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 
 == Changelog ==
 
+= 1.2.1 =
+* Tidier consultation leads table on Analytics & Leads: six columns instead of eight (Date, Contact details, Company / Role, Inquiry Message, Notification, Delete). The name and e-mail share one column, and the company, job title and function share another.
+* The inquiry message gets the most room. Messages longer than 160 characters show a preview with "Show more", long words no longer stretch the table, and on small screens the table scrolls sideways instead of squeezing the text.
+
 = 1.2.0 =
 * The consultation form now asks for the visitor's job title and function. Both fields are optional: Job Title is free text, and Function / Department is a dropdown (Owner / Founder, C-level / Director, Business Development / Strategy, Sales & Marketing, Finance / Investment, Operations / Supply Chain, Human Resources, Legal / Compliance, Other). The form is translated into all five chat languages.
 * The new fields appear in the lead notification e-mail, on Analytics & Leads (new "Job Title / Function" column), in the CSV export (`job_title` and `department` columns) and in the WordPress personal-data export. Leads received before this version show these fields as empty.
@@ -255,6 +259,9 @@ Deactivating keeps the settings, leads and metrics. Deleting the plugin from the
 * Initial MVP: chat widget, four admin settings, signed REST proxy to the AI backend, rate limiting, source links, fallback, English and Indonesian interface.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Admin-only layout fix for the leads table. Stored leads and the CSV export are unchanged.
 
 = 1.2.0 =
 Adds optional Job Title and Function fields to the consultation form. The CSV export gains two columns (`job_title`, `department`) after `company`, so update any spreadsheet that reads columns by position. Widget and WordPress only; no backend update needed. Purge the page cache after upgrading.
