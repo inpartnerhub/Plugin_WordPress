@@ -7,7 +7,7 @@
 **Inpartner AI Business Consultation Assistant**: A production-hardened WordPress plugin and lightweight Node.js AI backend designed to provide grounded, source-attributed business consultation answers from the authoritative public content of [inpartnerglobal.com](https://inpartnerglobal.com) using Retrieval-Augmented Generation (RAG).
 
 <p align="center">
-  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v1.1.0"><img src="https://img.shields.io/badge/Release-v1.1.0-0076db?style=for-the-badge&logo=github&logoColor=white" alt="Version 1.1.0"></a>
+  <a href="https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v1.1.1"><img src="https://img.shields.io/badge/Release-v1.1.1-0076db?style=for-the-badge&logo=github&logoColor=white" alt="Version 1.1.1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--2.0--or--later-blue?style=for-the-badge" alt="License"></a>
   <img src="https://img.shields.io/badge/WordPress-6.4%2B%20(tested%207.1.3)-21759b?style=for-the-badge&logo=wordpress&logoColor=white" alt="WordPress">
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777bb4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
@@ -26,8 +26,8 @@
 ---
 
 > [!IMPORTANT]
-> **Release Status:** Current stable release is **[v1.1.0](https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v1.1.0)**.
-> All automated tests pass: **152/152 backend unit tests**, **139/139 WordPress PHPUnit tests (742 assertions)**, **41/41 widget unit tests**, **12/12 HTTP and 16/16 real-browser E2E checks with 0 axe-core WCAG 2.1 AA violations**, and **0 PHPCS coding standard findings**.
+> **Release Status:** Current stable release is **[v1.1.1](https://github.com/inpartnerhub/Plugin_WordPress/releases/tag/v1.1.1)**.
+> All automated tests pass: **152/152 backend unit tests**, **139/139 WordPress PHPUnit tests (742 assertions)**, **43/43 widget unit tests**, **12/12 HTTP and 16/16 real-browser E2E checks with 0 axe-core WCAG 2.1 AA violations**, and **0 PHPCS coding standard findings**.
 
 ---
 
@@ -199,12 +199,12 @@ All tests can be executed locally with a single command:
 ./scripts/test-all.sh
 ```
 
-### Verified Test Results (Release v1.1.0)
+### Verified Test Results (Release v1.1.1)
 
 | Test Suite | Command | Result | Details |
 |---|---|:---:|---|
 | **Backend Unit & Integration** | `npm --prefix backend test` | ✅ **152 / 152 Pass** | Dual provider, shared failover deadline, PII, auth, limits, ja/zh guardrails |
-| **Widget DOM & Behavior** | `npm --prefix plugin/wp-knowledge-chat/tests run test:widget` | ✅ **41 / 41 Pass** | Widget lifecycle, safe rendering, five-language switcher |
+| **Widget DOM & Behavior** | `npm --prefix plugin/wp-knowledge-chat/tests run test:widget` | ✅ **43 / 43 Pass** | Widget lifecycle, safe rendering, five-language switcher, consultation trigger |
 | **WordPress Plugin PHPUnit** | `vendor/bin/phpunit` (in tests) | ✅ **139 / 139 Pass** | 742 assertions across Settings, REST, Admin, Leads |
 | **PHP Coding Standards (PHPCS)**| `vendor/bin/phpcs` (in tests) | ✅ **100% Clean** | 0 errors, 0 warnings across all PHP files |
 | **E2E Real Browser (Chrome)** | `./plugin/wp-knowledge-chat/tests/e2e/run.sh` | ✅ **16 / 16 Pass** | Computed styles, touch targets, grounded answer flow |
