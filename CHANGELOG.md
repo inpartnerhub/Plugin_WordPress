@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-26
+
 ### Changed
 - **Tidier leads table on Analytics & Leads.** Six columns instead of eight: Date (date over time), Contact details (name over e-mail), Company / Role (company over job title · function), Inquiry Message, Notification and the delete action. The message column gets the free width, long words and e-mail addresses wrap instead of stretching columns, messages over 160 characters collapse behind "Show more", and on narrow screens the table scrolls sideways instead of squeezing the message to one word per line.
 
