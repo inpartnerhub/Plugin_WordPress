@@ -1,26 +1,40 @@
 # Deployment
 
-> Nothing in this repository has been deployed. Production (inpartnerglobal.com) was not modified; it was only read through public GET requests to build the knowledge base. Every step below needs explicit authorisation from the site owner, and **staging comes first**. Production changes, releases and secret rotation need a separate, explicit approval.
+> The plugin runs on the Inpartner WordPress site, and the backend is set up for **Vercel** (Singapore) with **Netlify** as an alternative. Every production change (deploys, releases, secret rotation, knowledge-base updates) still needs the site owner's approval, and **staging comes first** whenever one is available.
 
+## Overview
 
-## Netlify environment setup
+| Part | Where it runs | How it is updated |
+|---|---|---|
+| WordPress plugin | the Inpartner WordPress site (shared hosting, PHP 8.1+) | *Dashboard → Updates*, from GitHub Releases ([Releases](#8-releasing-and-updating-the-plugin)) |
+| AI backend | Vercel functions in `sin1` (`backend/vercel.json`), or Netlify Functions (`netlify.toml`), or one Node.js process | redeploy from `main`; the knowledge base ships as `backend/data/kb.json` |
+| Secrets | backend environment variables + `wp-config.php` constants | rotated together ([Rollback](#6-rollback)) |
 
-In Netlify: *Site configuration → Environment variables*. Never commit these values; the build's secrets scan is already configured for the public ones (see `netlify.toml`).
+## Vercel environment setup
+
+Project root: `backend/`. The committed bundles in `backend/api/*.js` are the functions; `vercel.json` routes `/api/chat`, `/api/health`, `/api/index` and the rest, includes `data/kb.json` in every function, and pins the region to `sin1` (Singapore, close to the Indonesian WordPress host). After changing anything in `backend/src/` or `backend/data/`, run `npm run build:vercel` and commit `backend/api/`; CI fails when the bundles are stale.
+
+In Vercel: *Project → Settings → Environment Variables* (Production). Never commit these values.
 
 | Variable | Value |
 |---|---|
-| `LLM_PROVIDER` | `openrouter`, `gemini`, or omit to auto-select (`openrouter` if OpenRouter key is set, `gemini` if Gemini key is set, or auto-failover if both are present). |
-| `OPENROUTER_API_KEY` | Server-side API key from OpenRouter.ai (when using OpenRouter or Failover). |
-| `OPENROUTER_MODEL` | Default model: `deepseek/deepseek-chat` (or another provider model ID). |
-| `OPENROUTER_FALLBACK_MODELS` | Comma-separated fallback models (up to 4) for OpenRouter internal failover. |
-| `GEMINI_API_KEY` | Server-side key from Google AI Studio. Put a spending cap on the key. |
+| `LLM_PROVIDER` | `openrouter` or `gemini`: the primary provider. With both keys set, the other one is the automatic failover. |
+| `OPENROUTER_API_KEY` | OpenRouter key (when OpenRouter is primary or the failover). |
+| `OPENROUTER_MODEL` / `OPENROUTER_FALLBACK_MODELS` | Default `deepseek/deepseek-chat`; up to 4 fallback model ids. |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | Google AI Studio key (put a spending cap on it); default model `gemini-2.5-flash`. |
 | `CHAT_SHARED_SECRET` | 32+ random characters (`cd backend && npm run secret`). Same value as `WP_KNOWLEDGE_CHAT_SHARED_SECRET` in `wp-config.php`. |
-| `INDEX_API_TOKEN` | Optional on Netlify: `/api/index` returns 501 there. The KB changes by deploying `backend/data/kb.json`. |
+| `INDEX_API_TOKEN` | 32+ characters, different from the chat secret. Required by config validation; `/api/index` itself returns 501 on Vercel. |
 | `DAILY_REQUEST_LIMIT` | Daily model-call budget, from the owner's monthly budget. |
 
-Then **Deploys → Trigger deploy**, set the two constants in `wp-config.php` (`WP_KNOWLEDGE_CHAT_BACKEND_URL`, `WP_KNOWLEDGE_CHAT_SHARED_SECRET`), click **Test connection** in WordPress, and ask one question (for example "What is Inpartner's vision?"). The answer should quote the vision from the profile.
+Deploy, then set the two constants in `wp-config.php` (`WP_KNOWLEDGE_CHAT_BACKEND_URL` = the Vercel URL, `WP_KNOWLEDGE_CHAT_SHARED_SECRET`), click **Test connection** in WordPress, and ask one question (for example "What is Inpartner's vision?").
 
-## Deployed backend (Netlify), checked 2026-10-16
+Cold starts: WordPress sends a signed `GET /api/health` every 4 minutes through WP-Cron (`wkc_keep_warm_backend`) so the function stays warm. WP-Cron runs on page visits; on a quiet site, a real cron job calling `wp-cron.php` keeps it regular.
+
+## Netlify environment setup
+
+`netlify.toml` builds `backend/` and publishes the functions from `backend/dist/src/netlify`, with `kb.json` included. In Netlify: *Site configuration → Environment variables*, the same variables as for Vercel. `/api/index` returns 501 there too. Then **Deploys → Trigger deploy** and the same WordPress steps as above.
+
+## Netlify deployment check (2026-10-16 snapshot)
 
 The backend runs on Netlify Functions at `https://inpartner-chat-api.netlify.app`. Checked from outside, without secrets:
 
@@ -36,7 +50,7 @@ The backend runs on Netlify Functions at `https://inpartner-chat-api.netlify.app
 
 **Not checked (needs `CHAT_SHARED_SECRET`):** that the shared secret matches WordPress, that the deployed `GEMINI_API_KEY` is valid, and which `kb.json` version is deployed. Use **Test connection** in WordPress, then one real question.
 
-**Known limit of Netlify:** rate limits, the daily model-call budget and the replay cache are per function instance, so the effective limits are higher than configured and a restart resets them. Set a spending cap on the Gemini key itself. See *Scaling decision* above.
+**Known limit of serverless hosts (Vercel and Netlify):** rate limits, the daily model-call budget, the replay cache and the response cache are per function instance, so the effective limits are higher than configured and a cold start resets them. Set a spending cap on the provider keys themselves. See [Scaling decision](#scaling-decision).
 
 ## Status legend
 
@@ -49,13 +63,13 @@ The backend runs on Netlify Functions at `https://inpartner-chat-api.netlify.app
 
 ## Prerequisites
 
-| Item | Needed for | Status |
-|---|---|---|
-| Gemini API key (Google AI Studio / Cloud) with billing alerts and quota limits | backend | **B**: not provided |
-| A host that runs Node.js ≥ 20.11 with HTTPS (for example Cloud Run with max instances = 1, Render, Railway, Fly.io, or a small VPS behind Caddy/Nginx) | backend | **B**: not chosen |
-| Staging copy of the WordPress site (same theme, plugins, LiteSpeed Cache, MySQL 8.0) | plugin acceptance | **B**: not available |
-| Write access to `wp-config.php` on staging/production | plugin config | owner action |
-| Answers to the open content questions (phone number, contact page, language scope, monthly budget) | config, KB | **B**: see [test-report.md](test-report.md#open-questions-for-inpartner-prd-17) |
+| Item | Needed for |
+|---|---|
+| Gemini and/or OpenRouter API key, with billing alerts and spending caps | backend |
+| Vercel or Netlify project (or a host that runs Node.js ≥ 20.11 with HTTPS, for example Cloud Run with max instances = 1, Render, Railway, Fly.io or a small VPS behind Caddy/Nginx) | backend |
+| A staging copy of the WordPress site (same theme, plugins, LiteSpeed Cache, MySQL 8.0), when available | plugin acceptance |
+| Write access to `wp-config.php` on staging/production | plugin config |
+| Owner decisions on open content questions (phone number, contact page, budget) | config, knowledge base; see [site-content-request.md](site-content-request.md) |
 
 The WordPress host only needs outbound HTTPS from PHP to the backend (`wp_remote_post`). No Node.js, SSH, cron workers or Docker are needed there.
 
@@ -66,11 +80,11 @@ The backend keeps rate-limit counters, the daily model-call budget and the signa
 - with two instances, each enforces its own limits (effective limits double) and a captured request could be replayed once against the other instance inside the 5-minute window;
 - a restart resets the counters and the daily budget.
 
-**Serverless (Netlify Functions) is not equivalent.** Every function instance has its own memory and `/tmp`, so the limits above are per instance. Since 0.2.1, `/api/index` returns **501** there, because an update would reach only one instance and vanish on cold start. Update the knowledge base by committing `data/kb.json` and redeploying. Use Netlify only after accepting per-instance limits, or after adding shared state.
+**Serverless (Vercel, Netlify Functions) is not equivalent.** Every function instance has its own memory and `/tmp`, so the limits above are per instance. `/api/index` returns **501** there, because an update would reach only one instance and vanish on cold start. Update the knowledge base by committing `data/kb.json` (and, for Vercel, the rebuilt `backend/api/`) and redeploying. The current setup accepts per-instance limits and relies on provider spending caps; add shared state if that stops being acceptable.
 
 Expected MVP traffic (well under the 60 requests/minute global limit) fits one small instance, so **single-instance mode is the supported deployment** and no Redis or database was added. Configure the platform accordingly (for example Cloud Run `--max-instances=1`, one Render/Railway instance, one systemd service). Move these three stores to a shared store (Redis with `INCR`/`EXPIRE` and `SET NX EX`) only if traffic or availability requirements make a second instance necessary; that is an infrastructure decision for the system administrator.
 
-## 1. Deploy the backend over HTTPS (staging)
+## 1. Deploy the backend as a Node.js process (VPS / container)
 
 ```bash
 cd backend
@@ -111,7 +125,7 @@ ReadWritePaths=/opt/wkc/backend/data
 ## 2. Build and verify the plugin ZIP
 
 ```bash
-scripts/package-plugin.sh                              # dist/wp-knowledge-chat-<version>.zip + .sha256
+scripts/package-plugin.sh                              # dist/wp-knowledge-chat-<version>.zip + .sha256 (CI builds the same for releases)
 plugin/wp-knowledge-chat/tests/bin/package-check.sh    # checksum, no dev files, install/activate/deactivate/uninstall/reinstall
 plugin/wp-knowledge-chat/tests/bin/multisite-check.sh  # network install; uninstall cleans every site (only relevant for multisite)
 ```
@@ -119,7 +133,7 @@ plugin/wp-knowledge-chat/tests/bin/multisite-check.sh  # network install; uninst
 Before uploading anywhere, re-check the checksum on the machine that uploads it:
 
 ```bash
-cd dist && shasum -a 256 -c wp-knowledge-chat-0.2.0.zip.sha256
+cd dist && shasum -a 256 -c wp-knowledge-chat-<version>.zip.sha256
 ```
 
 ## 3. Install on WordPress staging
@@ -129,6 +143,8 @@ cd dist && shasum -a 256 -c wp-knowledge-chat-0.2.0.zip.sha256
    ```php
    define( 'WP_KNOWLEDGE_CHAT_BACKEND_URL', 'https://chat-api.example.com' );   // https, no query string
    define( 'WP_KNOWLEDGE_CHAT_SHARED_SECRET', '…same as CHAT_SHARED_SECRET…' );
+   // Only for page sync from WordPress, with a backend that persists /api/index updates:
+   // define( 'WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN', '…same as INDEX_API_TOKEN…' );
    // Only behind Cloudflare/QUIC.cloud/a load balancer, with that provider's published ranges:
    // define( 'WP_KNOWLEDGE_CHAT_TRUSTED_PROXIES', '…' );
    ```
@@ -195,9 +211,9 @@ Repeat sections 1–3 against production with production secrets (new values, no
 | Widget misbehaving | Settings → untick **Enable Chatbot** → Save (LiteSpeed purges automatically) | Widget no longer printed; chat route returns 503 |
 | Plugin problem | Plugins → Deactivate (or rename `wp-content/plugins/wp-knowledge-chat` via FTP) | Plugin code not loaded; settings kept |
 | Remove completely | Export leads (Analytics & Leads → Export CSV), then Deactivate → Delete | `uninstall.php` deletes settings, metrics, **all leads**, sync state and transients |
-| Downgrade to 0.2.0 | Export leads first | 0.2.0 does not read the 0.2.1 lead storage (leads stay in the database but are not shown) |
+| Downgrade to an older release | Export leads first, then install the older ZIP from GitHub Releases | Leads are kept. Before 1.2.0 the job title and function are not shown (the data stays in the database); before 0.2.1 leads are not shown at all |
 | Backend problem | Stop or roll back the backend deployment | Widget shows "unavailable" errors; site unaffected |
-| Bad knowledge base | Redeploy the previous `data/kb.json` or `npm run kb:push -- --file=<previous>` | Index replaced atomically |
+| Bad knowledge base | Revert `data/kb.json` (and `backend/api/` for Vercel) and redeploy; on a persistent Node host `npm run kb:push -- --file=<previous>` also works | Index replaced atomically |
 | Cost spike | Lower `DAILY_REQUEST_LIMIT` and restart, or disable the widget | Further model calls refused with 429 |
 | Leaked secret | Rotate `CHAT_SHARED_SECRET` (backend env + `wp-config.php` together) and/or `INDEX_API_TOKEN`; rotate the Gemini key in Google Cloud (needs authorisation) | Old signatures/tokens rejected after restart |
 
@@ -214,3 +230,16 @@ Repeat sections 1–3 against production with production secrets (new values, no
 | Frequent 429 for everyone | Shared IP behind a proxy/CDN, or limits too low | `WP_KNOWLEDGE_CHAT_TRUSTED_PROXIES`; `wp_knowledge_chat_rate_limit_per_minute`; backend `RATE_LIMIT_*` |
 | Many fallbacks | Question out of scope or about facts not on the site (`chat_completed outcome=out_of_scope|missing_answer_type|no_evidence reason=…`), or claim check (`outcome=unsupported_claims`) | review logs; add approved content, not looser rules |
 | Widget styled oddly | Aggressive CSS optimisation / combine | Purge cache; exclude widget assets from combine |
+
+## 8. Releasing and updating the plugin
+
+Releases follow [CONTRIBUTING.md → Releases](../CONTRIBUTING.md#releases): a `chore(release): bump version to X.Y.Z` pull request, then a `vX.Y.Z` tag on `main`. CI builds `wp-knowledge-chat-X.Y.Z.zip` with its `.sha256` and publishes the GitHub Release.
+
+On the WordPress site:
+
+1. *Dashboard → Updates* (or *Plugins*) offers the new version within about 12 hours; the **Check for updates** link under the plugin on the *Plugins* screen fetches it immediately.
+2. Read the release's **Upgrade Notice** (in `readme.txt` and the GitHub Release).
+3. Update, then **purge the page cache**, because the widget script and its settings are cached in pages.
+4. Smoke test: open the chat, ask one question, and open *Analytics & Leads*.
+
+Manual alternative: download the ZIP from the release, verify it (`shasum -a 256 -c wp-knowledge-chat-X.Y.Z.zip.sha256`), and upload it via *Plugins → Add New → Upload Plugin* (WordPress offers to replace the installed version).

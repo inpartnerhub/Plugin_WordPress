@@ -1,5 +1,7 @@
 # Privacy, Data Retention & Lead Management Audit: Inpartner WordPress AI Chatbot
 
+> **Snapshot from 2026-10-21 (version 0.2.3).** This report is kept as a record of the review at that date. Code, limits and file names may have changed since; for current behaviour see the [README](../../README.md), the [documentation index](../../README.md#-documentation-index) and [CHANGELOG.md](../../CHANGELOG.md).
+
 **Audit Date:** 2026-10-21  
 **Auditor Role:** Application Security Engineer, Senior WordPress Plugin Engineer, QA Engineer  
 **Repository:** [inpartnerhub/Plugin_WordPress](https://github.com/inpartnerhub/Plugin_WordPress)  
@@ -69,13 +71,13 @@ sequenceDiagram
 ### A. Real-Time Visitor Query Redaction
 When visitors ask questions in the chat widget, the questions are processed through two distinct layers of redaction:
 
-1. **WordPress Client Layer ([`Analytics::redact()`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/includes/class-analytics.php#L94-L100)):**
+1. **WordPress Client Layer ([`Analytics::redact()`](../../plugin/wp-knowledge-chat/includes/class-analytics.php)):**
    - Email addresses $\to$ `[email]`
    - Web links and URLs $\to$ `[link]`
    - Telephone numbers $\to$ `[phone]`
    - Continuous numbers $\ge 6$ digits $\to$ `[number]`
    - Snippet truncation: strictly capped at 120 characters via `mb_substr()`.
-2. **Backend Engine Layer ([`backend/src/services/scope.ts`](file:///Users/mac/Downloads/wp_plugin/backend/src/services/scope.ts#L59-L73)):**
+2. **Backend Engine Layer ([`backend/src/services/scope.ts`](../../backend/src/services/scope.ts)):**
    - 16-digit continuous numbers (Indonesian NIK) $\to$ `[REDACTED_NIK]`
    - Credit card numbers (13–19 digits) $\to$ `[REDACTED_CARD]`
    - Phone numbers (Indonesian, US, Korean prefixes) $\to$ `[REDACTED_PHONE]`
@@ -96,7 +98,7 @@ add_filter( 'wp_knowledge_chat_store_content_gaps', '__return_false' );
 
 ## 4. Private Custom Post Type Storage (`wkc_lead`)
 
-Leads are stored in a dedicated WordPress post type `wkc_lead` ([`Analytics::register_lead_post_type()`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/includes/class-analytics.php#L72-L89)) rather than inside a single serialized `wp_options` row. This provides:
+Leads are stored in a dedicated WordPress post type `wkc_lead` ([`Analytics::register_lead_post_type()`](../../plugin/wp-knowledge-chat/includes/class-analytics.php)) rather than inside a single serialized `wp_options` row. This provides:
 - **Concurrency Protection:** Concurrent submissions from multiple visitors create independent rows without race conditions or data loss.
 - **Volume Safety:** A surge of incoming submissions cannot overwrite older leads.
 - **Access Isolation:**
@@ -141,7 +143,7 @@ To prevent database spam and email flooding through the public lead endpoint:
 
 Under GDPR Art. 15 (Right of Access), Art. 17 (Right to Erasure), and Indonesian PDP Law Art. 7–8 (Rights of Personal Data Subjects), data subjects may request full export or permanent deletion of their stored data.
 
-The plugin implements native integration with WordPress core privacy tools ([`class-plugin.php`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/includes/class-plugin.php#L30-L31)):
+The plugin implements native integration with WordPress core privacy tools ([`class-plugin.php`](../../plugin/wp-knowledge-chat/includes/class-plugin.php)):
 
 ```php
 add_filter( 'wp_privacy_personal_data_exporters', array( Analytics::class, 'register_exporter' ) );
@@ -149,12 +151,12 @@ add_filter( 'wp_privacy_personal_data_erasers', array( Analytics::class, 'regist
 ```
 
 ### A. Personal Data Exporter (Tools $\to$ Export Personal Data)
-- **Callback:** [`Analytics::export_personal_data( $email, $page )`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/includes/class-analytics.php#L580-L615)
+- **Callback:** [`Analytics::export_personal_data( $email, $page )`](../../plugin/wp-knowledge-chat/includes/class-analytics.php)
 - Finds all `wkc_lead` posts matching the subject's email address.
 - Returns structured personal data containing submission timestamp, full name, email, company, and inquiry message.
 
 ### B. Personal Data Eraser (Tools $\to$ Erase Personal Data)
-- **Callback:** [`Analytics::erase_personal_data( $email, $page )`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/includes/class-analytics.php#L617-L635)
+- **Callback:** [`Analytics::erase_personal_data( $email, $page )`](../../plugin/wp-knowledge-chat/includes/class-analytics.php)
 - Finds all `wkc_lead` records associated with the subject's email and deletes them permanently via `wp_delete_post( $id, true )`.
 - Returns confirmation reporting `items_removed: true` and `items_retained: false`.
 
@@ -165,7 +167,7 @@ add_filter( 'wp_privacy_personal_data_erasers', array( Analytics::class, 'regist
 When administrators download lead data via the admin panel (Settings $\to$ Leads $\to$ "Export to CSV"), untrusted visitor inputs could contain formula payloads designed to execute arbitrary commands when opened in spreadsheet software (Microsoft Excel, LibreOffice, Apple Numbers, Google Sheets).
 
 ### Protection Implementation:
-In [`Admin_Page::csv_cell()`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/includes/class-admin-page.php#L790-L792):
+In [`Admin_Page::csv_cell()`](../../plugin/wp-knowledge-chat/includes/class-admin-page.php):
 
 ```php
 public static function csv_cell( string $value ): string {

@@ -23,7 +23,7 @@ Public (anonymous visitors). Same-origin only when an `Origin` header is present
 |---|---|---|
 | `message` | string | required; control characters removed; trimmed; 1–500 characters (multibyte-aware) |
 | `language` | `"en"` \| `"id"` \| `"ko"` \| `"ja"` \| `"zh"` | optional; defaults to the *Default Language* setting. The widget sends the language the visitor has selected |
-| `history` | array | optional; at most 4 turns: `[ { "role": "user" \| "model", "text": string } ]` |
+| `history` | array | optional; the previous turns, at most 4: `[ { "role": "user" \| "model", "text": string } ]` (user text ≤ 500, model text ≤ 1500 characters). Lets follow-up questions keep their context |
 
 **200 response**: re-validated by WordPress before it reaches the browser.
 
@@ -38,8 +38,10 @@ Public (anonymous visitors). Same-origin only when an `Origin` header is present
 - `answer`: plain text with tags stripped, at most 2000 characters.
 - `sources`: at most 5, deduplicated. Each URL must be `https` on an approved host (`wp_knowledge_chat_allowed_source_hosts`); others are dropped.
 - `grounded` is forced to `false` when no valid source remains. It is a quality indicator, **not** a guarantee of correctness.
+- A grounded answer to a first question (no `history`) is cached by WordPress for 24 hours per language and question (`wp_knowledge_chat_cache_ttl`), so a repeated question does not reach the backend.
+- The widget decides from the question and the answer whether to offer the consultation form; nothing in this response controls it (see [developer-reference.md](developer-reference.md#consultation-form-behaviour-widget)).
 
-**Errors** (WordPress `WP_Error` format: `{ "code", "message", "data": { "status" } }`, message localised to `en`/`id`)
+**Errors** (WordPress `WP_Error` format: `{ "code", "message", "data": { "status" } }`, message localised to the request's language: `en`, `id`, `ko`, `ja` or `zh`)
 
 | Status | `code` | When |
 |---|---|---|
@@ -54,7 +56,7 @@ Response headers include `Cache-Control: no-store, private` and `X-Robots-Tag: n
 
 ## 2. WordPress: `POST /wp-json/wp-knowledge-chat/v1/lead`
 
-Public (consultation request form). Allows visitors to submit inquiries directly from the widget.
+Public (the consultation form in the widget). Same-origin only when an `Origin` header is present. The request is stored in WordPress and e-mailed to the site admin; it is **not** sent to the AI backend.
 
 **Request**
 
@@ -63,6 +65,8 @@ Public (consultation request form). Allows visitors to submit inquiries directly
   "name": "Jane Doe",
   "email": "jane@example.com",
   "company": "Acme Corp",
+  "job_title": "Head of Expansion",
+  "department": "bizdev",
   "message": "Interested in distribution partner sourcing advisory.",
   "language": "en",
   "website": ""
@@ -71,18 +75,28 @@ Public (consultation request form). Allows visitors to submit inquiries directly
 
 | Field | Type | Rules |
 |---|---|---|
-| `name` | string | required; 1–100 characters |
-| `email` | string | required; valid email format; disposable email domains automatically rejected |
-| `message` | string | required; 1–2000 characters |
-| `company` | string | optional; max 100 characters |
-| `language` | string | optional; `"en"`, `"id"`, `"ko"`, `"ja"` (Japanese) or `"zh"` (Simplified Chinese) |
-| `website` | string | honeypot field; must remain empty (if filled, silently rejected as spam) |
+| `name` | string | required; 1–100 characters after sanitising |
+| `email` | string | required; ≤ 254 characters; valid address; disposable domains refused (`wp_knowledge_chat_disposable_email_domains`) |
+| `company` | string | optional; ≤ 150 characters |
+| `job_title` | string | optional; ≤ 100 characters |
+| `department` | string | optional; `""` or one of `founder`, `executive`, `bizdev`, `sales_marketing`, `finance`, `operations`, `hr`, `legal`, `other` (any other value → 400 from the route schema) |
+| `message` | string | optional; ≤ 2000 characters (line breaks kept) |
+| `language` | string | optional; `en`, `id`, `ko`, `ja` or `zh`; selects the response language and is stored with the lead |
+| `website` | string | honeypot; must stay empty. When filled, the response is a normal success but nothing is stored |
 
-**200 response**: `{ "success": true, "message": "Your consultation request has been received." }`
+Over-long fields are rejected, never cut. An identical e-mail + message within 10 minutes is accepted but stored only once.
 
-**Errors**:
-- 400: `wkc_invalid_lead`, `wkc_disposable_email` (throwaway email domains blocked)
-- 429: `wkc_lead_rate_limited` (max 3 submissions per 10 minutes per visitor)
+**Response** (`Cache-Control: no-store, private`): `{ "success": boolean, "code": string, "message": string }`, with `message` in the request's language.
+
+| Status | `code` | When |
+|---|---|---|
+| 200 | `lead_sent` | stored (or a duplicate, or a honeypot hit) |
+| 400 | `lead_invalid` | missing/invalid name or e-mail, a field over its limit, or a disposable e-mail domain |
+| 400 | `rest_invalid_param` | wrong type, over `maxLength`, or an unknown `department` / `language` (WordPress route schema) |
+| 403 | `wkc_forbidden_origin` | `Origin` is not this site (`WP_Error` format) |
+| 429 | `wkc_rate_limited` | more than 3 requests per visitor in 10 minutes, or more than 30 per hour for the site (`wp_knowledge_chat_lead_limit_per_hour`); `Retry-After` set (`WP_Error` format) |
+| 500 | `lead_failed` | the lead could not be saved |
+| 503 | `wkc_unavailable` | the chatbot is disabled (`WP_Error` format) |
 
 ---
 
@@ -124,9 +138,11 @@ Server-to-server only. Requires an HMAC signature from the WordPress plugin.
 
 ---
 
-## 3. Backend: `POST /api/index`
+## 4. Backend: `POST /api/index`
 
 Server-to-server, `Authorization: Bearer <INDEX_API_TOKEN>`. Limited to 30 requests/min. Body ≤ 2 MiB. **Never fetches URLs**: callers push document content.
+
+On serverless hosts (Vercel, Netlify) an authorised request returns **501 `index_unsupported`**, because an update would reach only one function instance and be lost on the next cold start. There the knowledge base changes by deploying a new `data/kb.json`.
 
 ```json
 {
@@ -162,7 +178,7 @@ Validation is **all-or-nothing**: one invalid document → `422 invalid_document
 
 ---
 
-## 4. Backend: `GET /api/health`
+## 5. Backend: `GET /api/health`
 
 Minimal status, for load balancers and uptime monitors:
 
@@ -171,4 +187,4 @@ Minimal status, for load balancers and uptime monitors:
 
 There are no versions, counts, environment or configuration details.
 
-Without `X-WKC-*` headers the endpoint is unauthenticated. When `X-WKC-Signature` is present, the request is verified like `/api/chat` with an **empty body** (same timestamp window and replay cache), and a bad signature returns `401 unauthorized`. The WordPress **Test connection** button uses this, so a wrong shared secret or clock skew is reported instead of a false "ok".
+Without `X-WKC-*` headers the endpoint is unauthenticated. When `X-WKC-Signature` is present, the request is verified like `/api/chat` with an **empty body** (same timestamp window and replay cache), and a bad signature returns `401 unauthorized`. The WordPress **Test connection** button uses this, so a wrong shared secret or clock skew is reported instead of a false "ok". WordPress also sends a signed health request every 4 minutes (WP-Cron) to keep a serverless backend warm.

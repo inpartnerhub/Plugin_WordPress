@@ -1,5 +1,7 @@
 # WordPress plugin-guideline review (v0.5.0)
 
+> **Snapshot from 2026-10-22 (version 0.5.0).** This report is kept as a record of the review at that date. Code, limits and file names may have changed since; for current behaviour see the [README](../README.md), the [documentation index](../README.md#-documentation-index) and [CHANGELOG.md](../CHANGELOG.md).
+
 Scope: `plugin/wp-knowledge-chat`, distributed **privately** to Inpartner (ZIP upload), not through WordPress.org. The reference is the WordPress Plugin Handbook (security, enqueueing, i18n, uninstall), the WordPress Coding Standards sniffs in `tests/phpcs.xml.dist`, and the WordPress **Plugin Check** tool. Reviewed 2026-10-22 against WordPress 7.1.3 / PHP 8.5.
 
 ## Already compliant
@@ -14,7 +16,7 @@ Capability and nonce checks on every admin action, escaped output, sanitised inp
 | 2 | Widget styling lacked visual hierarchy and corporate branding alignment | Modernized typography hierarchy (13.5px base, 1.55 line height), corporate blue palette (`#0076db`), asymmetric bubble radii (18px), aerodynamic paper airplane send button, collapsible suggestion chips, and structured citation cards |
 | 3 | Admin dashboard styling lacked branded identity and visual polish | Modernized admin pages with corporate blue banner (`#0076db`), elevated KPI cards with hover effects, and clean table layouts without breaking CSP |
 | 4 | Mobile touch targets and responsive bottom sheet sizing | Optimized mobile viewport bottom sheet (`100vw`, `85dvh`) with touch targets ≥ 36px/44px and zero horizontal overflow |
-| 5 | Axe-core accessibility qualification | Verified 0 WCAG 2.1 AA violations on all states across English, Indonesian, and Korean interfaces |
+| 5 | Axe-core accessibility qualification | Verified 0 WCAG 2.1 AA violations on all states across English, Indonesian, and Korean interfaces (Japanese and Chinese were added in 1.1.0 with the same markup) |
 | 6 | Language switcher and disclaimer refinement | Replaced horizontal language buttons with compact globe dropdown (`🌐 EN ▾`) and centered AI disclaimer without screen-reader leakage |
 
 ## Changed in 0.2.2

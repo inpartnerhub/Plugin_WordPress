@@ -1,69 +1,115 @@
 # Admin guide
 
-For Inpartner website administrators. No technical background needed. Technical setup is in [deployment.md](deployment.md).
+For Inpartner website administrators. No technical background needed. Technical setup is in [deployment.md](deployment.md); hooks and settings for developers are in [developer-reference.md](developer-reference.md). Written for plugin version 1.2.1.
 
 ## What the assistant does
 
-- Answers visitor questions about Inpartner using **only** the approved pages of inpartnerglobal.com.
+- Answers visitor questions about Inpartner using **only** the approved Inpartner knowledge base (company profile and service pages).
 - Shows the page(s) it used as clickable sources under each answer.
-- When it is not sure, says so and offers a link to the contact page instead of guessing.
+- Answers in the visitor's language: English, Bahasa Indonesia, 한국어, 日本語 or 简体中文.
+- When it is not sure, says so and points the visitor to the Inpartner team instead of guessing.
+- Offers a **Request Consultation** form when the conversation turns to a consultation, and sends the request to you.
 - Identifies itself as an AI assistant and shows a short disclaimer ("AI can make mistakes. Please verify important information.").
-- Does **not** give prices, client names, guarantees or personal investment advice unless they are published on the approved pages. Most of these are not.
-
-## Where to find the settings
+- Does **not** give prices, client names, guarantees or personal investment, legal or tax advice unless they are in the approved content. Most of these are not.
 
 ## Where to find the admin screens
 
-The plugin provides three dedicated administration screens under the **WP Knowledge Chat** menu in the WordPress dashboard (accessible only by users with `manage_options` capability):
+The **WP Knowledge Chat** menu in the WordPress dashboard has three screens, visible only to administrators (`manage_options`):
 
-1. **WP Knowledge Chat → Settings**
-2. **WP Knowledge Chat → Analytics & Leads**
-3. **WP Knowledge Chat → Knowledge Base**
+1. **Settings**: chatbot behaviour, languages, contact link and the AI backend status.
+2. **Knowledge Base**: which website pages the assistant may use.
+3. **Analytics & Leads**: usage figures, consultation requests and unanswered topics.
 
 ---
 
-### 1. Settings Screen
-
-Contains the general chatbot behavior, language settings, and AI backend connectivity test. Styled with Inpartner's corporate blue banner (`#0076db`) and real-time connection status pill.
+### 1. Settings
 
 | Setting | What it does | Tips |
 |---|---|---|
 | **Enable Chatbot** | Turns the chat button on or off for the whole site | Untick it to switch the assistant off immediately |
-| **Greeting Messages** | The first message visitors see when they open the chat, one field per language (English, Bahasa Indonesia, 한국어, 日本語, 简体中文) | Plain text only, max 500 characters each. Leave a field empty to restore that language's default greeting |
-| **Default Language** | Language of the buttons and messages (English, Bahasa Indonesia, 한국어, 日本語 or 简体中文) when the visitor has not chosen one, and the language the assistant answers in | Content on the website stays in its original language; service names are not translated |
+| **Greeting Messages** | The first message visitors see, one field per language (English, Bahasa Indonesia, 한국어, 日本語, 简体中文) | Plain text only, max 500 characters each. Leave a field empty to restore that language's default greeting |
+| **Default Language** | Language of the chat (buttons, messages and answers) when the visitor has not chosen one | Content of the knowledge base stays in its original language; service names are not translated |
 | **Language Switcher** | Shows a globe dropdown (`🌐 EN ▾`) in the chat header | The visitor's choice is remembered in their browser |
-| **Browser Language** | Starts the chat in the visitor's browser language if it is English, Indonesian, Korean, Japanese or Chinese (any region, e.g. `zh-TW`, starts in Simplified Chinese) | Otherwise *Default Language* is used |
-| **Contact URL** | Where "Contact the Inpartner team" links go | Default: the homepage, `https://inpartnerglobal.com`. Switching to a dedicated contact page (for example `/contact/`) needs the site owner's approval first. Only https links on inpartnerglobal.com (or this site) are accepted |
+| **Browser Language** | Starts the chat in the visitor's browser language if it is English, Indonesian, Korean, Japanese or Chinese (any Chinese region, e.g. `zh-TW`, starts in Simplified Chinese) | Otherwise *Default Language* is used |
+| **Contact URL** | Where "Contact the Inpartner team" links go | Default: the homepage, `https://inpartnerglobal.com`. Only https links on inpartnerglobal.com, inpartner.id, this site or WhatsApp (`wa.me`) are accepted |
 
 Click **Save Changes**. If a value is not accepted, a red message explains why and the old value is kept. With LiteSpeed Cache, the page cache is purged automatically when settings change; with any other page cache, **purge it** after saving so visitors see the change.
 
-#### The "AI Backend" Status Box
-- **Configured**: The connection constants (`WP_KNOWLEDGE_CHAT_BACKEND_URL`, `WP_KNOWLEDGE_CHAT_SHARED_SECRET`) are present in `wp-config.php`.
-- **Test connection**: Runs a signed live health check against the AI backend. It verifies that the backend is reachable, the shared secret matches, and the knowledge base index is ready.
-- If it says **Not configured** or the test fails, contact the technical team. The chat button stays hidden while it is not configured.
+#### The "AI backend" status box
+
+- **Configured**: the connection details (`WP_KNOWLEDGE_CHAT_BACKEND_URL`, `WP_KNOWLEDGE_CHAT_SHARED_SECRET`) are in `wp-config.php`. They are never shown on screen.
+- **Test connection**: checks that the AI backend is reachable, accepts the shared secret, and has its knowledge base loaded.
+- **Not configured** or a failed test: contact the technical team. The chat button stays hidden while the backend is not configured.
 
 ---
 
-### 2. Analytics & Leads Screen
+### 2. Knowledge Base
 
-Provides high-level performance metrics, lead management, and content gap tracking:
+Lists the site's published pages so you can choose which ones the assistant may use.
 
-- **Executive KPI Cards**: Real-time cards showing *Total Conversations*, *Grounded Answers Rate*, *Active Leads Captured*, and *Blocked Security Threats*.
-- **Consultation Requests (Leads)**: When visitors request a consultation via the widget, their name, email, company, and message are stored safely in WordPress.
-  - **Export CSV**: Download all leads for your sales or advisory team with one click.
-  - **Lead Privacy**: Integrates automatically with WordPress core *Tools → Export Personal Data* and *Erase Personal Data*.
-  - **Spam Protection**: Automatically discards disposable email addresses and honeypot submissions.
-- **Unanswered Topics & Knowledge Gaps**: Shows queries where the assistant did not find sufficient evidence in the knowledge base. Use this table to decide which new services or explanations should be added to the website.
-- **Security & Blocked Threats Counter**: Displays how many malicious prompt-injection, secret-extraction, or out-of-scope abuse attempts were safely intercepted before reaching AI models.
+- **Sync Selected Pages** / **Sync All Eligible Pages** send the chosen pages to the AI backend. *Replace entire backend knowledge base* also removes pages you did not select.
+- After a page is synced, **edits are sent automatically**. Unpublishing, trashing, password-protecting or deleting it removes it from the assistant. **New pages are never added automatically**; sync them here.
+- Password-protected pages are never used.
+- If an automatic update fails (for example, the backend is down), a notice lists the pages and retries every few minutes; **Retry now** tries immediately.
+- Syncing needs the separate `WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN` in `wp-config.php` (without it the screen shows **Sync not ready**) and a backend that can store updates. A serverless backend (Vercel, Netlify) refuses updates, so there the technical team changes the knowledge base instead ([knowledge-base.md](knowledge-base.md)).
 
 ---
 
-### 3. Knowledge Base Sync Screen
+### 3. Analytics & Leads
 
-Lists all published Inpartner service pages approved for the assistant:
-- Displays page title, URL, post ID, and synchronization timestamp.
-- Allows administrators to trigger an on-demand sync of updated pages to the AI backend.
-- Automatically handles trashed or unpublished pages so the assistant never quotes outdated or private content.
+**Summary cards**
+
+| Card | Meaning |
+|---|---|
+| Total Conversations | Questions asked by visitors |
+| Answered from Knowledge | Answers backed by the knowledge base (with the percentage) |
+| Consultation Fallbacks | Questions the assistant could not answer and passed to the team |
+| Captured Leads | Consultation requests received |
+| Threats & Spam Blocked | Honeypot hits, disposable e-mails and abuse or rate limits |
+
+**Captured Consultation Leads**
+
+Each request shows:
+
+| Column | Contents |
+|---|---|
+| Date (UTC) | Date, with the time underneath |
+| Contact details | Name, with the e-mail address underneath (click it to write back) |
+| Company / Role | Company, with job title · function underneath |
+| Inquiry Message | The visitor's message. Long messages are shortened; click **Show more** to read all of it |
+| Notification | Whether the notification e-mail was **Sent** or **Failed** |
+| Delete | Deletes that one request permanently |
+
+Buttons above the table:
+
+- **Export CSV**: downloads every request (columns: date, name, email, company, job_title, department, message, language, notification). The function is exported as a short key such as `bizdev` or `finance`.
+- **Delete all leads**: permanently deletes every request. Export first if you need them.
+- **Reset metrics**: clears the conversation counts and the question lists. Leads and the *Captured Leads* count are not affected.
+
+New requests are also e-mailed to the site's admin e-mail address. If an e-mail fails, the request is still saved and shows **Failed**.
+
+**Recent Visitor Questions** shows the last 25 questions with e-mail addresses, phone numbers, links and long numbers removed, and whether they were answered from the knowledge base.
+
+**Knowledge Gaps & Unanswered Topics** lists questions the assistant could not answer. Use it to decide what content to add to the website and the knowledge base.
+
+#### Privacy of consultation requests
+
+- Requests are visible only to administrators and are never published.
+- They are kept until you delete them, unless the technical team sets a retention period.
+- To answer a visitor's privacy request, use WordPress **Tools → Export Personal Data** or **Erase Personal Data** with their e-mail address; consultation requests are included.
+- Settings → Privacy → Policy Guide contains suggested wording about the assistant and the consultation form for the site's privacy policy.
+
+## How the consultation form works for visitors
+
+The **Request Consultation** button appears under an answer when:
+
+- the visitor asks for a consultation, a meeting, a price or a proposal, or asks how to contact the team (in any of the five languages);
+- the answer itself suggests contacting the Inpartner team; or
+- the assistant could not answer the question.
+
+When the visitor asks for a consultation, the form **opens by itself** (once per visit) with their question already filled in. The form asks for name and work e-mail (required), and company, job title, function and the inquiry (optional). Function is a list: Owner / Founder, C-level / Director, Business Development / Strategy, Sales & Marketing, Finance / Investment, Operations / Supply Chain, Human Resources, Legal / Compliance, Other.
+
+Spam protection: disposable e-mail addresses are refused, bots are caught by a hidden field, an identical request sent twice within 10 minutes is stored once, and each visitor can send 3 requests per 10 minutes (30 per hour for the whole site).
 
 ## Common tasks
 
@@ -75,28 +121,29 @@ Lists all published Inpartner service pages approved for the assistant:
 
 **Offer only one language.** Untick *Language Switcher* and *Browser Language*; every visitor then sees *Default Language*.
 
-**Admin screens in Indonesian, Korean, Japanese or Simplified Chinese.** Choose the language under *Users → Profile → Language* (or *Settings → General → Site Language*). The plugin's settings page is translated.
+**Admin screens in Indonesian, Korean, Japanese or Simplified Chinese.** Choose the language under *Users → Profile → Language* (or *Settings → General → Site Language*).
 
-**Show it only on some pages.** This needs a small code snippet from the technical team (see the plugin's readme, "Can I show the widget only on some pages?").
+**Show it only on some pages.** This needs a small code snippet from the technical team ([developer-reference.md](developer-reference.md), `wp_knowledge_chat_should_load`).
 
-**Update what the assistant knows.** The assistant does **not** read new pages automatically. After publishing or changing service pages, ask the technical team to rebuild the knowledge base ([knowledge-base.md](knowledge-base.md)). Review the text before it goes live.
+**Send lead e-mails to someone else.** Ask the technical team to set the `wp_knowledge_chat_lead_notification_email` filter, or change the site's admin e-mail under *Settings → General*.
+
+**Update what the assistant knows.** The assistant does **not** read new pages by itself. After publishing or changing content, sync the page on the *Knowledge Base* screen if syncing is available, or ask the technical team to rebuild the knowledge base ([knowledge-base.md](knowledge-base.md)). Review the text before it goes live.
+
+**Update the plugin.** New versions appear under *Dashboard → Updates* like any other plugin. Read the "Upgrade Notice", update, then purge the page cache.
 
 ## What visitors see
 
 | Situation | What the visitor sees |
 |---|---|
 | Answer found | Answer text plus "Sources" with links to the pages used |
-| Not enough information | "I couldn't find enough information… please contact the Inpartner team" plus the contact link |
+| Visitor asks for a consultation or price | Answer, the **Request Consultation** button, and the form opened with their question |
+| Not enough information | A friendly message that the assistant focuses on Inpartner's services, the **Request Consultation** button and the contact link |
 | Too many questions in a minute | A request to wait a minute (limit: 6 questions per minute per visitor) |
 | AI service unavailable | "The assistant is unavailable right now…", a **Try again** button and the contact link |
+| Consultation request sent | "Thank you! Your consultation request has been sent to the Inpartner team." |
 
-Conversations are not saved on the website. They disappear when the visitor closes the browser tab.
+Conversations are not saved on the website. They stay in the visitor's browser tab and disappear when it is closed. Only consultation requests are stored.
 
-## Before launch: content to fix on the website
+## Website content to keep consistent
 
-The assistant can only be as accurate as the website. These were found during setup (details in [knowledge-base.md](knowledge-base.md)):
-
-1. Contact page: remove the placeholder phone number **(406) 555-0120** and the sentence "Ready to take control of your financial future?…".
-2. The footer and the Contact page show **different phone numbers**. Keep one. Until you confirm the correct number, the assistant does not give out any phone number.
-3. The **Cross-Border M&A Advisory** page is empty, so the assistant cannot explain this service yet.
-4. Fix typos: "Start a Convertation", "Lear More", "Build for Companies".
+The assistant can only be as accurate as its content, and every answer links to a page on the website. Items still open on 2026-10-16 (phone number, contact page placeholders, figures that are only in the company profile) are listed in [site-content-request.md](site-content-request.md).

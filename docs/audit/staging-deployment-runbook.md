@@ -1,5 +1,7 @@
 # Staging Deployment Runbook: Inpartner WordPress AI Chatbot
 
+> **Snapshot from 2026-10-21 (version 0.2.3).** This report is kept as a record of the review at that date. Code, limits and file names may have changed since; for current behaviour see the [README](../../README.md), the [documentation index](../../README.md#-documentation-index) and [CHANGELOG.md](../../CHANGELOG.md).
+
 **Document Date:** 2026-10-21  
 **Author Role:** DevOps Engineer, Application Security Engineer, QA Engineer  
 **Repository:** [inpartnerhub/Plugin_WordPress](https://github.com/inpartnerhub/Plugin_WordPress)  

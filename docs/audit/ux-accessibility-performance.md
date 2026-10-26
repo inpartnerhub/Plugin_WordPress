@@ -1,5 +1,7 @@
 # UX, Accessibility & Performance Audit: Inpartner WordPress AI Chatbot
 
+> **Snapshot from 2026-10-21 (version 0.2.3).** This report is kept as a record of the review at that date. Code, limits and file names may have changed since; for current behaviour see the [README](../../README.md), the [documentation index](../../README.md#-documentation-index) and [CHANGELOG.md](../../CHANGELOG.md).
+
 **Audit Date:** 2026-10-21  
 **Auditor Role:** Senior Frontend Engineer, Accessibility Specialist (CPACC/WAS), Performance Engineer  
 **Repository:** [inpartnerhub/Plugin_WordPress](https://github.com/inpartnerhub/Plugin_WordPress)  
@@ -11,7 +13,7 @@
 
 ## 1. Executive Summary
 
-This report evaluates the user experience (UX), web accessibility (WCAG 2.1 AA compliance), responsiveness, page-builder compatibility, and runtime performance of the Inpartner WordPress AI Chatbot frontend widget ([`chat-widget.js`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/assets/js/chat-widget.js) and [`chat-widget.css`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/assets/css/chat-widget.css)).
+This report evaluates the user experience (UX), web accessibility (WCAG 2.1 AA compliance), responsiveness, page-builder compatibility, and runtime performance of the Inpartner WordPress AI Chatbot frontend widget ([`chat-widget.js`](../../plugin/wp-knowledge-chat/assets/js/chat-widget.js) and [`chat-widget.css`](../../plugin/wp-knowledge-chat/assets/css/chat-widget.css)).
 
 **Overall Assessment:** **EXCELLENT / PASS**.
 - **WCAG 2.1 AA Compliance:** **0 violations** detected via automated axe-core engine in headless Chrome across all widget states (closed launcher, open conversation, error state, and consultation modal).
@@ -23,7 +25,7 @@ This report evaluates the user experience (UX), web accessibility (WCAG 2.1 AA c
 
 ## 2. WCAG 2.1 AA Accessibility Evaluation
 
-Accessibility testing was conducted using the axe-core testing engine (`axe.run('#wkc-root')`) integrated into the headless Chrome end-to-end test suite ([`browser-check.mjs`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/tests/e2e/browser-check.mjs#L222-L260)).
+Accessibility testing was conducted using the axe-core testing engine (`axe.run('#wkc-root')`) integrated into the headless Chrome end-to-end test suite ([`browser-check.mjs`](../../plugin/wp-knowledge-chat/tests/e2e/browser-check.mjs)).
 
 ### A. axe-core Audit Results
 | State / Screen | Elements Evaluated | Violations Detected | Pass Rate |
@@ -49,8 +51,8 @@ Accessibility testing was conducted using the axe-core testing engine (`axe.run(
 
 ### D. Color Contrast & High-Contrast Support
 - **Contrast Ratios:** Text colors (`#1a1f36` on `#ffffff` backgrounds, white text on `#0052cc` brand blue buttons) achieve contrast ratios $> 7.1:1$, exceeding the WCAG 2.1 AA requirement of $4.5:1$ for normal text.
-- **Windows Forced Colors:** The stylesheet includes dedicated `@media (forced-colors: active)` rules ([`chat-widget.css:688-700`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/assets/css/chat-widget.css#L688-L700)), applying high-contrast `CanvasText` outlines and borders for users with assistive contrast themes.
-- **Reduced Motion:** Fully honors `@media (prefers-reduced-motion: reduce)` ([`chat-widget.css:680-686`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/assets/css/chat-widget.css#L680-L686)) by instantly disabling launcher transitions and typing indicator animations.
+- **Windows Forced Colors:** The stylesheet includes dedicated `@media (forced-colors: active)` rules ([`chat-widget.css:688-700`](../../plugin/wp-knowledge-chat/assets/css/chat-widget.css)), applying high-contrast `CanvasText` outlines and borders for users with assistive contrast themes.
+- **Reduced Motion:** Fully honors `@media (prefers-reduced-motion: reduce)` ([`chat-widget.css:680-686`](../../plugin/wp-knowledge-chat/assets/css/chat-widget.css)) by instantly disabling launcher transitions and typing indicator animations.
 
 ---
 
@@ -85,7 +87,7 @@ The widget supports tri-lingual real-time interaction in **English (`en`)**, **I
 1. **Instant Client-Side Switching:** Visitors can switch languages at any point via header pills without reloading the webpage. All greeting strings, suggestions, placeholders, and error messages update immediately.
 2. **Session Persistence:** The visitor's selected language is stored in `sessionStorage.setItem('wkc_lang', ...)` and restored on page reloads.
 3. **Korean Lead Form Hardening:**
-   - **Remediation Completed:** Added missing `leadFailed` and `leadPrivacy` translations in `STRINGS.ko` ([`chat-widget.js`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/assets/js/chat-widget.js#L143-L144)). Previously, Korean visitors submitting a consultation request saw `undefined` upon submission failure and lacked privacy notice text.
+   - **Remediation Completed:** Added missing `leadFailed` and `leadPrivacy` translations in `STRINGS.ko` ([`chat-widget.js`](../../plugin/wp-knowledge-chat/assets/js/chat-widget.js)). Previously, Korean visitors submitting a consultation request saw `undefined` upon submission failure and lacked privacy notice text.
    - Verified via unit test `chat-widget.test.js` and E2E headless check `08-mobile-open.png` / `10-desktop-korean.png`.
 
 ---

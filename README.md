@@ -59,7 +59,7 @@
 - **Collapsible Suggestion Chips**: Recommendation drawer starts closed by default for maximum screen real estate; opens and closes with smooth animation via the `+` action button.
 - **Asymmetric Bubble Geometry**: User bubbles rounded at `18px 18px 4px 18px` in soft ice blue (`#eaf4fd`) with subtle border, and assistant bubbles at `18px 18px 18px 4px` in pure white (`#ffffff`) with clean borders (`#e2e8f0`).
 - **Structured Citation Cards**: Grounded answers display dedicated `.wkc-sources` cards with uppercase bold labels, verified URLs, and external navigation icons (`↗`).
-- **Consultation Request Form**: Integrated consultation submission card allowing visitors to send contact details and advisory inquiries directly inside the chat window.
+- **Consultation Request Form**: A *Request Consultation* card inside the chat. It is offered whenever the conversation turns to a consultation (the visitor asks to consult, meet or get a price, or the answer points them to the team) and on answers the assistant could not ground. When the visitor asks for a consultation, the form opens by itself with their question pre-filled. Fields: name, work e-mail, company, job title, function (dropdown) and inquiry.
 - **Centered Disclaimer & Expectations**: Centered footer disclaimer ("AI can make mistakes. Please verify important information.") and direct contact link to ensure clear user expectations.
 - **Full-Width Mobile Sheet**: Responsive transformation on mobile devices (`100vw`, `85dvh`) with large touch targets (≥ 36px/44px) and zero horizontal overflow.
 - **Certified Accessibility**: **0 violations in axe-core** for WCAG 2.1 AA accessibility compliance across all modal states.
@@ -67,14 +67,14 @@
 ### 2. Administrative Observability & Lead Management
 - **Modern WordPress Dashboard**: Branded executive banner with real-time backend connection status pills.
 - **Executive Metric Cards**: Track total conversations, grounded response rates, captured consultation leads, and intercepted threat counts.
-- **Lead Capture & One-Click CSV Export**: View incoming consultation requests in WordPress, download them as CSV, and maintain compliance with WordPress core *Export Personal Data* and *Erase Personal Data* tools.
-- **Anti-Spam Filtering**: Automatic rejection of disposable/throwaway email domains (3,000+ domain blocklist) and hidden honeypot bot trap fields.
+- **Lead Capture & One-Click CSV Export**: Consultation requests are listed on *Analytics & Leads* (date, contact details, company / role, inquiry with *Show more*, notification status), e-mailed to the site admin, exportable as CSV, and covered by WordPress core *Export Personal Data* and *Erase Personal Data*.
+- **Anti-Spam Filtering**: Disposable e-mail domains are refused (extendable blocklist, `wp_knowledge_chat_disposable_email_domains`), a hidden honeypot field traps bots, identical resubmissions are dropped, and submissions are rate-limited (3 per visitor per 10 minutes, 30 per site per hour).
 - **Content Gap Tracker**: Observes unanswerable visitor queries to help marketing and consulting teams identify missing service content.
-- **Knowledge Base Sync Manager**: View published service pages and trigger on-demand synchronization to the AI backend.
+- **Knowledge Base Sync Manager**: Choose which published pages enter the knowledge base and sync them to the backend; edits to synced pages are sent automatically and unpublished pages are removed (needs `WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN` and a backend with persistent storage).
 
 ### 3. Enterprise Security, AI Guardrails & Cost Control
-- **Dual-Provider Architecture**: Seamless failover between **Google Gemini API** (`gemini-1.5-flash` / `gemini-2.5-flash`) and **OpenRouter API** (`deepseek/deepseek-chat`).
-- **Server-Side PII Scrubbing**: Automatic redaction of Indonesian NIK (16-digit ID), credit cards, emails, and phone numbers before logging or LLM transmission (`src/services/pii.ts`).
+- **Dual-Provider Architecture**: Seamless failover between **Google Gemini API** (default `gemini-2.5-flash`) and **OpenRouter API** (default `deepseek/deepseek-chat`). Failover is automatic when both keys are configured, inside one shared 18-second budget.
+- **Server-Side PII Scrubbing**: Automatic redaction of Indonesian NIK (16-digit ID), credit cards, emails, and phone numbers before logging or LLM transmission (`scrubPii()` in `backend/src/services/scope.ts`).
 - **Deterministic Abstention Gate**: Questions lacking authoritative evidence in the Inpartner Knowledge Base are intercepted **before calling external LLMs**, eliminating token cost and hallucination risk.
 - **Hardened Prompt Injection Defense**: Pre-model filter blocks injection, jailbreaks, and Indonesian slang/obfuscated abuse attempts.
 - **Secret Isolation**: API keys and shared secrets are never exposed in client bundles, browser storage, or WordPress database options; requests are authenticated via server-to-server HMAC-SHA256 signatures with nonce replay protection.
@@ -85,7 +85,7 @@
 
 ```
  ┌──────────────────────┐             ┌────────────────────────────────┐             ┌───────────────────────────────┐
- │   Visitor Browser    │             │   WordPress (Shared Hosting)   │             │   AI Backend (Node/Netlify)   │
+ │   Visitor Browser    │             │   WordPress (Shared Hosting)   │             │ AI Backend (Vercel / Netlify) │
  ├──────────────────────┤             ├────────────────────────────────┤             ├───────────────────────────────┤
  │                      │   POST      │ /wp-json/wp-knowledge-chat/v1/ │  HMAC-SHA256 │ POST /api/chat                │
  │ chat-widget.js       │────────────▶│ • Origin check                 │────────────▶│ • Verify signature & replay   │
@@ -101,17 +101,18 @@
  ┌──────────────────────────────────────┐                                            ┌───────────────────────────────┐
  │   Lead Storage & Admin Management    │                                            │         AI Providers          │
  ├──────────────────────────────────────┤                                            ├───────────────────────────────┤
- │ • Private Post Type (wkc_lead)       │                                            │ 1. Google Gemini 1.5 Flash    │
+ │ • Private Post Type (wkc_lead)       │                                            │ 1. Google Gemini 2.5 Flash    │
  │ • Honeypot & Disposable Email Check  │                                            │ 2. OpenRouter DeepSeek-Chat   │
  │ • CSV Export & Core Privacy Tools    │                                            │    [Automatic Failover]       │
  └──────────────────────────────────────┘                                            └───────────────────────────────┘
 ```
 
 1. **Visitor Question**: The visitor types a question in the floating widget or selects a suggestion chip.
-2. **WordPress Proxy**: WordPress validates the input, enforces per-IP rate limits, and signs the request using an HMAC-SHA256 timestamped token.
+2. **WordPress Proxy**: WordPress validates the input, enforces per-IP rate limits, serves a cached answer for repeated first questions, and signs the request using an HMAC-SHA256 timestamped token. Up to 4 previous turns are sent so follow-up questions keep their context.
 3. **Guardrails & Retrieval**: The backend verifies the signature, strips PII, and runs lexical BM25 retrieval over authoritative Inpartner Knowledge Base chunks.
 4. **Deterministic Gate**: If no relevant evidence exists, the backend returns an honest, localized fallback **without invoking the LLM**.
 5. **Model Generation & Claim Check**: When evidence exists, the model generates an answer strictly constrained by delimited sources. The backend enforces that numbers, contacts, and URLs match the evidence before sending it back.
+6. **Consultation Hand-off**: When the visitor wants a consultation, the widget offers (or opens) the consultation form; the request is stored in WordPress and e-mailed to the team.
 
 ---
 
@@ -122,8 +123,8 @@
 | **CMS Platform** | WordPress | ≥ 6.4 (Tested on 7.1.3) | Clean integration via Settings, REST, and Options APIs |
 | **Plugin Backend** | PHP | ≥ 8.1 (Tested on 8.5.5) | Fully typed, strict security standards, 0 PHPCS errors |
 | **Chat Widget** | Vanilla JavaScript & CSS | ES5 compatible, WCAG 2.1 AA | Zero external frontend dependencies, scoped under `#wkc-root` |
-| **AI Backend Service** | Node.js / TypeScript | Node ≥ 20.11 (TypeScript 5.9) | `node:http`, `node:crypto`, serverless Netlify adapter |
-| **AI Models** | Gemini & OpenRouter | `gemini-1.5-flash` / `deepseek-chat` | Dual-provider support with automatic high-availability failover |
+| **AI Backend Service** | Node.js / TypeScript | Node ≥ 20.11 (TypeScript 5.9) | `node:http`, `node:crypto`; standalone server, Vercel functions (`backend/api/`) or Netlify Functions |
+| **AI Models** | Gemini & OpenRouter | `gemini-2.5-flash` / `deepseek/deepseek-chat` (defaults) | Dual-provider support with automatic failover when both keys are set |
 | **Retrieval Engine** | BM25 Search | Pure TypeScript implementation | NFKC normalization, Indonesian, Korean, Japanese & Chinese query expansion |
 | **Testing Tools** | Node:test, PHPUnit, axe-core | PHPUnit 12.5, axe-core 4.14 | Headless Chrome E2E and real WordPress test suites |
 
@@ -134,20 +135,27 @@
 ```
 .
 ├── plugin/wp-knowledge-chat/       # WordPress plugin source code
-│   ├── wp-knowledge-chat.php       # Bootstrap file, version 0.5.0 constants
-│   ├── includes/                   # PHP classes (Settings, Admin, REST, Analytics, Sync)
-│   ├── assets/                     # Frontend assets (chat-widget.js, chat-widget.css, admin.css)
-│   ├── languages/                  # Translation catalogs (.pot, .po, .mo, .l10n.php for ID & KO)
-│   ├── readme.txt                  # WordPress plugin handbook compliant readme
-│   └── tests/                      # PHPUnit, PHPCS, jsdom widget tests, and E2E browser checks
+│   ├── wp-knowledge-chat.php       # Bootstrap file: plugin header and WP_KNOWLEDGE_CHAT_VERSION
+│   ├── includes/                   # PHP classes (Plugin, Settings, Admin_Page, Rest_Controller, Backend_Client, Analytics, Content_Sync)
+│   │   └── puc/                    # Bundled Plugin Update Checker (updates from GitHub Releases)
+│   ├── assets/                     # chat-widget.js / .css (public widget), admin.js / admin.css (admin screens)
+│   ├── languages/                  # .pot plus id_ID, ko_KR, ja and zh_CN catalogs (.po, .mo, .l10n.php)
+│   ├── readme.txt                  # WordPress.org-style readme (changelog, upgrade notices, FAQ)
+│   ├── uninstall.php               # Removes settings, metrics, leads, sync state and transients
+│   └── tests/                      # PHPUnit, PHPCS, jsdom widget tests, E2E and packaging checks
 ├── backend/                        # Node.js + TypeScript AI backend service
-│   ├── src/                        # Express-free server, routing, services, and middleware
-│   ├── data/                       # Authoritative Inpartner KB profile text and sources.json
-│   ├── eval/                       # Grounding evaluation dataset and dynamic evaluation runner
-│   └── tests/                      # Node.js native test suites (137 tests, 35 suites)
-├── docs/                           # Architecture, security, admin guides, and visual screenshots
-├── scripts/                        # Automation scripts (package-plugin.sh, test-all.sh)
-├── CHANGELOG.md                    # Keep a Changelog compliant release history
+│   ├── src/                        # HTTP server, routes, services, middleware, Vercel and Netlify adapters
+│   ├── api/                        # Committed Vercel bundles built by `npm run build:vercel` (CI checks they match src/)
+│   ├── data/                       # Knowledge base: profile/*.txt, sources.json and the built kb.json
+│   ├── eval/                       # Design and held-out evaluation sets and the evaluation runner
+│   ├── scripts/                    # kb:build, kb:validate, kb:push, kb:verify-sources, mock Gemini
+│   ├── tests/                      # node:test suites (152 tests)
+│   └── vercel.json                 # Vercel routing (region sin1)
+├── docs/                           # Guides, references, audit snapshots and screenshots
+├── scripts/                        # package-plugin.sh, test-all.sh
+├── netlify.toml                    # Netlify Functions build (alternative backend host)
+├── .env.example                    # Backend environment template
+├── CHANGELOG.md                    # Keep a Changelog release history
 ├── prd.md                          # Product Requirements Document (v2.0)
 └── README.md                       # Main project documentation
 ```
@@ -166,7 +174,7 @@
 ```bash
 cd backend
 npm install
-cp ../.env.example .env
+cp ../.env.example .env        # then fill in the provider key and the two secrets
 
 # Generate random 64-hex shared secret and index token:
 npm run secret
@@ -181,12 +189,14 @@ curl http://127.0.0.1:8787/api/health
 > ```bash
 > npm run mock:gemini    # Runs local mock model double on port 8790
 > ```
+> Then set `LLM_PROVIDER=gemini`, `GEMINI_API_KEY=mock-test-key` and `GEMINI_API_BASE_URL=http://127.0.0.1:8790` in `backend/.env`.
 
 ### 2. WordPress Setup (Disposable Test Environment)
 ```bash
 cd ../plugin/wp-knowledge-chat/tests
 composer install && npm install
-bash bin/setup-wp.sh    # Sets up a lightweight SQLite WordPress instance in .wp-test
+bash bin/setup-wp.sh    # SQLite WordPress 7.1.3 in <repo>/.wp-test, plugin symlinked and active
+                        # admin login (local only): admin / admin-pass-123 at http://127.0.0.1:8899/wp-admin
 ```
 
 ---
@@ -221,23 +231,27 @@ All tests can be executed locally with a single command:
 define( 'WP_KNOWLEDGE_CHAT_BACKEND_URL', 'https://your-backend.example.com' );
 define( 'WP_KNOWLEDGE_CHAT_SHARED_SECRET', 'your-random-64-hex-secret' );
 
-// Optional: If running behind Cloudflare or trusted reverse proxy
+// Optional: lets the Knowledge Base screen sync pages (backend with persistent storage only)
+define( 'WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN', 'your-separate-index-secret' );
+
+// Optional: only behind Cloudflare, QUIC.cloud or another trusted reverse proxy
 define( 'WP_KNOWLEDGE_CHAT_TRUSTED_PROXIES', '10.0.0.0/8,172.16.0.0/12' );
 ```
 
 ### Backend (`.env`)
 ```bash
-# Provider selection: 'openrouter' or 'gemini' (or leave unset for auto-failover if both keys exist)
+# Primary provider: 'openrouter' or 'gemini' (code default: gemini).
+# When both API keys are set, the other provider is used automatically as a failover.
 LLM_PROVIDER=openrouter
 
 # OpenRouter Configuration
 OPENROUTER_API_KEY=sk-or-v1-...
 OPENROUTER_MODEL=deepseek/deepseek-chat
-OPENROUTER_FALLBACK_MODELS=google/gemini-2.0-flash-001
+OPENROUTER_FALLBACK_MODELS=google/gemini-2.5-flash   # optional, up to 4
 
 # Google Gemini Configuration
 GEMINI_API_KEY=AIzaSy...
-GEMINI_MODEL=gemini-1.5-flash
+GEMINI_MODEL=gemini-2.5-flash
 
 # Shared Secrets & Limits
 CHAT_SHARED_SECRET=your-random-64-hex-secret
@@ -246,17 +260,20 @@ DAILY_REQUEST_LIMIT=1000
 RATE_LIMIT_PER_CLIENT_PER_MINUTE=8
 ```
 
+Every hook, constant and stored option is listed in [docs/developer-reference.md](docs/developer-reference.md); every backend variable with its default in [backend/README.md](backend/README.md#-configuration-reference).
+
 ---
 
 ## 🚢 Deployment Instructions
 
 Summary steps (detailed step-by-step checklist in [docs/deployment.md](docs/deployment.md)):
 
-1. **Deploy Backend**: Deploy `backend/` to an HTTPS Node.js runtime or serverless host (e.g. Netlify Functions) with environment variables set.
-2. **Build Plugin Package**: Run `./scripts/package-plugin.sh` to generate the production ZIP (`dist/wp-knowledge-chat-0.5.0.zip`).
+1. **Deploy Backend**: Deploy `backend/` over HTTPS with its environment variables: Vercel (`backend/vercel.json`, Singapore region), Netlify Functions (`netlify.toml`) or any Node.js ≥ 20.11 host.
+2. **Get the Plugin ZIP**: Download `wp-knowledge-chat-<version>.zip` (and its `.sha256`) from [GitHub Releases](https://github.com/inpartnerhub/Plugin_WordPress/releases), or build it with `./scripts/package-plugin.sh` (written to `dist/`).
 3. **Install on WordPress**: Upload the ZIP via **Plugins → Add New → Upload Plugin** and activate.
 4. **Configure Constants**: Add `WP_KNOWLEDGE_CHAT_BACKEND_URL` and `WP_KNOWLEDGE_CHAT_SHARED_SECRET` to `wp-config.php`.
-5. **Verify**: Click **Test Connection** in the admin dashboard and test a grounded question in the chat widget.
+5. **Verify**: Click **Test connection** on *WP Knowledge Chat → Settings* and ask one question in the widget.
+6. **Updates**: Later releases appear under *Dashboard → Updates* (the plugin updates itself from GitHub Releases). Purge the page cache after each update.
 
 ---
 
@@ -264,18 +281,23 @@ Summary steps (detailed step-by-step checklist in [docs/deployment.md](docs/depl
 
 | Topic | Document | Target Audience |
 |---|---|---|
-| **Production Readiness Master Report** | [docs/audit/production-readiness-report.md](docs/audit/production-readiness-report.md) | Leadership, PMs & Lead Architects |
-| **Complete Audit Suite (10 Reports)** | [docs/audit/](docs/audit/) | Security, QA, DevOps & Engineering Teams |
-| **Administrator Guide** | [docs/admin-guide.md](docs/admin-guide.md) | Website Administrators & Content Teams |
-| **Architecture Specification** | [docs/architecture.md](docs/architecture.md) | System Architects & Lead Developers |
-| **API Contract & Schemas** | [docs/api-contract.md](docs/api-contract.md) | Backend Engineers & Integrators |
-| **Security Design & Policy** | [docs/security.md](docs/security.md) | Security Engineers & DevOps |
-| **Deployment Runbook** | [docs/deployment.md](docs/deployment.md) | DevOps & System Administrators |
-| **Backend Technical Guide** | [backend/README.md](backend/README.md) | Node.js Backend Developers |
-| **Knowledge Base & Ingestion**| [docs/knowledge-base.md](docs/knowledge-base.md) | Content & Knowledge Engineers |
-| **Answer Quality Evaluation** | [docs/evaluation.md](docs/evaluation.md) | AI / RAG Quality Engineers |
-| **WordPress Compliance** | [docs/wp-compliance.md](docs/wp-compliance.md) | WordPress Plugin Reviewers |
-| **Product Requirements** | [prd.md](prd.md) | Product Managers & Stakeholders |
+| **Administrator Guide** | [docs/admin-guide.md](docs/admin-guide.md) | Website administrators & content teams |
+| **Developer Reference** (hooks, constants, stored data) | [docs/developer-reference.md](docs/developer-reference.md) | WordPress developers |
+| **API Contract & Schemas** | [docs/api-contract.md](docs/api-contract.md) | Backend engineers & integrators |
+| **Architecture Specification** | [docs/architecture.md](docs/architecture.md) | Architects & lead developers |
+| **Deployment Runbook** | [docs/deployment.md](docs/deployment.md) | DevOps & system administrators |
+| **Security Design & Policy** | [docs/security.md](docs/security.md) | Security engineers & DevOps |
+| **Backend Technical Guide** | [backend/README.md](backend/README.md) | Node.js backend developers |
+| **Knowledge Base & Ingestion** | [docs/knowledge-base.md](docs/knowledge-base.md) | Content & knowledge engineers |
+| **Website Content Request** | [docs/site-content-request.md](docs/site-content-request.md) | Inpartner content owners |
+| **Answer Quality Evaluation** | [docs/evaluation.md](docs/evaluation.md) | AI / RAG quality engineers |
+| **Technology Stack** | [docs/tech-stack.md](docs/tech-stack.md) | Engineers & reviewers |
+| **Test Report** | [docs/test-report.md](docs/test-report.md) | QA & reviewers |
+| **Plugin Test Tooling** | [plugin/wp-knowledge-chat/tests/README.md](plugin/wp-knowledge-chat/tests/README.md) | Plugin developers |
+| **WordPress Compliance** | [docs/wp-compliance.md](docs/wp-compliance.md) | WordPress plugin reviewers |
+| **Audit Reports** (dated snapshots, 2026-10-15 to 10-21) | [docs/audit/](docs/audit/), [docs/audit-2026-10-15.md](docs/audit-2026-10-15.md), [docs/audit-report.md](docs/audit-report.md) | Security, QA & leadership |
+| **Product Requirements** | [prd.md](prd.md) | Product managers & stakeholders |
+| **Release History** | [CHANGELOG.md](CHANGELOG.md) | Everyone |
 
 ---
 

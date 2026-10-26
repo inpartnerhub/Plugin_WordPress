@@ -24,7 +24,24 @@ The two market pages (`/cross-border-market-entry-advisor/`, `/distribution-part
 
 `npm run kb:verify-sources` lists profile documents as `PROF` (not checked). **Before launch run `npm run kb:verify-sources -- --strict`**; it fails until the site pages carry the same text. [site-content-request.md](site-content-request.md) lists what the site needs to publish. Until then a source link may lead to a page that does not yet say the same thing. The owner accepted this while the site is under construction.
 
-## What is indexed (verified 2026-10-14)
+## Current contents
+
+`backend/data/kb.json` holds **6 documents**, all built from the profile (`origin: "profile"` in `sources.json`):
+
+| Doc id | Cited page | Source file |
+|---|---|---|
+| `page-196-home` | https://inpartnerglobal.com/ | `profile/home.txt` |
+| `page-223-about` | https://inpartnerglobal.com/about-us/ | `profile/about.txt` |
+| `page-628-cross-border-market-entry` | https://inpartnerglobal.com/cross-border-market-entry-advisor/ | `profile/services-strategy-market.txt` |
+| `page-918-distribution-partner-sourcing` | https://inpartnerglobal.com/distribution-partner-sourcing-advisory/ | `profile/services-investment-distribution.txt` |
+| `page-1052-cross-border-ma` | https://inpartnerglobal.com/cross-border-ma-advisory/ | `profile/services-crossborder-expertise.txt` |
+| `page-445-contact` | https://inpartnerglobal.com/contact/ | `profile/contact.txt` |
+
+The mapping is defined in `backend/data/sources.json`. Posts 318 and 315 (stock/currency market commentary) stay **excluded**: they could read as investment advice.
+
+## Before the profile: site snapshot (2026-10-14, historical)
+
+The table below describes the first knowledge base, built from the live pages. It is kept for reference; the profile replaced it on 2026-10-16.
 
 Pages were discovered through the site's public WordPress REST API (`/wp-json/wp/v2/pages`, `/posts`). Only published content is public there.
 
@@ -38,9 +55,11 @@ Pages were discovered through the site's public WordPress REST API (`/wp-json/wp
 | `page-1052-cross-border-ma` | https://inpartnerglobal.com/cross-border-ma-advisory/ | marked `optional`; **skipped: page body is empty**; indexed automatically once it has content |
 | post 318, post 315 | stock / currency market commentary | **excluded**: could read as investment advice; needs explicit approval |
 
-Snapshot: `backend/data/kb.json` (5 documents, 10 chunks). Allowlist and exclusion rules: `backend/data/sources.json`.
+That snapshot had 5 documents (10 chunks). Allowlist and exclusion rules: `backend/data/sources.json`.
 
-## Content issues for the Inpartner team
+## Content issues found on the site (2026-10-14)
+
+The current list of what the site needs to publish is in [site-content-request.md](site-content-request.md).
 
 1. **Contact page placeholder text.** "(406) 555-0120" is a fictional 555 number and "Ready to take control of your financial future? … Fill out the form below" reads like theme demo copy. Both are excluded from the KB; please remove them from the page.
 2. **Two different phone numbers.** The footer shows `+62 859-3454-8202` and the Contact page shows `+62 896 2831 0192`. Until Inpartner confirms the authoritative number, **every line that is only a phone number is excluded** (`global_exclude_patterns` in `sources.json`, see `$phone_policy`), so the bot gives no phone number; the claim check also blocks any phone number the model might write. After confirmation, remove the pattern and rebuild.
@@ -52,7 +71,7 @@ Snapshot: `backend/data/kb.json` (5 documents, 10 chunks). Allowlist and exclusi
 
 ## How the build works
 
-`npm run kb:build` (in `backend/`):
+`npm run kb:build` (in `backend/`) reads `data/sources.json`. Entries with `origin: "profile"` (all of them today) are read from `data/profile/<file>.txt` without any network access and then go through the same validation and audit (steps 6–8). Entries with `origin: "site"` are fetched:
 
 1. Reads `data/sources.json`: the **only** pages fetched, by numeric WordPress ID.
 2. Fetches each via `GET /wp-json/wp/v2/pages/<id>` (public, read-only; redirects refused; 20 s timeout).
@@ -71,16 +90,17 @@ Chunks (~700 characters, line-aligned, prefixed with the page title) are compute
 
 ```bash
 cd backend
-npm run kb:build                  # refresh from the live public pages (read-only GETs)
+npm run kb:build                  # rebuild from data/profile/*.txt (and live pages for origin "site")
 git diff data/kb.json             # REVIEW: confirm no unwanted/incorrect text
 npm run kb:validate               # offline audit against sources.json
 npm run eval:retrieval            # must stay ≥ 90% for answerable questions
 node dist/eval/run-eval.js --mode=retrieval --dataset=eval/holdout.json
-# then either redeploy the backend with the new kb.json, or push it:
+npm run build:vercel              # Vercel: rebuild the bundles that include kb.json
+# then commit and redeploy the backend (Vercel/Netlify), or on a persistent Node host push it:
 BACKEND_URL=https://chat-api.example.com INDEX_API_TOKEN=… npm run kb:push
 ```
 
-- **Add a page:** add `{ "id": "page-<wpid>-<slug>", "wp_id": <id>, "category": "service" }` to `sources.json` after the content owner approves it.
+- **Add a document:** after the content owner approves it, add a profile file under `data/profile/` and an entry with `origin: "profile"`, `profile_file`, `title`, `url` and `updated_at` to `sources.json` (or a site entry `{ "id": "page-<wpid>-<slug>", "wp_id": <id>, "category": "service" }` to read the live page).
 - **Remove a page:** delete it from `sources.json` and rebuild (the push uses `replace_all`, so it disappears from the index).
 - **Exclude a sentence:** add a case-insensitive regex to that page's `exclude_patterns`.
 - **Approve the posts:** only after deciding the bot may discuss market news. Even then, the system prompt forbids investment advice.
@@ -96,5 +116,5 @@ BACKEND_URL=https://chat-api.example.com INDEX_API_TOKEN=… npm run kb:push
   | 1.2 | 97% | 64% |
   | 1.5 | 97% | 64% |
 
-- Indonesian and Korean support rely on the term maps in `src/services/text.ts` (`QUERY_EXPANSIONS`, `KOREAN_EXPANSIONS`). Korean terms are matched as substrings of the question, so particles attached to a word (서비스는, 시장에) do not matter. Keep Korean keys at least two syllables to avoid accidental matches. Add terms when the evaluation shows misses.
+- Indonesian, Korean, Japanese and Chinese questions rely on the term maps in `src/services/text.ts` (`QUERY_EXPANSIONS`, `KOREAN_EXPANSIONS`, `JAPANESE_EXPANSIONS`, `CHINESE_EXPANSIONS`). Korean, Japanese and Chinese terms are matched as substrings of the NFKC-normalised question, so particles attached to a word (서비스는, 市場に) do not matter. Keep keys at least two characters long to avoid accidental matches. Add terms when the evaluation shows misses.
 - Move to embeddings only if lexical retrieval falls below target as content grows (for example, many articles). The interface (`Bm25Retriever.search`) can be swapped.

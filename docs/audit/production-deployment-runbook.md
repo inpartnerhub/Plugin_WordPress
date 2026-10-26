@@ -1,5 +1,7 @@
 # Production Deployment Runbook: Inpartner WordPress AI Chatbot
 
+> **Snapshot from 2026-10-21 (version 0.2.3).** This report is kept as a record of the review at that date. Code, limits and file names may have changed since; for current behaviour see the [README](../../README.md), the [documentation index](../../README.md#-documentation-index) and [CHANGELOG.md](../../CHANGELOG.md).
+
 **Document Date:** 2026-10-21  
 **Author Role:** DevOps Engineer, Application Security Engineer, QA Engineer  
 **Repository:** [inpartnerhub/Plugin_WordPress](https://github.com/inpartnerhub/Plugin_WordPress)  
@@ -17,7 +19,7 @@
 | Gate # | Release Gate Requirement | Verification Method | Status Before Staging |
 | :---: | :--- | :--- | :---: |
 | **Gate 1** | **Code & Security Audit Passed** | 100% pass on PHPUnit (131 tests), Backend (137 tests), Widget JSDOM (35 tests), and E2E (16 checks). Zero critical/high CVEs. | **PASSED** |
-| **Gate 2** | **Staging Verification Passed** | Successful execution of [`staging-deployment-runbook.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/staging-deployment-runbook.md) with green health checks and zero errors. | **PENDING STAGING EXECUTION** |
+| **Gate 2** | **Staging Verification Passed** | Successful execution of [`staging-deployment-runbook.md`](staging-deployment-runbook.md) with green health checks and zero errors. | **PENDING STAGING EXECUTION** |
 | **Gate 3** | **Live AI Model Evaluation Passed** | $\ge 95\%$ factual correctness, 0 unsupported claims, 100% security injection resistance on live staging credentials. | **PENDING LIVE CREDENTIALS** |
 | **Gate 4** | **Content Publishing Confirmed** | Company profile content published to public URLs on `inpartnerglobal.com` (enabling `npm run kb:verify-sources --strict` to pass). | **PENDING STAKEHOLDER ACTION** |
 | **Gate 5** | **Executive Stakeholder Sign-Off** | Written authorization from Inpartner business and technical leads approving brand messaging and operational budget. | **PENDING HUMAN APPROVAL** |

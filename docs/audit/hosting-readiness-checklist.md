@@ -1,5 +1,7 @@
 # Hosting Readiness Checklist & Infrastructure Runbook: Inpartner WordPress AI Chatbot
 
+> **Snapshot from 2026-10-21 (version 0.2.3).** This report is kept as a record of the review at that date. Code, limits and file names may have changed since; for current behaviour see the [README](../../README.md), the [documentation index](../../README.md#-documentation-index) and [CHANGELOG.md](../../CHANGELOG.md).
+
 **Audit Date:** 2026-10-21  
 **Auditor Role:** DevOps Engineer, Application Security Engineer, QA Engineer  
 **Repository:** [inpartnerhub/Plugin_WordPress](https://github.com/inpartnerhub/Plugin_WordPress)  
@@ -15,7 +17,7 @@ The system consists of two distinct runtime components that can be co-located on
 
 1. **WordPress Host (PHP Application Tier):**
    - Runs standard WordPress 6.0+ on PHP 8.1+ (tested on PHP 8.5.5 and WordPress 7.1.3).
-   - Hosts the client plugin ([`wp-knowledge-chat`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat)).
+   - Hosts the client plugin ([`wp-knowledge-chat`](../../plugin/wp-knowledge-chat)).
    - Interacts with MySQL/MariaDB for settings and private lead custom post types (`wkc_lead`).
 2. **AI & Knowledge Retrieval Backend (Node.js Service Tier):**
    - Standalone Node.js service running on Node.js >= 20.11 LTS.
@@ -148,7 +150,7 @@ CMD ["node", "dist/server.js"]
 ```
 
 ### Serverless Evaluation (Netlify Functions)
-- **Status:** Evaluated and functional via [`backend/src/netlify/adapter.ts`](file:///Users/mac/Downloads/wp_plugin/backend/src/netlify/adapter.ts).
+- **Status:** Evaluated and functional via [`backend/src/netlify/adapter.ts`](../../backend/src/netlify/adapter.ts).
 - **Limitation:** In-memory rate limiting and nonce-replay caches are not shared across distributed serverless instances. For high-volume production deployments, a persistent single-instance service (systemd or Docker) is strongly recommended over serverless platforms to preserve deterministic rate-limiting and replay-attack defenses.
 
 ---
