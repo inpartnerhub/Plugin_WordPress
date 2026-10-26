@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+- **Timeout chain (`llm.ts`, `env.ts`, `class-backend-client.php`)**: Primary and failover provider now share one deadline (`LLM_TOTAL_TIMEOUT_MS`, default 18 s, with a 6 s reserve for the secondary) instead of each getting a full 25 s. The WordPress backend timeout is 22 s and the widget's 30 s, so each layer answers before the one in front gives up. `GEMINI_TIMEOUT_MS` default restored to the documented 12 s.
+
+### Changed
+- **Vercel bundles**: `esbuild` pinned to `0.28.2` as a dev dependency; `backend/api/*.js` rebuilt from `backend/` and CI now fails when the committed bundles do not match the sources.
+
 ## [1.0.6] - 2026-10-25
 
 ### Added

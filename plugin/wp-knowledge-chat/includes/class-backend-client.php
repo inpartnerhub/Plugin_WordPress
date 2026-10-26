@@ -17,7 +17,9 @@ defined( 'ABSPATH' ) || exit;
 
 final class Backend_Client {
 
-	public const TIMEOUT_SECONDS    = 20;
+	// Above the backend's LLM_TOTAL_TIMEOUT_MS (18 s, both providers incl. failover) and below the
+	// widget's REQUEST_TIMEOUT_MS (30 s), so each layer answers before the one in front gives up.
+	public const TIMEOUT_SECONDS    = 22;
 	public const MAX_RESPONSE_BYTES = 65536;
 	private const MIN_SECRET_LENGTH = 32;
 

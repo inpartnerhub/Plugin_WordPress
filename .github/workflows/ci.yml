@@ -39,6 +39,17 @@ jobs:
         working-directory: backend
         run: npm run build
 
+      # Vercel deploys the committed api/*.js bundles as-is; fail if they were not rebuilt after a source change.
+      - name: Verify committed Vercel bundles match the sources
+        working-directory: backend
+        run: |
+          npm run build:vercel
+          if ! git diff --quiet -- api/; then
+            git diff --stat -- api/
+            echo "::error::backend/api/*.js is out of date. Run 'npm run build:vercel' in backend/ and commit the result."
+            exit 1
+          fi
+
       - name: Validate Knowledge Base & Sources
         working-directory: backend
         run: npm run kb:validate

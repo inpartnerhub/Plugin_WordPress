@@ -18,6 +18,7 @@ scripts/test-all.sh
 1. Branch from `main`: `feat/<topic>`, `fix/<topic>`, `docs/<topic>`.
 2. Make the change, with tests for any behaviour change.
 3. Run `scripts/test-all.sh`. All suites must pass.
+   If you changed anything under `backend/src/` or `backend/data/`, also run `npm run build:vercel` in `backend/` and commit the regenerated `backend/api/*.js`; CI fails when they are stale.
 4. Update the docs affected by the change (API contract, security, settings, `CHANGELOG.md` under *Unreleased*).
 5. Open a pull request describing what changed, why, and how it was tested.
 

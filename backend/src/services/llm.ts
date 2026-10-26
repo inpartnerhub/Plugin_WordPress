@@ -21,7 +21,8 @@ export interface LlmRequest {
 }
 
 export interface LlmClient {
-  generate(request: LlmRequest): Promise<string>;
+  /** `deadlineAt` (epoch ms) caps the call below the client's own timeout; failover uses it to share one budget. */
+  generate(request: LlmRequest, deadlineAt?: number): Promise<string>;
 }
 
 export interface GeminiOptions {
@@ -104,8 +105,9 @@ async function withRetry(
   timeoutMs: number,
   sleep: (ms: number) => Promise<void>,
   attempt: (remainingMs: number) => Promise<string>,
+  deadlineAt = Number.POSITIVE_INFINITY,
 ): Promise<string> {
-  const deadline = Date.now() + timeoutMs;
+  const deadline = Math.min(Date.now() + timeoutMs, deadlineAt);
   let lastError: LlmError | undefined;
 
   for (let i = 0; i < 2; i++) {
@@ -135,8 +137,8 @@ export class GeminiClient implements LlmClient {
     this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
   }
 
-  async generate(request: LlmRequest): Promise<string> {
-    return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs));
+  async generate(request: LlmRequest, deadlineAt?: number): Promise<string> {
+    return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs), deadlineAt);
   }
 
   private async attempt(request: LlmRequest, timeoutMs: number): Promise<string> {
@@ -287,8 +289,8 @@ export class OpenRouterClient implements LlmClient {
     this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
   }
 
-  async generate(request: LlmRequest): Promise<string> {
-    return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs));
+  async generate(request: LlmRequest, deadlineAt?: number): Promise<string> {
+    return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs), deadlineAt);
   }
 
   private async attempt(request: LlmRequest, timeoutMs: number): Promise<string> {
@@ -366,38 +368,54 @@ function extractOpenRouterText(payload: unknown): string {
   return text;
 }
 
+export interface FailoverBudget {
+  /** Deadline for both providers together, so the caller (WordPress) is still waiting when the secondary answers. */
+  totalTimeoutMs: number;
+  /** Part of the total the primary may not use, kept for the secondary. */
+  secondaryReserveMs: number;
+}
+
 /**
  * Automatically fails over to a secondary provider if the primary provider experiences
  * an outage, timeout, or rate-limit exhaustion. Does not fail over on safety policy blocks.
+ * With a budget, both attempts share one deadline instead of each getting a full timeout.
  */
 export class FailoverLlmClient implements LlmClient {
   constructor(
     public readonly primary: LlmClient,
     public readonly secondary: LlmClient,
     private readonly onFailover?: (err: Error) => void,
+    private readonly budget?: FailoverBudget,
   ) {}
 
-  async generate(request: LlmRequest): Promise<string> {
+  async generate(request: LlmRequest, deadlineAt = Number.POSITIVE_INFINITY): Promise<string> {
+    const deadline = this.budget ? Math.min(deadlineAt, Date.now() + this.budget.totalTimeoutMs) : deadlineAt;
+    const reserve = this.budget?.secondaryReserveMs ?? 0;
     try {
-      return await this.primary.generate(request);
+      return await this.primary.generate(request, deadline - reserve);
     } catch (err) {
       if (err instanceof LlmError && err.kind === 'blocked') {
         throw err;
       }
       this.onFailover?.(err instanceof Error ? err : new Error(String(err)));
-      return await this.secondary.generate(request);
+      return await this.secondary.generate(request, deadline);
     }
   }
 }
 
+/** Time kept back from the primary provider so a failover still has a usable window. */
+export const FAILOVER_SECONDARY_RESERVE_MS = 6000;
+
 /** Builds the provider client selected by LLM_PROVIDER, enabling automatic failover when both keys are present. */
 export function createLlmClient(config: Config): LlmClient {
+  // A single provider may never outlive the total budget either.
+  const timeoutMs = Math.min(config.geminiTimeoutMs, config.llmTotalTimeoutMs);
   const gemini = config.geminiApiKey
     ? new GeminiClient({
         apiKey: config.geminiApiKey,
         model: config.geminiModel,
         baseUrl: config.geminiApiBaseUrl,
-        timeoutMs: config.geminiTimeoutMs,
+        timeoutMs,
         maxOutputTokens: config.geminiMaxOutputTokens,
       })
     : null;
@@ -408,7 +426,7 @@ export function createLlmClient(config: Config): LlmClient {
         model: config.openrouterModel,
         fallbackModels: config.openrouterFallbackModels,
         baseUrl: OPENROUTER_BASE_URL,
-        timeoutMs: config.geminiTimeoutMs,
+        timeoutMs,
         maxOutputTokens: config.geminiMaxOutputTokens,
       })
     : null;
@@ -416,7 +434,10 @@ export function createLlmClient(config: Config): LlmClient {
   if (gemini && openrouter) {
     const primary = config.llmProvider === 'openrouter' ? openrouter : gemini;
     const secondary = config.llmProvider === 'openrouter' ? gemini : openrouter;
-    return new FailoverLlmClient(primary, secondary);
+    return new FailoverLlmClient(primary, secondary, undefined, {
+      totalTimeoutMs: config.llmTotalTimeoutMs,
+      secondaryReserveMs: Math.min(FAILOVER_SECONDARY_RESERVE_MS, Math.floor(config.llmTotalTimeoutMs / 2)),
+    });
   }
 
   if (config.llmProvider === 'openrouter') {
@@ -424,7 +445,7 @@ export function createLlmClient(config: Config): LlmClient {
       apiKey: config.geminiApiKey,
       model: config.geminiModel,
       baseUrl: config.geminiApiBaseUrl,
-      timeoutMs: config.geminiTimeoutMs,
+      timeoutMs,
       maxOutputTokens: config.geminiMaxOutputTokens,
     });
   }
@@ -433,7 +454,7 @@ export function createLlmClient(config: Config): LlmClient {
     apiKey: config.geminiApiKey,
     model: config.geminiModel,
     baseUrl: config.geminiApiBaseUrl,
-    timeoutMs: config.geminiTimeoutMs,
+    timeoutMs,
     maxOutputTokens: config.geminiMaxOutputTokens,
   });
 }

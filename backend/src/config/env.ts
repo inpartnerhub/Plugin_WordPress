@@ -19,6 +19,7 @@ export interface Config {
   geminiModel: string;
   geminiApiBaseUrl: string;
   geminiTimeoutMs: number;
+  llmTotalTimeoutMs: number;
   geminiMaxOutputTokens: number;
   chatSharedSecret: string;
   indexApiToken: string;
@@ -159,7 +160,10 @@ export function loadConfig(env: Env = process.env): Config {
     geminiApiKey,
     geminiModel,
     geminiApiBaseUrl,
-    geminiTimeoutMs: int('GEMINI_TIMEOUT_MS', 25000, 1000, 60000),
+    geminiTimeoutMs: int('GEMINI_TIMEOUT_MS', 12000, 1000, 60000),
+    // Must stay below the WordPress request timeout (Backend_Client::TIMEOUT_SECONDS, 22 s) minus retrieval,
+    // network and cold-start time, or WordPress gives up before a failover answer arrives.
+    llmTotalTimeoutMs: int('LLM_TOTAL_TIMEOUT_MS', 18000, 2000, 55000),
     geminiMaxOutputTokens: int('GEMINI_MAX_OUTPUT_TOKENS', 220, 64, 4096),
     chatSharedSecret,
     indexApiToken,

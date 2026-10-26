@@ -1,9 +1,14 @@
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+var __esm = (fn, res, err) => function __init() {
+  if (err) throw err[0];
+  try {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  } catch (e) {
+    throw err = [e], e;
+  }
 };
 
-// backend/src/services/llm.ts
+// src/services/llm.ts
 async function readLimited(response, limit, signal) {
   if (!response.body) return "";
   const reader = response.body.getReader();
@@ -36,8 +41,8 @@ function isInvalidKeyError(body) {
     return false;
   }
 }
-async function withRetry(timeoutMs, sleep, attempt) {
-  const deadline = Date.now() + timeoutMs;
+async function withRetry(timeoutMs, sleep, attempt, deadlineAt = Number.POSITIVE_INFINITY) {
+  const deadline = Math.min(Date.now() + timeoutMs, deadlineAt);
   let lastError;
   for (let i = 0; i < 2; i++) {
     const remaining = deadline - Date.now();
@@ -81,11 +86,12 @@ function extractOpenRouterText(payload) {
   return text;
 }
 function createLlmClient(config2) {
+  const timeoutMs = Math.min(config2.geminiTimeoutMs, config2.llmTotalTimeoutMs);
   const gemini = config2.geminiApiKey ? new GeminiClient({
     apiKey: config2.geminiApiKey,
     model: config2.geminiModel,
     baseUrl: config2.geminiApiBaseUrl,
-    timeoutMs: config2.geminiTimeoutMs,
+    timeoutMs,
     maxOutputTokens: config2.geminiMaxOutputTokens
   }) : null;
   const openrouter = config2.openrouterApiKey ? new OpenRouterClient({
@@ -93,20 +99,23 @@ function createLlmClient(config2) {
     model: config2.openrouterModel,
     fallbackModels: config2.openrouterFallbackModels,
     baseUrl: OPENROUTER_BASE_URL,
-    timeoutMs: config2.geminiTimeoutMs,
+    timeoutMs,
     maxOutputTokens: config2.geminiMaxOutputTokens
   }) : null;
   if (gemini && openrouter) {
     const primary = config2.llmProvider === "openrouter" ? openrouter : gemini;
     const secondary = config2.llmProvider === "openrouter" ? gemini : openrouter;
-    return new FailoverLlmClient(primary, secondary);
+    return new FailoverLlmClient(primary, secondary, void 0, {
+      totalTimeoutMs: config2.llmTotalTimeoutMs,
+      secondaryReserveMs: Math.min(FAILOVER_SECONDARY_RESERVE_MS, Math.floor(config2.llmTotalTimeoutMs / 2))
+    });
   }
   if (config2.llmProvider === "openrouter") {
     return openrouter ?? new GeminiClient({
       apiKey: config2.geminiApiKey,
       model: config2.geminiModel,
       baseUrl: config2.geminiApiBaseUrl,
-      timeoutMs: config2.geminiTimeoutMs,
+      timeoutMs,
       maxOutputTokens: config2.geminiMaxOutputTokens
     });
   }
@@ -114,13 +123,13 @@ function createLlmClient(config2) {
     apiKey: config2.geminiApiKey,
     model: config2.geminiModel,
     baseUrl: config2.geminiApiBaseUrl,
-    timeoutMs: config2.geminiTimeoutMs,
+    timeoutMs,
     maxOutputTokens: config2.geminiMaxOutputTokens
   });
 }
-var LlmError, RESPONSE_SCHEMA, RETRYABLE_STATUS, MAX_RESPONSE_BYTES, GeminiClient, OPENROUTER_BASE_URL, OpenRouterClient, FailoverLlmClient;
+var LlmError, RESPONSE_SCHEMA, RETRYABLE_STATUS, MAX_RESPONSE_BYTES, GeminiClient, OPENROUTER_BASE_URL, OpenRouterClient, FailoverLlmClient, FAILOVER_SECONDARY_RESERVE_MS;
 var init_llm = __esm({
-  "backend/src/services/llm.ts"() {
+  "src/services/llm.ts"() {
     "use strict";
     LlmError = class extends Error {
       constructor(kind, providerStatus) {
@@ -129,6 +138,8 @@ var init_llm = __esm({
         this.providerStatus = providerStatus;
         this.name = "LlmError";
       }
+      kind;
+      providerStatus;
     };
     RESPONSE_SCHEMA = {
       type: "OBJECT",
@@ -147,10 +158,11 @@ var init_llm = __esm({
         this.fetchImpl = options.fetchImpl ?? fetch;
         this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
       }
+      options;
       fetchImpl;
       sleep;
-      async generate(request) {
-        return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs));
+      async generate(request, deadlineAt) {
+        return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs), deadlineAt);
       }
       async attempt(request, timeoutMs) {
         const url = `${this.options.baseUrl}/v1beta/models/${encodeURIComponent(this.options.model)}:generateContent`;
@@ -235,10 +247,11 @@ var init_llm = __esm({
         this.fetchImpl = options.fetchImpl ?? fetch;
         this.sleep = options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
       }
+      options;
       fetchImpl;
       sleep;
-      async generate(request) {
-        return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs));
+      async generate(request, deadlineAt) {
+        return withRetry(this.options.timeoutMs, this.sleep, (timeoutMs) => this.attempt(request, timeoutMs), deadlineAt);
       }
       async attempt(request, timeoutMs) {
         const fallbacks = this.options.fallbackModels ?? [];
@@ -300,27 +313,35 @@ var init_llm = __esm({
       }
     };
     FailoverLlmClient = class {
-      constructor(primary, secondary, onFailover) {
+      constructor(primary, secondary, onFailover, budget) {
         this.primary = primary;
         this.secondary = secondary;
         this.onFailover = onFailover;
+        this.budget = budget;
       }
-      async generate(request) {
+      primary;
+      secondary;
+      onFailover;
+      budget;
+      async generate(request, deadlineAt = Number.POSITIVE_INFINITY) {
+        const deadline = this.budget ? Math.min(deadlineAt, Date.now() + this.budget.totalTimeoutMs) : deadlineAt;
+        const reserve = this.budget?.secondaryReserveMs ?? 0;
         try {
-          return await this.primary.generate(request);
+          return await this.primary.generate(request, deadline - reserve);
         } catch (err) {
           if (err instanceof LlmError && err.kind === "blocked") {
             throw err;
           }
           this.onFailover?.(err instanceof Error ? err : new Error(String(err)));
-          return await this.secondary.generate(request);
+          return await this.secondary.generate(request, deadline);
         }
       }
     };
+    FAILOVER_SECONDARY_RESERVE_MS = 6e3;
   }
 });
 
-// backend/src/services/knowledge-base.ts
+// src/services/knowledge-base.ts
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -481,7 +502,7 @@ async function writeKnowledgeBaseFile(path, data) {
 }
 var DOCUMENT_CATEGORIES, LIMITS, DocumentValidationError, KnowledgeBaseStore, FALLBACK_TMP_PATH;
 var init_knowledge_base = __esm({
-  "backend/src/services/knowledge-base.ts"() {
+  "src/services/knowledge-base.ts"() {
     "use strict";
     DOCUMENT_CATEGORIES = ["home", "about", "service", "contact", "faq", "article"];
     LIMITS = {
@@ -497,11 +518,13 @@ var init_knowledge_base = __esm({
         this.field = field;
         this.name = "DocumentValidationError";
       }
+      field;
     };
     KnowledgeBaseStore = class {
       constructor(allowedHosts) {
         this.allowedHosts = allowedHosts;
       }
+      allowedHosts;
       docs = /* @__PURE__ */ new Map();
       get size() {
         return this.docs.size;
@@ -514,6 +537,9 @@ var init_knowledge_base = __esm({
       }
       chunks() {
         return this.all().flatMap((doc) => chunkDocument(doc));
+      }
+      fingerprint() {
+        return createHash("sha256").update(this.all().map((doc) => `${doc.id}:${documentFingerprint(doc)}`).join("|")).digest("hex").slice(0, 16);
       }
       /**
        * Replaces the whole store from raw data, validating every document.
@@ -572,7 +598,7 @@ var init_knowledge_base = __esm({
   }
 });
 
-// backend/src/config/env.ts
+// src/config/env.ts
 function loadConfig(env = process.env) {
   const problems = [];
   const required = (name) => {
@@ -668,7 +694,10 @@ function loadConfig(env = process.env) {
     geminiApiKey,
     geminiModel,
     geminiApiBaseUrl,
-    geminiTimeoutMs: int("GEMINI_TIMEOUT_MS", 25e3, 1e3, 6e4),
+    geminiTimeoutMs: int("GEMINI_TIMEOUT_MS", 12e3, 1e3, 6e4),
+    // Must stay below the WordPress request timeout (Backend_Client::TIMEOUT_SECONDS, 22 s) minus retrieval,
+    // network and cold-start time, or WordPress gives up before a failover answer arrives.
+    llmTotalTimeoutMs: int("LLM_TOTAL_TIMEOUT_MS", 18e3, 2e3, 55e3),
     geminiMaxOutputTokens: int("GEMINI_MAX_OUTPUT_TOKENS", 220, 64, 4096),
     chatSharedSecret,
     indexApiToken,
@@ -690,7 +719,7 @@ function loadConfig(env = process.env) {
 }
 var ConfigError, MIN_SECRET_LENGTH;
 var init_env = __esm({
-  "backend/src/config/env.ts"() {
+  "src/config/env.ts"() {
     "use strict";
     ConfigError = class extends Error {
       constructor(problems) {
@@ -698,12 +727,13 @@ var init_env = __esm({
         this.problems = problems;
         this.name = "ConfigError";
       }
+      problems;
     };
     MIN_SECRET_LENGTH = 32;
   }
 });
 
-// backend/src/lib/logger.ts
+// src/lib/logger.ts
 function createLogger(level, sink = (line) => process.stdout.write(line + "\n")) {
   const threshold = LEVELS[level];
   const log = (lvl) => (event, fields = {}) => {
@@ -714,16 +744,16 @@ function createLogger(level, sink = (line) => process.stdout.write(line + "\n"))
 }
 var LEVELS;
 var init_logger = __esm({
-  "backend/src/lib/logger.ts"() {
+  "src/lib/logger.ts"() {
     "use strict";
     LEVELS = { debug: 10, info: 20, warn: 30, error: 40 };
   }
 });
 
-// backend/data/kb.json
+// data/kb.json
 var kb_default;
 var init_kb = __esm({
-  "backend/data/kb.json"() {
+  "data/kb.json"() {
     kb_default = {
       version: 1,
       generated_at: "2026-10-16T07:53:22.563Z",
@@ -787,7 +817,7 @@ var init_kb = __esm({
   }
 });
 
-// backend/src/netlify/adapter.ts
+// src/netlify/adapter.ts
 import { Readable, Writable } from "node:stream";
 async function handleWebRequest(webRequest, listener) {
   const urlObj = new URL(webRequest.url);
@@ -901,12 +931,12 @@ async function handleWebRequest(webRequest, listener) {
   });
 }
 var init_adapter = __esm({
-  "backend/src/netlify/adapter.ts"() {
+  "src/netlify/adapter.ts"() {
     "use strict";
   }
 });
 
-// backend/src/lib/auth.ts
+// src/lib/auth.ts
 import { createHmac, timingSafeEqual } from "node:crypto";
 function computeSignature(secret, timestamp, nonce, clientId, rawBody) {
   return createHmac("sha256", secret).update(`${timestamp}.${nonce}.${clientId}.${rawBody}`).digest("hex");
@@ -927,6 +957,10 @@ var SignatureVerifier = class {
     this.now = now;
     this.maxEntries = maxEntries;
   }
+  secret;
+  maxSkewSeconds;
+  now;
+  maxEntries;
   seen = /* @__PURE__ */ new Map();
   verify(timestamp, nonce, clientId, signature, rawBody) {
     if (typeof timestamp !== "string" || typeof nonce !== "string" || typeof signature !== "string") return "missing";
@@ -963,7 +997,7 @@ function verifyBearerToken(authorizationHeader, expectedToken) {
   return safeEqual(match[1], expectedToken);
 }
 
-// backend/src/lib/http.ts
+// src/lib/http.ts
 var HttpError = class extends Error {
   constructor(status, code, message, headers = {}) {
     super(message);
@@ -972,6 +1006,9 @@ var HttpError = class extends Error {
     this.headers = headers;
     this.name = "HttpError";
   }
+  status;
+  code;
+  headers;
 };
 var SECURITY_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
@@ -994,6 +1031,16 @@ function sendJson(res, status, body, extraHeaders = {}) {
 }
 function sendError(res, error) {
   sendJson(res, error.status, { error: { code: error.code, message: error.message } }, error.headers);
+}
+function createErrorResponse(error) {
+  const payload = JSON.stringify({ error: { code: error.code, message: error.message } });
+  return new Response(payload, {
+    status: error.status,
+    headers: {
+      ...SECURITY_HEADERS,
+      ...error.headers
+    }
+  });
 }
 async function readRawBody(req, limitBytes) {
   const declared = Number(req.headers["content-length"]);
@@ -1036,7 +1083,7 @@ function headerValue(req, name) {
   return value ?? "";
 }
 
-// backend/src/middleware/rate-limit.ts
+// src/middleware/rate-limit.ts
 var FixedWindowLimiter = class {
   constructor(limit, windowMs, now = () => Date.now(), maxKeys = 5e4) {
     this.limit = limit;
@@ -1044,6 +1091,10 @@ var FixedWindowLimiter = class {
     this.now = now;
     this.maxKeys = maxKeys;
   }
+  limit;
+  windowMs;
+  now;
+  maxKeys;
   windows = /* @__PURE__ */ new Map();
   hit(key) {
     const now = this.now();
@@ -1071,6 +1122,8 @@ var DailyBudget = class {
     this.limit = limit;
     this.now = now;
   }
+  limit;
+  now;
   day = "";
   used = 0;
   consume() {
@@ -1096,6 +1149,11 @@ var AbusePenaltyTracker = class {
     this.now = now;
     this.maxKeys = maxKeys;
   }
+  threshold;
+  windowMs;
+  penaltyMs;
+  now;
+  maxKeys;
   violations = /* @__PURE__ */ new Map();
   check(key) {
     const now = this.now();
@@ -1130,11 +1188,79 @@ var AbusePenaltyTracker = class {
     if (this.violations.size >= this.maxKeys) this.violations.clear();
   }
 };
+var ResponseCache = class {
+  constructor(ttlMs = 60 * 60 * 1e3, maxSize = 500, now = () => Date.now()) {
+    this.ttlMs = ttlMs;
+    this.maxSize = maxSize;
+    this.now = now;
+  }
+  ttlMs;
+  maxSize;
+  now;
+  cache = /* @__PURE__ */ new Map();
+  inflight = /* @__PURE__ */ new Map();
+  namespace = "default";
+  setNamespace(ns) {
+    if (this.namespace !== ns) {
+      this.namespace = ns;
+      this.cache.clear();
+      this.inflight.clear();
+    }
+  }
+  makeKey(language, message) {
+    const norm = message.toLowerCase().trim().replace(/\s+/g, " ");
+    return `${this.namespace}:${language}:${norm}`;
+  }
+  get(language, message) {
+    const key = this.makeKey(language, message);
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    if (this.now() - entry.cachedAt >= this.ttlMs) {
+      this.cache.delete(key);
+      return null;
+    }
+    return entry;
+  }
+  set(language, message, data) {
+    if (!data.grounded) return;
+    const key = this.makeKey(language, message);
+    if (!this.cache.has(key) && this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey) this.cache.delete(firstKey);
+    }
+    this.cache.set(key, {
+      answer: data.answer,
+      sources: data.sources.map((s) => ({ ...s })),
+      grounded: data.grounded,
+      cachedAt: this.now()
+    });
+  }
+  getInflight(language, message) {
+    return this.inflight.get(this.makeKey(language, message));
+  }
+  setInflight(language, message, promise) {
+    const key = this.makeKey(language, message);
+    const wrapped = promise.finally(() => {
+      if (this.inflight.get(key) === wrapped) {
+        this.inflight.delete(key);
+      }
+    });
+    this.inflight.set(key, wrapped);
+    return wrapped;
+  }
+  clear() {
+    this.cache.clear();
+    this.inflight.clear();
+  }
+  get size() {
+    return this.cache.size;
+  }
+};
 
-// backend/src/services/chat.ts
+// src/services/chat.ts
 init_llm();
 
-// backend/src/services/scope.ts
+// src/services/scope.ts
 var LEET_MAP = {
   "@": "a",
   "4": "a",
@@ -1424,7 +1550,7 @@ function unsupportedClaims(answer, evidenceText) {
   return [...new Set(problems)];
 }
 
-// backend/src/services/chat.ts
+// src/services/chat.ts
 var LANGUAGES = ["en", "id", "ko"];
 var BudgetExceededError = class extends Error {
   constructor(retryAfterSeconds) {
@@ -1432,6 +1558,7 @@ var BudgetExceededError = class extends Error {
     this.retryAfterSeconds = retryAfterSeconds;
     this.name = "BudgetExceededError";
   }
+  retryAfterSeconds;
 };
 var FALLBACK_MESSAGES = {
   en: "Hello! I specifically assist with Inpartner Global\u2019s business consulting services\u2014from Strategy & Corporate Advisory and Cross-Border Market Entry to Distribution Partner Sourcing. If you would like to discuss your business needs directly with our advisory team, please reach out through the contact link below!",
@@ -1450,13 +1577,29 @@ var SCOPE_FALLBACK_MESSAGES = {
     ko: "\uAD6C\uCCB4\uC801\uC778 \uC138\uBB34 \uACC4\uC0B0\uC774\uB098 \uBC95\uC801 \uB4F1\uB85D \uC808\uCC28\uB294 \uC804\uBB38 \uC138\uBB34\xB7\uBC95\uB960 \uC790\uBB38\uACFC \uD568\uAED8 \uC9C4\uD589\uD574\uC57C \uD558\uC9C0\uB9CC, Inpartner\uB294 \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uC804\uB7B5, \uD0C0\uB2F9\uC131 \uC870\uC0AC \uBC0F \uD604\uC9C0 \uD30C\uD2B8\uB108 \uBC1C\uAD74 \uC790\uBB38\uC744 \uD1B5\uD574 \uBE44\uC988\uB2C8\uC2A4 \uC131\uACF5\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9BD\uB2C8\uB2E4. \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
   },
   investment_advice: {
-    id: "Maaf ya, saya tidak melayani rekomendasi jual-beli saham, kripto, atau spekulasi keuangan pribadi. Namun jika perusahaan Anda membutuhkan pendampingan korporasi, tim Inpartner siap membantu lewat layanan Investment & Project Advisory, Feasibility Studies, maupun M&A Advisory\u2014yuk hubungi kami melalui tautan kontak berikut!"
+    en: "I do not provide personal stock, crypto, or retail financial speculation recommendations. However, if your company requires corporate advisory support, Inpartner is ready to assist through our Investment & Project Advisory, Feasibility Studies, and M&A Advisory services\u2014feel free to contact our team via the link below!",
+    id: "Maaf ya, saya tidak melayani rekomendasi jual-beli saham, kripto, atau spekulasi keuangan pribadi. Namun jika perusahaan Anda membutuhkan pendampingan korporasi, tim Inpartner siap membantu lewat layanan Investment & Project Advisory, Feasibility Studies, maupun M&A Advisory\u2014yuk hubungi kami melalui tautan kontak berikut!",
+    ko: "\uAC1C\uC778 \uC8FC\uC2DD, \uC554\uD638\uD654\uD3D0 \uB610\uB294 \uAE08\uC735 \uD22C\uAE30 \uCD94\uCC9C\uC740 \uC81C\uACF5\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uB2E4\uB9CC \uAE30\uC5C5 \uCC28\uC6D0\uC758 \uC790\uBB38\uC774 \uD544\uC694\uD558\uC2DC\uB2E4\uBA74 Inpartner\uC758 \uD22C\uC790 \uBC0F \uD504\uB85C\uC81D\uD2B8 \uC790\uBB38(Investment & Project Advisory), \uD0C0\uB2F9\uC131 \uC870\uC0AC(Feasibility Studies), M&A \uC790\uBB38\uC744 \uD1B5\uD574 \uC9C0\uC6D0\uD574 \uB4DC\uB9B4 \uC218 \uC788\uC73C\uB2C8 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
   },
   profanity_hate: {
-    id: "Halo! Mari kita berdiskusi dengan nyaman dan santai ya. Jika perusahaan Anda membutuhkan pendampingan seputar Strategy & Corporate Advisory, ekspansi pasar, atau pencarian mitra distribusi, tim Inpartner selalu siap membantu\u2014silakan hubungi kami melalui tautan kontak berikut!"
+    en: "Hello! Let us keep our conversation respectful and constructive. If your company needs support with Strategy & Corporate Advisory, market expansion, or distribution partner sourcing, the Inpartner team is always ready to help\u2014please reach out via the contact link below!",
+    id: "Halo! Mari kita berdiskusi dengan nyaman dan santai ya. Jika perusahaan Anda membutuhkan pendampingan seputar Strategy & Corporate Advisory, ekspansi pasar, atau pencarian mitra distribusi, tim Inpartner selalu siap membantu\u2014silakan hubungi kami melalui tautan kontak berikut!",
+    ko: "\uC548\uB155\uD558\uC138\uC694! \uC6D0\uD65C\uD558\uACE0 \uC815\uC911\uD55C \uB300\uD654\uB97C \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4. \uADC0\uC0AC\uC758 \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uB610\uB294 \uC720\uD1B5 \uD30C\uD2B8\uB108 \uBC1C\uAD74\uC774 \uD544\uC694\uD558\uC2DC\uB2E4\uBA74 \uC5B8\uC81C\uB4E0 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB97C \uD1B5\uD574 Inpartner \uC790\uBB38\uD300\uC5D0 \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
   },
   injection: {
-    id: "Halo! Saya tetap beroperasi sebagai Asisten Konsultasi Bisnis resmi dari Inpartner Global. Kami siap mendampingi pertumbuhan perusahaan Anda melalui layanan Strategy & Corporate Advisory, Cross-Border Market Entry, hingga pencarian mitra distribusi\u2014silakan hubungi tim kami lewat tautan kontak berikut ya!"
+    en: "Hello! I operate exclusively as the official Business Consultation Assistant for Inpartner Global. We are ready to support your company\u2019s growth through Strategy & Corporate Advisory, Cross-Border Market Entry, and distribution partner sourcing\u2014please connect with our team via the contact link below!",
+    id: "Halo! Saya tetap beroperasi sebagai Asisten Konsultasi Bisnis resmi dari Inpartner Global. Kami siap mendampingi pertumbuhan perusahaan Anda melalui layanan Strategy & Corporate Advisory, Cross-Border Market Entry, hingga pencarian mitra distribusi\u2014silakan hubungi tim kami lewat tautan kontak berikut ya!",
+    ko: "\uC548\uB155\uD558\uC138\uC694! \uC800\uB294 Inpartner Global\uC758 \uACF5\uC2DD \uBE44\uC988\uB2C8\uC2A4 \uCEE8\uC124\uD305 \uC5B4\uC2DC\uC2A4\uD134\uD2B8\uB85C \uC6B4\uC601\uB418\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uAE30\uC5C5 \uC804\uB7B5 \uC790\uBB38, \uD574\uC678 \uC2DC\uC7A5 \uC9C4\uCD9C \uBC0F \uC720\uD1B5 \uD30C\uD2B8\uB108 \uBC1C\uAD74\uC744 \uD1B5\uD574 \uADC0\uC0AC\uC758 \uC131\uC7A5\uC744 \uC9C0\uC6D0\uD574 \uB4DC\uB9AC\uB2C8 \uC544\uB798 \uC5F0\uB77D\uCC98 \uB9C1\uD06C\uB85C \uBB38\uC758\uD574 \uC8FC\uC138\uC694!"
+  },
+  medical: {
+    en: FALLBACK_MESSAGES.en,
+    id: FALLBACK_MESSAGES.id,
+    ko: FALLBACK_MESSAGES.ko
+  },
+  unrelated: {
+    en: FALLBACK_MESSAGES.en,
+    id: FALLBACK_MESSAGES.id,
+    ko: FALLBACK_MESSAGES.ko
   }
 };
 var MISSING_ANSWER_MESSAGES = {
@@ -1602,6 +1745,7 @@ var ChatService = class {
   constructor(options) {
     this.options = options;
   }
+  options;
   providerOpenUntil = 0;
   providerOpenKind = "unavailable";
   now() {
@@ -1614,6 +1758,17 @@ var ChatService = class {
     return selected.slice(0, this.options.topK).map((chunk) => ({ chunk, score: 2.5 }));
   }
   async answer(message, language, history) {
+    const startTotal = this.now();
+    let retrievalMs = 0;
+    let llmMs = 0;
+    const withTimings = (res) => ({
+      ...res,
+      timings: {
+        retrieval_ms: retrievalMs,
+        llm_ms: llmMs,
+        total_ms: Math.max(0, this.now() - startTotal)
+      }
+    });
     const fallback = (outcome, reason) => {
       const customAnswer = outcome === "missing_answer_type" && reason ? MISSING_ANSWER_MESSAGES[reason]?.[language] : outcome === "out_of_scope" && reason ? SCOPE_FALLBACK_MESSAGES[reason]?.[language] : void 0;
       return {
@@ -1621,102 +1776,153 @@ var ChatService = class {
         sources: [],
         grounded: false,
         outcome,
-        ...reason ? { reason } : {}
+        ...reason ? { reason } : {},
+        ...this.options.cache ? { timings: { retrieval_ms: retrievalMs, llm_ms: llmMs, total_ms: Math.max(0, this.now() - startTotal) } } : {}
       };
     };
     const violation = scopeViolation(message);
     if (violation) return fallback("out_of_scope", violation);
     const safeMessage = scrubPii(message);
+    const hasRedactedPii = /\[REDACTED_(EMAIL|PHONE|NIK|CARD)\]/.test(safeMessage);
     const safeHistory = history?.filter((h) => !scopeViolation(h.text)).map((h) => ({ role: h.role, text: scrubPii(h.text) }));
-    let evidence = this.options.retriever.search(safeMessage, this.options.topK, this.options.minScore);
-    if (safeHistory && safeHistory.length > 0) {
-      const lastUser = [...safeHistory].reverse().find((h) => h.role === "user");
-      if (lastUser && lastUser.text) {
-        if (evidence.length === 0) {
-          evidence = this.options.retriever.search(`${lastUser.text} ${safeMessage}`, this.options.topK, this.options.minScore);
-        } else if (FOLLOW_UP_RE.test(safeMessage) || safeMessage.trim().split(/\s+/).length <= 5) {
-          const priorEvidence = this.options.retriever.search(lastUser.text, this.options.topK, this.options.minScore);
-          if (priorEvidence.length > 0) {
-            evidence = mergeRetrievedChunks(priorEvidence.slice(0, 2), evidence, this.options.topK);
+    const isStateless = !safeHistory || safeHistory.length === 0;
+    const canCache = Boolean(this.options.cache && isStateless && !hasRedactedPii && safeMessage === message);
+    if (canCache && this.options.cache) {
+      const ns = `${this.options.cacheNamespace ?? "v1"}:${this.options.store.fingerprint()}:${this.options.topK}:${this.options.minScore}`;
+      this.options.cache.setNamespace(ns);
+      const cached = this.options.cache.get(language, safeMessage);
+      if (cached) {
+        return withTimings({
+          answer: cached.answer,
+          sources: cached.sources.map((s) => ({ ...s })),
+          grounded: cached.grounded,
+          outcome: "answered",
+          cached: true
+        });
+      }
+      const inflight = this.options.cache.getInflight(language, safeMessage);
+      if (inflight) {
+        const res = await inflight;
+        return withTimings({
+          ...res,
+          sources: res.sources.map((s) => ({ ...s })),
+          cached: true
+        });
+      }
+    }
+    const executeQuery = async () => {
+      const startRetrieval = this.now();
+      let evidence = this.options.retriever.search(safeMessage, this.options.topK, this.options.minScore);
+      if (safeHistory && safeHistory.length > 0) {
+        const lastUser = [...safeHistory].reverse().find((h) => h.role === "user");
+        if (lastUser && lastUser.text) {
+          if (evidence.length === 0) {
+            evidence = this.options.retriever.search(`${lastUser.text} ${safeMessage}`, this.options.topK, this.options.minScore);
+          } else if (FOLLOW_UP_RE.test(safeMessage) || safeMessage.trim().split(/\s+/).length <= 5) {
+            const priorEvidence = this.options.retriever.search(lastUser.text, this.options.topK, this.options.minScore);
+            if (priorEvidence.length > 0) {
+              evidence = mergeRetrievedChunks(priorEvidence.slice(0, 2), evidence, this.options.topK);
+            }
           }
         }
       }
-    }
-    if (OVERVIEW_INQUIRY_RE.test(safeMessage)) {
-      evidence = mergeRetrievedChunks(this.getDefaultOverviewEvidence().slice(0, 2), evidence, this.options.topK);
-    }
-    const isOpening = CONVERSATIONAL_OPENING_RE.test(safeMessage);
-    if (evidence.length === 0 && isOpening) {
-      evidence = this.getDefaultOverviewEvidence();
-    }
-    if (evidence.length === 0) return fallback("no_evidence");
-    const evidenceText = evidence.map((e) => `${e.chunk.title}
+      if (OVERVIEW_INQUIRY_RE.test(safeMessage)) {
+        evidence = mergeRetrievedChunks(this.getDefaultOverviewEvidence().slice(0, 2), evidence, this.options.topK);
+      }
+      const isOpening = CONVERSATIONAL_OPENING_RE.test(safeMessage);
+      if (evidence.length === 0 && isOpening) {
+        evidence = this.getDefaultOverviewEvidence();
+      }
+      retrievalMs = Math.max(0, this.now() - startRetrieval);
+      if (evidence.length === 0) return fallback("no_evidence");
+      const evidenceText = evidence.map((e) => `${e.chunk.title}
 ${e.chunk.text}`).join("\n");
-    const missing = missingAnswerType(safeMessage, evidenceText);
-    if (missing) return fallback("missing_answer_type", missing);
-    if (this.now() < this.providerOpenUntil) throw new LlmError(this.providerOpenKind);
-    if (this.options.budget) {
-      const budget = this.options.budget.consume();
-      if (!budget.allowed) throw new BudgetExceededError(budget.retryAfterSeconds);
-    }
-    let raw;
-    try {
-      raw = await this.options.llm.generate({
-        systemInstruction: buildSystemInstruction(language),
-        userContent: buildUserContent(safeMessage, evidence, safeHistory)
+      const missing = missingAnswerType(safeMessage, evidenceText);
+      if (missing) return fallback("missing_answer_type", missing);
+      if (this.now() < this.providerOpenUntil) throw new LlmError(this.providerOpenKind);
+      if (this.options.budget) {
+        const budget = this.options.budget.consume();
+        if (!budget.allowed) throw new BudgetExceededError(budget.retryAfterSeconds);
+      }
+      let raw;
+      const startLlm = this.now();
+      try {
+        raw = await this.options.llm.generate({
+          systemInstruction: buildSystemInstruction(language),
+          userContent: buildUserContent(safeMessage, evidence, safeHistory)
+        });
+      } catch (err) {
+        llmMs = Math.max(0, this.now() - startLlm);
+        if (err instanceof LlmError && err.kind === "blocked") return fallback("provider_blocked");
+        const cooldown = err instanceof LlmError ? PROVIDER_COOLDOWN_MS[err.kind] : void 0;
+        if (err instanceof LlmError && cooldown) {
+          this.providerOpenUntil = this.now() + cooldown;
+          this.providerOpenKind = err.kind;
+          this.options.logger.warn("provider_cooldown", { kind: err.kind, seconds: cooldown / 1e3 });
+        }
+        throw err;
+      }
+      llmMs = Math.max(0, this.now() - startLlm);
+      const output = parseModelOutput(raw);
+      if (!output) {
+        this.options.logger.warn("llm_output_invalid", { length: raw.length });
+        return fallback("invalid_model_output");
+      }
+      if (looksUnsafe(output.answer, this.options.secrets)) {
+        this.options.logger.warn("llm_output_unsafe");
+        return fallback("unsafe_model_output");
+      }
+      if (!output.grounded) {
+        if (isOpening) {
+          return withTimings({ answer: cleanAnswer(output.answer), sources: [], grounded: true, outcome: "answered" });
+        }
+        return fallback("model_declined");
+      }
+      const sources = [];
+      const seen = /* @__PURE__ */ new Set();
+      for (const id of output.source_ids) {
+        const match = /^S(\d{1,2})$/.exec(id.trim());
+        const item = match ? evidence[Number(match[1]) - 1] : void 0;
+        if (!item) continue;
+        const doc = this.options.store.get(item.chunk.docId);
+        if (!doc || seen.has(doc.url)) continue;
+        seen.add(doc.url);
+        sources.push({ title: doc.title, url: doc.url });
+        if (sources.length >= MAX_SOURCES) break;
+      }
+      if (sources.length === 0 && evidence.length > 0 && evidence[0]) {
+        const doc = this.options.store.get(evidence[0].chunk.docId);
+        if (doc) sources.push({ title: doc.title, url: doc.url });
+      }
+      if (sources.length === 0) return fallback("invalid_model_output");
+      const claims = unsupportedClaims(output.answer, evidenceText);
+      if (claims.length > 0) {
+        this.options.logger.warn("llm_output_unsupported", { claims });
+        return fallback("unsupported_claims", claims.join(","));
+      }
+      const finalResult = withTimings({
+        answer: cleanAnswer(output.answer),
+        sources,
+        grounded: true,
+        outcome: "answered"
       });
-    } catch (err) {
-      if (err instanceof LlmError && err.kind === "blocked") return fallback("provider_blocked");
-      const cooldown = err instanceof LlmError ? PROVIDER_COOLDOWN_MS[err.kind] : void 0;
-      if (err instanceof LlmError && cooldown) {
-        this.providerOpenUntil = this.now() + cooldown;
-        this.providerOpenKind = err.kind;
-        this.options.logger.warn("provider_cooldown", { kind: err.kind, seconds: cooldown / 1e3 });
+      if (canCache && this.options.cache && finalResult.grounded) {
+        this.options.cache.set(language, safeMessage, {
+          answer: finalResult.answer,
+          sources: finalResult.sources,
+          grounded: true
+        });
       }
-      throw err;
+      return finalResult;
+    };
+    if (canCache && this.options.cache) {
+      return await this.options.cache.setInflight(language, safeMessage, executeQuery());
     }
-    const output = parseModelOutput(raw);
-    if (!output) {
-      this.options.logger.warn("llm_output_invalid", { length: raw.length });
-      return fallback("invalid_model_output");
-    }
-    if (looksUnsafe(output.answer, this.options.secrets)) {
-      this.options.logger.warn("llm_output_unsafe");
-      return fallback("unsafe_model_output");
-    }
-    if (!output.grounded) {
-      if (isOpening) {
-        return { answer: cleanAnswer(output.answer), sources: [], grounded: true, outcome: "answered" };
-      }
-      return fallback("model_declined");
-    }
-    const sources = [];
-    const seen = /* @__PURE__ */ new Set();
-    for (const id of output.source_ids) {
-      const match = /^S(\d{1,2})$/.exec(id.trim());
-      const item = match ? evidence[Number(match[1]) - 1] : void 0;
-      if (!item) continue;
-      const doc = this.options.store.get(item.chunk.docId);
-      if (!doc || seen.has(doc.url)) continue;
-      seen.add(doc.url);
-      sources.push({ title: doc.title, url: doc.url });
-      if (sources.length >= MAX_SOURCES) break;
-    }
-    if (sources.length === 0 && evidence.length > 0 && evidence[0]) {
-      const doc = this.options.store.get(evidence[0].chunk.docId);
-      if (doc) sources.push({ title: doc.title, url: doc.url });
-    }
-    if (sources.length === 0) return fallback("invalid_model_output");
-    const claims = unsupportedClaims(output.answer, evidenceText);
-    if (claims.length > 0) {
-      this.options.logger.warn("llm_output_unsupported", { claims });
-      return fallback("unsupported_claims", claims.join(","));
-    }
-    return { answer: cleanAnswer(output.answer), sources, grounded: true, outcome: "answered" };
+    return await executeQuery();
   }
 };
 
-// backend/src/routes/chat.ts
+// src/routes/chat.ts
 init_llm();
 var CHAT_BODY_LIMIT_BYTES = 8 * 1024;
 function validateChatRequest(body, maxMessageChars) {
@@ -1816,6 +2022,9 @@ async function handleChat(req, res, deps) {
       language,
       message_chars: message.length,
       sources: result.sources.length,
+      cached: Boolean(result.cached),
+      retrieval_ms: result.timings?.retrieval_ms ?? 0,
+      llm_ms: result.timings?.llm_ms ?? 0,
       latency_ms: Date.now() - started
     });
     sendJson(res, 200, { answer: result.answer, sources: [], grounded: result.grounded });
@@ -1837,7 +2046,7 @@ async function handleChat(req, res, deps) {
   }
 }
 
-// backend/src/routes/health.ts
+// src/routes/health.ts
 function handleHealth(req, res, deps) {
   if (headerValue(req, "x-wkc-signature")) {
     const failure = deps.verifier.verify(
@@ -1856,7 +2065,7 @@ function handleHealth(req, res, deps) {
   sendJson(res, ready ? 200 : 503, { status: ready ? "ok" : "degraded", knowledge_base: ready ? "ready" : "empty" });
 }
 
-// backend/src/routes/index.ts
+// src/routes/index.ts
 init_knowledge_base();
 var INDEX_BODY_LIMIT_BYTES = 2 * 1024 * 1024;
 var MAX_DOCUMENTS_PER_REQUEST = 200;
@@ -1948,6 +2157,7 @@ async function handleIndex(req, res, deps) {
       throw new HttpError(500, "persist_failed", "The knowledge base could not be saved. No changes were applied.");
     }
     deps.retriever.rebuild(deps.store.chunks());
+    deps.cache?.clear();
     if (!persisted.durable) deps.logger.warn("kb_persisted_ephemeral");
     return { ...counts, total: deps.store.size, persisted: persisted.durable ? "file" : "ephemeral" };
   });
@@ -1955,7 +2165,7 @@ async function handleIndex(req, res, deps) {
   sendJson(res, 200, result);
 }
 
-// backend/src/services/text.ts
+// src/services/text.ts
 var STOPWORDS = new Set(
   // English
   "a an and are as at be been but by can could do does did for from had has have how i if in into is it its me my of on or our please should so tell than that the their them then there these they this those to us was we what when where which will with would you your yours also any some more most yang dan di ke dari apa apakah bagaimana gimana saya aku kami kita anda kamu untuk dengan ini itu ada bisa dapat adalah ya tidak atau juga akan sudah pada oleh mana berapa kapan tolong mohon sebutkan seperti para tersebut lebih sangat punya memiliki".split(/\s+/)
@@ -2030,8 +2240,13 @@ var QUERY_EXPANSIONS = {
   alamat: ["address", "tower", "jakarta"],
   kantor: ["office", "tower", "jakarta"],
   lokasi: ["location", "office", "tower", "jakarta"],
-  telepon: ["call", "phone"],
-  nomor: ["call", "phone"],
+  telepon: ["call", "phone", "contact"],
+  telpon: ["call", "phone", "contact"],
+  telp: ["call", "phone", "contact"],
+  nomor: ["call", "phone", "contact"],
+  nomer: ["call", "phone", "contact"],
+  wa: ["call", "phone", "contact"],
+  whatsapp: ["call", "phone", "contact"],
   surel: ["email"],
   tentang: ["about", "supporting", "capabilities"],
   profil: ["about", "supporting", "capabilities"],
@@ -2144,8 +2359,10 @@ var QUERY_EXPANSIONS = {
   located: ["tower", "jakarta", "address"],
   location: ["tower", "jakarta", "address"],
   based: ["office", "tower", "jakarta", "address", "location"],
-  phone: ["call", "phone"],
-  telephone: ["call", "phone"],
+  phone: ["call", "phone", "contact"],
+  telephone: ["call", "phone", "contact"],
+  number: ["call", "phone", "contact"],
+  call: ["call", "phone", "contact"],
   mail: ["email"],
   acquisition: ["acquisition", "cross", "border", "deal", "transaction"],
   acquire: ["acquisition", "cross", "border", "deal", "transaction"],
@@ -2214,7 +2431,10 @@ var KOREAN_EXPANSIONS = [
   ["\uC704\uCE58", ["location", "tower", "jakarta"]],
   ["\uC774\uBA54\uC77C", ["email"]],
   ["\uBA54\uC77C", ["email"]],
-  ["\uC804\uD654", ["call", "phone"]],
+  ["\uC804\uD654", ["call", "phone", "contact"]],
+  ["\uC5F0\uB77D\uCC98", ["call", "phone", "contact"]],
+  ["\uC653\uCE20\uC571", ["call", "phone", "contact"]],
+  ["\uCE74\uD1A1", ["call", "phone", "contact"]],
   ["\uD68C\uC0AC", ["about", "company"]],
   ["\uAE30\uC5C5", ["company"]],
   ["\uC18C\uAC1C", ["about"]],
@@ -2287,7 +2507,7 @@ function tokenizeQuery(text) {
   return [...out];
 }
 
-// backend/src/services/retrieval.ts
+// src/services/retrieval.ts
 var K1 = 1.2;
 var B = 0.75;
 var TITLE_WEIGHT = 2;
@@ -2335,9 +2555,11 @@ var Bm25Retriever = class {
   }
 };
 
-// backend/src/app.ts
+// src/app.ts
 function createApp({ config: config2, store, llm, logger, now = () => Date.now(), indexingEnabled = true }) {
   const retriever = new Bm25Retriever(store.chunks());
+  const cache = new ResponseCache(5 * 6e4, 500, now);
+  const cacheNamespace = `${config2.llmProvider}:${config2.llmProvider === "openrouter" ? config2.openrouterModel : config2.geminiModel}`;
   const chat = new ChatService({
     store,
     retriever,
@@ -2347,6 +2569,8 @@ function createApp({ config: config2, store, llm, logger, now = () => Date.now()
     minScore: config2.retrievalMinScore,
     secrets: [config2.geminiApiKey, config2.openrouterApiKey, config2.chatSharedSecret, config2.indexApiToken],
     budget: new DailyBudget(config2.dailyRequestLimit, now),
+    cache,
+    cacheNamespace,
     now
   });
   const verifier = new SignatureVerifier(config2.chatSharedSecret, config2.signatureMaxSkewSeconds, now);
@@ -2370,7 +2594,8 @@ function createApp({ config: config2, store, llm, logger, now = () => Date.now()
     limiter: new FixedWindowLimiter(30, 6e4, now),
     logger,
     lock: createLock(),
-    indexingEnabled
+    indexingEnabled,
+    cache
   };
   const routes = {
     "/api/chat": { method: "POST", handle: (req, res) => handleChat(req, res, chatDeps) },
@@ -2404,7 +2629,7 @@ function createApp({ config: config2, store, llm, logger, now = () => Date.now()
   };
 }
 
-// backend/src/vercel/_app.ts
+// src/vercel/_app.ts
 init_env();
 init_logger();
 init_knowledge_base();
@@ -2435,7 +2660,7 @@ async function getApp() {
   return appPromise;
 }
 
-// backend/src/vercel/health.ts
+// src/vercel/health.ts
 init_adapter();
 var config = {
   api: {
@@ -2462,20 +2687,13 @@ async function handler(req, res) {
     }
     return await handleWebRequest(req, app);
   } catch (err) {
-    console.error("Vercel Function Error (/api/health):", err);
-    const msg = err instanceof Error ? err.message : String(err);
+    console.error(JSON.stringify({ level: "error", event: "vercel_handler_error", route: "/api/health", error: err instanceof Error ? err.name : "unknown" }));
+    const httpErr = new HttpError(500, "internal_error", "An internal error occurred.");
     if (res && typeof res.setHeader === "function") {
-      if (!res.headersSent) {
-        res.statusCode = 500;
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ error: { code: "internal_error", message: msg } }));
-      }
+      sendError(res, httpErr);
       return;
     }
-    return new Response(JSON.stringify({ error: { code: "internal_error", message: msg } }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return createErrorResponse(httpErr);
   }
 }
 export {

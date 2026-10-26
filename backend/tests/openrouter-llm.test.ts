@@ -188,6 +188,35 @@ describe('OpenRouterClient', () => {
     assert.equal(secondaryCalled, false);
   });
 
+  it('shares one deadline between both providers and keeps a reserve for the secondary', async () => {
+    // Primary never answers and has a 5 s timeout of its own; the shared budget must cut it short.
+    const primary = client((_url, init) => new Promise<Response>((_, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
+    }), { timeoutMs: 5000 });
+    let secondaryWindow = 0;
+    const secondary = {
+      generate: async (_req: unknown, deadlineAt?: number) => {
+        secondaryWindow = (deadlineAt ?? Number.POSITIVE_INFINITY) - Date.now();
+        return 'from secondary';
+      },
+    };
+    const failover = new FailoverLlmClient(primary, secondary, undefined, { totalTimeoutMs: 1500, secondaryReserveMs: 1000 });
+
+    const started = Date.now();
+    assert.equal(await failover.generate(REQUEST), 'from secondary');
+    const elapsed = Date.now() - started;
+    assert.ok(elapsed < 1000, `primary used ${elapsed} ms of a 500 ms share`);
+    assert.ok(secondaryWindow > 900 && secondaryWindow <= 1500, `secondary got ${secondaryWindow} ms`);
+  });
+
+  it('caps every provider timeout at LLM_TOTAL_TIMEOUT_MS', async () => {
+    const config = loadConfig(baseEnv({ GEMINI_TIMEOUT_MS: '30000', LLM_TOTAL_TIMEOUT_MS: '2000' }));
+    assert.equal(config.llmTotalTimeoutMs, 2000);
+    const defaults = loadConfig(baseEnv());
+    assert.ok(defaults.llmTotalTimeoutMs < 22_000 - 3000, 'default budget leaves WordPress headroom');
+    assert.ok(defaults.geminiTimeoutMs <= defaults.llmTotalTimeoutMs);
+  });
+
   it('creates a FailoverLlmClient when both Gemini and OpenRouter keys are present', () => {
     const config = loadConfig(baseEnv({ OPENROUTER_API_KEY: OPENROUTER_KEY, GEMINI_API_KEY: 'AIza' + 'a'.repeat(35) }));
     const client = createLlmClient(config);
