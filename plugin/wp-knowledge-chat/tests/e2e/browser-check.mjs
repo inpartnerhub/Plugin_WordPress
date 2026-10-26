@@ -249,7 +249,7 @@ try {
 	await check('language switcher: Korean interface answers a Korean question with sources', async () => {
 		await evaluate("document.querySelector('.wkc-launcher').click(); true");
 		await waitFor("!document.getElementById('wkc-panel').hidden");
-		assert.deepEqual(await evaluate("[...document.querySelectorAll('.wkc-lang')].map(b => b.getAttribute('aria-pressed'))"), ['true', 'false', 'false']);
+		assert.deepEqual(await evaluate("[...document.querySelectorAll('.wkc-lang')].map(b => b.dataset.lang + ':' + b.getAttribute('aria-pressed'))"), ['en:true', 'id:false', 'ko:false', 'ja:false', 'zh:false']);
 		await evaluate("document.querySelector('.wkc-lang[data-lang=\"ko\"]').click(); true");
 		assert.equal(await evaluate("document.getElementById('wkc-root').lang"), 'ko');
 		assert.equal(await evaluate("document.getElementById('wkc-title').textContent"), 'Inpartner AI 어시스턴트');
