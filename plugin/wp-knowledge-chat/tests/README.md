@@ -26,15 +26,11 @@ No MySQL or Docker is needed: WordPress runs on SQLite using the official SQLite
 cd plugin/wp-knowledge-chat/tests
 composer install
 npm install
-bin/setup-wp.sh                      # → <repo>/.wp-test (WordPress 7.1.3, symlinked + activated plugin, test users, `wp` wrapper)
-
-# Required by e2e/run.sh (it asserts an Elementor-built page); reproduces the reported environment:
-../../../.wp-test/wp theme install hello-elementor --version=3.5.1 --activate
-../../../.wp-test/wp plugin install elementor --version=4.3.5 --activate
-../../../.wp-test/wp eval-file bin/elementor-fixture.php
+bin/setup-wp.sh                      # → <repo>/.wp-test (WordPress 7.1.3, symlinked + activated plugin, test users, `wp` wrapper,
+                                     #   Hello Elementor 3.5.1 + Elementor 4.3.5 + the Elementor-built front page)
 ```
 
-`setup-wp.sh` accepts a target directory as its first argument, and the environment variables `WP_VERSION` (default `7.1.3`) and `WP_URL` (default `http://127.0.0.1:8899`). Running it again recreates the install, including its database, from scratch.
+`setup-wp.sh` accepts a target directory as its first argument, and the environment variables `WP_VERSION` (default `7.1.3`) and `WP_URL` (default `http://127.0.0.1:8899`). Running it again recreates the install, including its database, from scratch. It also installs Hello Elementor, Elementor and `bin/elementor-fixture.php`, which `e2e/run.sh` requires (it asserts an Elementor-built front page). `WKC_ELEMENTOR=0` skips that step; CI and the package, multisite and MySQL checks use it because PHPUnit and the ZIP checks do not need Elementor.
 
 `bin/mysql-check.sh` starts a throwaway MySQL 8.0 container (needs Docker), creates a WordPress on it with `WKC_DB=mysql bin/setup-wp.sh`, runs the PHPUnit suite and a ZIP install/uninstall there, and removes the container.
 

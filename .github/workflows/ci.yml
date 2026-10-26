@@ -130,7 +130,7 @@ jobs:
         run: npm run test:widget
 
       - name: Setup Disposable Local WordPress
-        run: bash plugin/wp-knowledge-chat/tests/bin/setup-wp.sh
+        run: WKC_ELEMENTOR=0 bash plugin/wp-knowledge-chat/tests/bin/setup-wp.sh
 
       - name: Run Plugin Tests (PHPUnit)
         working-directory: plugin/wp-knowledge-chat/tests

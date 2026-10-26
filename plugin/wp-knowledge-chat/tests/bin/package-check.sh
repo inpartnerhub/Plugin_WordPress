@@ -30,7 +30,7 @@ ok "ZIP contains the translations and no tests, vendor, node_modules or .env"
 
 mkdir -p "$TARGET"
 [ -d "$TARGET/cache" ] || cp -R "$REPO/.wp-test/cache" "$TARGET/" 2>/dev/null || true
-"$HERE/setup-wp.sh" "$TARGET" >/dev/null 2>&1 || fail "could not create the WordPress test install"
+WKC_ELEMENTOR=0 "$HERE/setup-wp.sh" "$TARGET" >/dev/null 2>&1 || fail "could not create the WordPress test install"
 # setup-wp.sh links the working copy; replace it with the ZIP.
 "$WP" plugin deactivate wp-knowledge-chat >/dev/null
 rm "$TARGET/wordpress/wp-content/plugins/wp-knowledge-chat"

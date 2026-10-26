@@ -32,7 +32,7 @@ ok "MySQL $VERSION is running"
 
 mkdir -p "$TARGET"
 [ -d "$TARGET/cache" ] || cp -R "$REPO/.wp-test/cache" "$TARGET/" 2>/dev/null || true
-WKC_DB=mysql "$HERE/setup-wp.sh" "$TARGET" >/dev/null 2>&1 || fail "could not create the WordPress install on MySQL"
+WKC_DB=mysql WKC_ELEMENTOR=0 "$HERE/setup-wp.sh" "$TARGET" >/dev/null 2>&1 || fail "could not create the WordPress install on MySQL"
 "$TARGET/wp" eval 'global $wpdb; echo defined( "SQLITE_DB_DROPIN_VERSION" ) ? "sqlite" : "mysql " . $wpdb->db_version();' | grep -q '^mysql 8' || fail "WordPress is not using MySQL"
 ok "WordPress installed on MySQL"
 

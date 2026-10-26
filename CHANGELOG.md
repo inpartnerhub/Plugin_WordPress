@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 - **Timeout chain (`llm.ts`, `env.ts`, `class-backend-client.php`)**: Primary and failover provider now share one deadline (`LLM_TOTAL_TIMEOUT_MS`, default 18 s, with a 6 s reserve for the secondary) instead of each getting a full 25 s. The WordPress backend timeout is 22 s and the widget's 30 s, so each layer answers before the one in front gives up. `GEMINI_TIMEOUT_MS` default restored to the documented 12 s.
+- **Widget accessibility (`chat-widget.css`, `chat-widget.js`)**: Error text darkened to `#be123c` (4.27:1 → 5.7:1 on its background, WCAG 1.4.3); the language toggle's accessible name now includes the visible language code (WCAG 2.5.3); the toggle is 36 px tall on mobile like the other header controls.
+- **Local E2E (`tests/e2e/`, `tests/bin/setup-wp.sh`)**: `setup-wp.sh` now installs Hello Elementor, Elementor and the Elementor front-page fixture that `e2e/run.sh` needs (`WKC_ELEMENTOR=0` skips it). HTTP and browser checks updated to the current contract (no `sources` returned, current fallback and contact-URL wording, current brand colours, dropdown language switcher) and wait for entry animations before contrast and size checks.
 
 ### Changed
 - **Vercel bundles**: `esbuild` pinned to `0.28.2` as a dev dependency; `backend/api/*.js` rebuilt from `backend/` and CI now fails when the committed bundles do not match the sources.

@@ -9,6 +9,10 @@
 # defaults 127.0.0.1:33306 / wkc / root / test, see tests/bin/mysql-check.sh).
 # The database must be empty and disposable (the WP-CLI `db` commands need a
 # mysql client, which is not required here).
+#
+# Elementor: by default it installs Hello Elementor 3.5.1 + Elementor 4.3.5 and
+# the Elementor-built front page from elementor-fixture.php, which e2e/run.sh
+# requires. WKC_ELEMENTOR=0 skips this (PHPUnit and package checks do not need it).
 set -euo pipefail
 
 WP_VERSION="${WP_VERSION:-7.1.3}"
@@ -108,5 +112,11 @@ $WP user create editor editor@example.test --role=editor --user_pass=editor-pass
 $WP user create subscriber subscriber@example.test --role=subscriber --user_pass=subscriber-pass-123 >/dev/null
 $WP post create --post_type=page --post_title="Contact" --post_name=contact --post_status=publish >/dev/null
 $WP plugin activate wp-knowledge-chat >/dev/null
+
+if [ "${WKC_ELEMENTOR:-1}" != 0 ]; then
+  $WP theme install hello-elementor --version=3.5.1 --activate >/dev/null
+  $WP plugin install elementor --version=4.3.5 --activate >/dev/null
+  $WP eval-file "$HERE/elementor-fixture.php" >/dev/null
+fi
 
 echo "WordPress $($WP core version) [$WKC_DB] ready at $WP_DIR (url $WP_URL)"

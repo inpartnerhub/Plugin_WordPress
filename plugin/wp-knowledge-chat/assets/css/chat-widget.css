@@ -22,7 +22,7 @@
 	--wkc-user-bubble: #ffffff;
 	--wkc-online: #10b981;
 	--wkc-error-bg: #fff1f2;
-	--wkc-error: #e11d48;
+	--wkc-error: #be123c;
 	--wkc-focus: #0076db;
 	--wkc-radius: 28px;
 	--wkc-z: 99990;
@@ -1404,7 +1404,8 @@
 		font-size: 16px;
 	}
 
-	#wkc-root .wkc-lang {
+	#wkc-root .wkc-lang,
+	#wkc-root .wkc-lang-toggle {
 		min-width: 36px;
 		height: 36px;
 	}

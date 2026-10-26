@@ -82,14 +82,14 @@ describe('public site', () => {
 		assert.ok(!html.includes(GEMINI_KEY), 'Gemini key not in page');
 	});
 
-	it('answers a real question from the Inpartner knowledge base with valid sources', async () => {
+	it('answers a real question from the Inpartner knowledge base without exposing sources', async () => {
 		const res = await ask('What does Distribution Partner Sourcing Advisory include?');
 		assert.equal(res.status, 200);
 		const body = await res.json();
 		assert.equal(body.grounded, true);
-		assert.ok(body.sources.length >= 1);
-		for (const s of body.sources) assert.match(s.url, /^https:\/\/inpartnerglobal\.com\//);
-		assert.ok(body.sources.some((s) => s.url === 'https://inpartnerglobal.com/distribution-partner-sourcing-advisory/'));
+		assert.ok(body.answer.length > 0);
+		// The backend deliberately returns no source links to visitors.
+		assert.deepEqual(body.sources, []);
 	});
 
 	it('returns the fallback for unsupported questions', async () => {
@@ -98,10 +98,10 @@ describe('public site', () => {
 		assert.equal(res.status, 200);
 		assert.equal(body.grounded, false);
 		assert.deepEqual(body.sources, []);
-		assert.match(body.answer, /hubungi tim kami/);
+		assert.match(body.answer, /hubungi kami melalui tautan kontak/);
 		const ko = await (await ask('화성의 내일 날씨는 어떤가요?', { language: 'ko' })).json();
 		assert.equal(ko.grounded, false);
-		assert.match(ko.answer, /Inpartner 자문팀/);
+		assert.match(ko.answer, /자문팀에 문의/);
 	});
 
 	it('rejects cross-site browser requests and invalid input', async () => {
@@ -190,7 +190,7 @@ describe('admin settings (real options.php flow)', () => {
 		assert.deepEqual(getSettings(), saved);
 		const after = await (await admin.request(`${WP}/wp-admin/admin.php?page=wp-knowledge-chat&settings-updated=true`)).text();
 		assert.match(after, /Greeting message is required/);
-		assert.match(after, /Contact URL must be an absolute https/);
+		assert.match(after, /Contact URL must be a valid WhatsApp number, email address, or an absolute https:\/\/ URL/);
 		assert.match(after, /Default language must be/);
 		assert.ok(!after.includes(SECRET));
 

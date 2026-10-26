@@ -355,7 +355,8 @@
 				'aria-haspopup': 'true',
 				'aria-expanded': 'false',
 				'aria-controls': 'wkc-langs',
-				'aria-label': t.language,
+				// Accessible name must contain the visible code (WCAG 2.5.3 Label in Name).
+				'aria-label': t.language + ' ' + lang.toUpperCase(),
 				title: t.language
 			});
 			toggleBtn.appendChild(globeIcon());
@@ -839,7 +840,7 @@
 				toggleCur.textContent = code === 'ko' ? 'KO' : code.toUpperCase();
 			}
 			if (toggleBtn) {
-				toggleBtn.setAttribute('aria-label', t.language);
+				toggleBtn.setAttribute('aria-label', t.language + ' ' + code.toUpperCase());
 				toggleBtn.setAttribute('title', t.language);
 			}
 			Array.prototype.forEach.call(log.querySelectorAll('.wkc-msg-speaker'), function (s) {
