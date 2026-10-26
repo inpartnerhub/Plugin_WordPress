@@ -283,6 +283,12 @@
 		zh: { short: '简体中文', name: '' }
 	};
 
+	/** The visitor's question shows they want to engage the team (consult, meet, get a price). */
+	var CONSULT_INTENT_RE = /\b(consult|consultation|consultations|schedule (a )?(call|meeting)|book (a )?(call|meeting|consultation)|talk to (your|a|an|the) (team|consultant|advisor|expert)s?|contact (you|your team|the team|inpartner)|get in touch|hire (you|inpartner)|work with (you|inpartner)|proposal|quotation|quote|pricing|prices?|costs?|fees?|konsul|konsultasi|berkonsultasi|jadwal|jadwalkan|meeting|ketemu|bertemu|(meng)?hubungi|kerja ?sama|penawaran|biaya(nya)?|harga(nya)?|tarif(nya)?)\b|상담|미팅|견적|비용|相談|打ち合わせ|見積|費用|料金|問い合わせ|咨询|预约|会议|报价|费用|价格|合作/i;
+
+	/** The assistant's answer points the visitor to the team. Narrow on purpose: the self-introduction must not match. */
+	var CONSULT_INVITE_RE = /\b(contact|reach out to|get in touch with|speak (with|to)|talk (with|to)|discuss[^.!?]{0,60}with) (our|the) (inpartner )?(team|consultants?|advisors?|experts?)\b|\b(schedule|book) (a )?(call|meeting|consultation)\b|\b(meng)?hubungi (tim|kami)\b|\bdiskusikan[^.!?]{0,60}(dengan|bersama) tim\b|\bjadwalkan\b|문의해 주세요|연락(해|주)|お問い合わせ|ご相談ください|联系我们|联系[^。！？]{0,10}团队|预约/i;
+
 	function format(template, values) {
 		return template.replace(/\{(\w+)\}/g, function (_, key) {
 			return Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : '';
@@ -660,7 +666,7 @@
 		var leadFormCount = 0;
 		var LEAD_LIMITS = { name: 100, email: 254, company: 150, message: 2000 };
 
-		function renderLeadForm(parentItem) {
+		function renderLeadForm(parentItem, prefill) {
 			if (parentItem.querySelector('.wkc-lead-card')) return;
 			var uid = 'wkc-lead-' + ++leadFormCount;
 			var card = el('form', { class: 'wkc-lead-card', 'aria-labelledby': uid + '-title', novalidate: 'novalidate' });
@@ -686,6 +692,7 @@
 			var emailInput = field('email', 'input', { type: 'email', class: 'wkc-lead-input', autocomplete: 'email', required: 'required' }, 'leadEmail');
 			var compInput = field('company', 'input', { type: 'text', class: 'wkc-lead-input', autocomplete: 'organization' }, 'leadCompany');
 			var msgInput = field('message', 'textarea', { class: 'wkc-lead-textarea', rows: '2' }, 'leadMessage');
+			if (prefill) msgInput.value = String(prefill).slice(0, LEAD_LIMITS.message);
 
 			// Honeypot: invisible to people and assistive technology, filled in by naive bots.
 			var trap = el('input', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true', class: 'wkc-lead-hp' });
@@ -817,7 +824,7 @@
 			});
 
 			if (msg.role === 'bot') {
-				if (!msg.grounded && !msg.isGreeting) {
+				if ((!msg.grounded || msg.consult) && !msg.isGreeting) {
 					var botActions = el('div', { class: 'wkc-bot-actions' });
 					var consultBtn = el('button', { type: 'button', class: 'wkc-lead-btn' }, t.requestConsult);
 					consultBtn.addEventListener('click', function () {
@@ -1040,7 +1047,23 @@
 		function addMessage(msg) {
 			history.push(msg);
 			persist();
-			renderMessage(msg);
+			return renderMessage(msg);
+		}
+
+		var leadAutoOpened = false;
+
+		/** Adds an answer, offering the lead form when the conversation turns to a consultation. */
+		function addBotAnswer(question, answer, sources, grounded) {
+			var wantsConsult = CONSULT_INTENT_RE.test(question);
+			var msg = { role: 'bot', text: answer, sources: sources, grounded: grounded };
+			if (wantsConsult || CONSULT_INVITE_RE.test(answer)) msg.consult = true;
+			var item = addMessage(msg);
+			// Open the form once per page load, so a cancelled or sent form does not keep popping up.
+			if (wantsConsult && !leadAutoOpened) {
+				leadAutoOpened = true;
+				renderLeadForm(item, question);
+				log.scrollTop = log.scrollHeight;
+			}
 		}
 
 		function setPending(value) {
@@ -1130,7 +1153,7 @@
 					typing.remove();
 					var d = result.data;
 					if (result.ok && d && typeof d.answer === 'string') {
-						addMessage({ role: 'bot', text: d.answer, sources: Array.isArray(d.sources) ? d.sources : [], grounded: d.grounded === true });
+						addBotAnswer(question, d.answer, Array.isArray(d.sources) ? d.sources : [], d.grounded === true);
 						status.textContent = t.received;
 						if (d.grounded === true && (!payload.history || payload.history.length === 0)) {
 							clientCache[lang + ':' + question.toLowerCase()] = {
@@ -1192,7 +1215,7 @@
 
 			if (prevTurns.length === 0 && clientCache[cacheKey]) {
 				var cached = clientCache[cacheKey];
-				addMessage({ role: 'bot', text: cached.answer, sources: cached.sources || [], grounded: true });
+				addBotAnswer(question, cached.answer, cached.sources || [], true);
 				status.textContent = t.received;
 				return;
 			}

@@ -186,6 +186,7 @@ describe('sending messages', () => {
 		assert.equal(calls[0].init.credentials, 'omit');
 		assert.equal($$('.wkc-msg--user')[0].textContent.includes('Apa layanan Anda?'), true);
 		assert.equal($$('.wkc-cta').length, 0, 'no contact prompt on grounded answers');
+		assert.equal($$('.wkc-lead-btn').length, 0, 'no consultation button without consultation intent');
 		assert.equal($('.wkc-suggestions').hidden, true);
 		assert.equal($('#wkc-input').value, '');
 	});
@@ -199,6 +200,43 @@ describe('sending messages', () => {
 		const cta = $$('.wkc-cta a');
 		assert.equal(cta.length, 1);
 		assert.equal(cta[0].getAttribute('href'), 'https://inpartnerglobal.com/contact/');
+	});
+
+	it('opens the consultation form when the visitor asks to consult, even on a grounded answer', async () => {
+		const { $, $$, flush, type, pressEnter } = await setup({
+			config: { language: 'id' },
+			responses: [
+				jsonResponse(200, { answer: 'Tentu, tim kami siap membantu.', grounded: true, sources: [] }),
+				jsonResponse(200, { answer: 'Biaya disesuaikan dengan proyek.', grounded: true, sources: [] }),
+			],
+		});
+		type('Saya mau jadwalkan konsultasi');
+		pressEnter();
+		await flush();
+		await flush();
+		assert.equal($$('.wkc-lead-btn').length, 1);
+		assert.equal($$('.wkc-lead-card').length, 1);
+		assert.equal($('.wkc-lead-textarea').value, 'Saya mau jadwalkan konsultasi');
+
+		$('.wkc-lead-cancel').click();
+		type('Berapa biayanya?');
+		pressEnter();
+		await flush();
+		await flush();
+		assert.equal($$('.wkc-lead-btn').length, 2, 'the button is still offered');
+		assert.equal($$('.wkc-lead-card').length, 0, 'the form opens by itself only once');
+	});
+
+	it('offers the consultation button when the answer points to the team', async () => {
+		const { $$, flush, type, pressEnter } = await setup({
+			responses: [jsonResponse(200, { answer: 'We support market entry. Feel free to contact the Inpartner team to discuss your plans.', grounded: true, sources: [] })],
+		});
+		type('Do you help with market entry?');
+		pressEnter();
+		await flush();
+		await flush();
+		assert.equal($$('.wkc-lead-btn').length, 1);
+		assert.equal($$('.wkc-lead-card').length, 0);
 	});
 
 	it('prevents duplicate submissions while a request is pending', async () => {
