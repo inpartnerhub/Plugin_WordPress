@@ -19,7 +19,7 @@ wp() { "$WP" "$@" 2> >(grep -v Deprecated >&2); }
 
 mkdir -p "$TARGET"
 [ -d "$TARGET/cache" ] || cp -R "$REPO/.wp-test/cache" "$TARGET/" 2>/dev/null || true
-"$HERE/setup-wp.sh" "$TARGET" >/dev/null 2>&1 || fail "could not create the WordPress test install"
+WKC_ELEMENTOR=0 "$HERE/setup-wp.sh" "$TARGET" >/dev/null 2>&1 || fail "could not create the WordPress test install"
 wp core multisite-convert >/dev/null || fail "multisite conversion failed"
 wp site create --slug=two --title=Two >/dev/null || fail "could not create the second site"
 rm -rf "$TARGET/wordpress/wp-content/plugins/wp-knowledge-chat"

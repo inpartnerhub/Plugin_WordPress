@@ -106,12 +106,18 @@ async function load(viewport) {
 	await waitFor("document.readyState === 'complete' && !!document.querySelector('.wkc-launcher')");
 }
 
+// Wait for entry animations (fades, scale-ins) so contrast and size checks see final values; skips infinite loops.
+async function settle() {
+	await evaluate('Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))).then(() => true)');
+}
+
 async function askViaKeyboard(question) {
 	await evaluate("document.getElementById('wkc-input').focus(); true");
 	await typeText(question);
 	const before = await evaluate("document.querySelectorAll('.wkc-msg--bot:not(.wkc-typing), .wkc-msg--error').length");
 	await key('Enter', 'Enter', 13);
 	await waitFor(`document.querySelectorAll('.wkc-msg--bot:not(.wkc-typing), .wkc-msg--error').length > ${before} && !document.querySelector('.wkc-typing')`, 20000);
+	await settle();
 }
 
 const results = [];
@@ -153,11 +159,12 @@ try {
 			const l = cs('.wkc-launcher');
 			return { launcherBg: l.backgroundColor, launcherRadius: l.borderRadius, launcherBorder: l.borderTopColor };
 		})()`);
-		assert.equal(styles.launcherBg, 'rgb(21, 101, 192)');
+		assert.equal(styles.launcherBg, 'rgb(0, 118, 219)');
 		assert.equal(styles.launcherRadius, '50%');
-		assert.equal(styles.launcherBorder, 'rgb(249, 214, 124)');
+		assert.equal(styles.launcherBorder, 'rgb(255, 255, 255)');
 		await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 1366 - 16 - 29, y: 900 - 16 - 29 });
-		assert.equal(await evaluate("getComputedStyle(document.querySelector('.wkc-launcher')).backgroundColor"), 'rgb(21, 101, 192)', 'hover keeps brand colour');
+		await settle();
+		assert.equal(await evaluate("getComputedStyle(document.querySelector('.wkc-launcher')).backgroundColor"), 'rgb(0, 98, 184)', 'hover uses the brand hover colour');
 		await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 10, y: 400 });
 	});
 
@@ -183,24 +190,21 @@ try {
 		const st = await evaluate(`(() => {
 			document.getElementById('wkc-input').blur();
 			const cs = (sel) => getComputedStyle(document.querySelector(sel));
-			return { send: cs('.wkc-send').backgroundColor, sendColor: cs('.wkc-send').color, close: cs('.wkc-close').borderTopColor, chipWrap: cs('.wkc-chip').whiteSpace, input: cs('#wkc-input').borderTopColor };
+			return { send: cs('.wkc-send').backgroundColor, sendColor: cs('.wkc-send').color, close: cs('.wkc-close').borderTopColor, chipWrap: cs('.wkc-chip').whiteSpace, input: cs('#wkc-input').borderTopWidth };
 		})()`);
-		assert.equal(st.send, 'rgb(21, 101, 192)');
+		assert.equal(st.send, 'rgb(0, 118, 219)');
 		assert.equal(st.sendColor, 'rgb(255, 255, 255)');
-		assert.equal(st.close, 'rgba(255, 255, 255, 0.4)');
+		assert.equal(st.close, 'rgba(226, 232, 240, 0.9)');
 		assert.equal(st.chipWrap, 'normal');
-		assert.equal(st.input, 'rgb(138, 149, 153)');
+		assert.equal(st.input, '0px', 'theme input border does not leak (the wrapper draws the border)');
 	});
 
-	await check('answers a question with sources (grounded)', async () => {
+	await check('answers a grounded question without source links', async () => {
 		await askViaKeyboard('What does Distribution Partner Sourcing Advisory include?');
-		const links = await evaluate("[...document.querySelectorAll('.wkc-sources a')].map(a => [a.href, a.target, a.rel])");
-		assert.ok(links.length >= 1, 'source links present');
-		for (const [href, target, rel] of links) {
-			assert.match(href, /^https:\/\/inpartnerglobal\.com\//);
-			assert.equal(target, '_blank');
-			assert.equal(rel, 'noopener noreferrer');
-		}
+		const last = "[...document.querySelectorAll('.wkc-msg--bot')].at(-1)";
+		assert.ok(await evaluate(`${last}.textContent.trim().length > 0`), 'answer rendered');
+		// The backend deliberately returns no sources, so the widget shows none.
+		assert.equal(await evaluate(`${last}.querySelectorAll('.wkc-sources a').length`), 0);
 		await screenshot('04-desktop-answer');
 	});
 
@@ -246,7 +250,7 @@ try {
 		assert.ok(await evaluate("document.querySelectorAll('.wkc-msg--user').length >= 2"));
 	});
 
-	await check('language switcher: Korean interface answers a Korean question with sources', async () => {
+	await check('language switcher: Korean interface answers a Korean question', async () => {
 		await evaluate("document.querySelector('.wkc-launcher').click(); true");
 		await waitFor("!document.getElementById('wkc-panel').hidden");
 		assert.deepEqual(await evaluate("[...document.querySelectorAll('.wkc-lang')].map(b => b.getAttribute('aria-pressed'))"), ['true', 'false', 'false']);
@@ -254,7 +258,7 @@ try {
 		assert.equal(await evaluate("document.getElementById('wkc-root').lang"), 'ko');
 		assert.equal(await evaluate("document.getElementById('wkc-title').textContent"), 'Inpartner AI 어시스턴트');
 		await askViaKeyboard('유통 파트너 발굴 자문은 무엇인가요?');
-		assert.ok(await evaluate("[...document.querySelectorAll('.wkc-msg--bot')].at(-1).querySelectorAll('.wkc-sources a').length >= 1"), 'Korean question retrieves a cited page');
+		assert.ok(await evaluate("[...document.querySelectorAll('.wkc-msg--bot')].at(-1).textContent.trim().length > 0"), 'Korean answer rendered');
 		await evaluate(`${AXE}; true`);
 		const violations = await evaluate(`axe.run('#wkc-root', { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] } }).then(r => r.violations.map(v => v.id + ': ' + v.help + ' (' + v.nodes.length + ')'))`);
 		assert.deepEqual(violations, []);
@@ -284,7 +288,11 @@ try {
 	});
 
 	await check('mobile: touch targets are at least 44px', async () => {
-		const sizes = await evaluate("[...document.querySelectorAll('.wkc-send, .wkc-close, .wkc-lang')].map(b => { const r = b.getBoundingClientRect(); return Math.min(r.width, r.height); })");
+		// The language buttons sit in a dropdown; open it so they have a size.
+		await evaluate("document.querySelector('.wkc-lang-toggle').click(); true");
+		await settle();
+		const sizes = await evaluate("[...document.querySelectorAll('.wkc-send, .wkc-close, .wkc-lang-toggle, .wkc-lang')].map(b => { const r = b.getBoundingClientRect(); return Math.min(r.width, r.height); })");
+		await evaluate("document.querySelector('.wkc-lang-toggle').click(); true");
 		assert.ok(sizes.every((s) => s >= 36), JSON.stringify(sizes));
 	});
 
