@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-26
+
 ### Added
 - **Job title and function on the consultation form.** Two optional fields after Company: *Job Title* (free text, up to 100 characters) and *Function / Department* (a dropdown: Owner / Founder, C-level / Director, Business Development / Strategy, Sales & Marketing, Finance / Investment, Operations / Supply Chain, Human Resources, Legal / Compliance, Other), in all five widget languages. The function is stored as a stable key (`founder`, `executive`, `bizdev`, `sales_marketing`, `finance`, `operations`, `hr`, `legal`, `other`) and shown translated.
   - Lead storage (`job_title`, `department` post meta), the `/lead` REST schema (`department` is an enum), the notification e-mail, the Analytics & Leads table ("Job Title / Function" column), the CSV export (`job_title`, `department` columns after `company`) and the privacy exporter all include them. Leads saved before this release read as empty.
