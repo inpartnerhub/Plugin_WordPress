@@ -645,12 +645,19 @@ describe('consultation request form', () => {
 
 	it('labels every field, limits lengths and hides the honeypot from assistive technology', async () => {
 		const ctx = await openForm();
-		for (const name of ['name', 'email', 'company', 'message']) {
+		for (const name of ['name', 'email', 'company', 'job_title', 'message']) {
 			const field = ctx.$(`.wkc-lead-card [name="${name}"]`);
 			const label = ctx.$(`.wkc-lead-card label[for="${field.id}"]`);
 			assert.ok(label && label.textContent.trim(), `${name} has a label`);
 			assert.ok(Number(field.getAttribute('maxlength')) > 0, `${name} has maxlength`);
 		}
+		const dept = ctx.$('.wkc-lead-card select[name="department"]');
+		assert.ok(ctx.$(`.wkc-lead-card label[for="${dept.id}"]`).textContent.includes('Function'), 'function has a label');
+		assert.deepEqual(
+			Array.from(dept.options).map((o) => o.value),
+			['', 'founder', 'executive', 'bizdev', 'sales_marketing', 'finance', 'operations', 'hr', 'legal', 'other']
+		);
+		assert.equal(dept.value, '', 'no function is preselected');
 		const trap = ctx.$('.wkc-lead-card [name="website"]');
 		assert.equal(trap.getAttribute('aria-hidden'), 'true');
 		assert.equal(trap.getAttribute('tabindex'), '-1');
@@ -668,10 +675,46 @@ describe('consultation request form', () => {
 		assert.match(lead.url, /\/lead$/);
 		assert.equal(lead.body.language, 'en');
 		assert.equal(lead.body.website, '');
+		assert.equal(lead.body.job_title, '', 'job title is optional');
+		assert.equal(lead.body.department, '', 'function is optional');
 		assert.equal(ctx.$('.wkc-lead-card'), null);
 		assert.ok(ctx.$$('.wkc-msg--bot').some((m) => m.textContent.includes('Thank you')));
 		const stored = JSON.parse(ctx.window.sessionStorage.getItem('wkc-history-v1'));
 		assert.ok(!stored.some((m) => m.text.includes('Thank you')), 'confirmation is not sent back to the assistant as history');
+	});
+
+	it('sends the job title and the selected function key', async () => {
+		const ctx = await openForm(jsonResponse(200, { success: true, code: 'lead_sent', message: 'ok' }));
+		fill(ctx, 'Jane', 'jane@company.com');
+		ctx.$('.wkc-lead-card [name="job_title"]').value = '  Head of Expansion ';
+		const dept = ctx.$('.wkc-lead-card select[name="department"]');
+		dept.value = 'bizdev';
+		dept.dispatchEvent(new ctx.window.Event('change'));
+		assert.equal(dept.classList.contains('wkc-lead-select--empty'), false);
+		submit(ctx);
+		await ctx.flush();
+		await ctx.flush();
+		assert.equal(ctx.calls[1].body.job_title, 'Head of Expansion');
+		assert.equal(ctx.calls[1].body.department, 'bizdev');
+	});
+
+	it('relabels the job title and function fields when the language changes', async () => {
+		const ctx = await setup({
+			config: { greeting: undefined, languages: ['en', 'id', 'ko'], switcher: true, detectBrowser: false },
+			responses: [jsonResponse(200, { answer: 'Fallback text', sources: [], grounded: false })],
+		});
+		ctx.$('.wkc-launcher').click();
+		ctx.type('Do you work in Vietnam?');
+		ctx.pressEnter();
+		await ctx.flush();
+		ctx.$('.wkc-lead-btn').click();
+		const dept = ctx.$('.wkc-lead-card select[name="department"]');
+		dept.value = 'finance';
+		ctx.$('.wkc-lang[data-lang="id"]').click();
+		assert.equal(ctx.$('.wkc-lead-card [name="job_title"]').getAttribute('placeholder'), 'Jabatan (Opsional)');
+		assert.equal(dept.options[0].textContent, 'Fungsi / Departemen (Opsional)');
+		assert.equal(dept.querySelector('option[value="finance"]').textContent, 'Keuangan / Investasi');
+		assert.equal(dept.value, 'finance', 'the choice is kept');
 	});
 
 	it('keeps the form and the typed data when the server rejects or rate-limits the request', async () => {

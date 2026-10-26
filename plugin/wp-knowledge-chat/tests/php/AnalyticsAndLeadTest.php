@@ -112,6 +112,38 @@ final class AnalyticsAndLeadTest extends TestCase {
 		$this->assertSame( 'sent', $leads[0]['mail_status'] );
 	}
 
+	public function test_lead_keeps_job_title_and_function_and_mails_them(): void {
+		$mails = array();
+		$this->add_filter(
+			'pre_wp_mail',
+			function ( $short_circuit, $atts ) use ( &$mails ) {
+				$mails[] = $atts['message'];
+				return true;
+			},
+			10,
+			2
+		);
+		$this->assertTrue( Analytics::save_lead( $this->valid_lead( array( 'job_title' => ' Head of Expansion ', 'department' => 'bizdev' ) ) ) );
+
+		$leads = Analytics::get_leads();
+		$this->assertSame( 'Head of Expansion', $leads[0]['job_title'] );
+		$this->assertSame( 'bizdev', $leads[0]['department'] );
+		$this->assertStringContainsString( "Job Title: Head of Expansion\nFunction: Business Development / Strategy\n", $mails[0] );
+
+		$this->assertTrue( Analytics::save_lead( $this->valid_lead( array( 'email' => 'nofunction@example.com' ) ) ) );
+		$this->assertStringContainsString( "Job Title: -\nFunction: -\n", $mails[1], 'both fields are optional' );
+	}
+
+	public function test_unknown_function_is_dropped_and_long_job_title_rejected(): void {
+		$this->assertTrue( Analytics::save_lead( $this->valid_lead( array( 'department' => 'astronaut' ) ) ) );
+		$this->assertSame( '', Analytics::get_leads()[0]['department'] );
+		$this->assertFalse( Analytics::save_lead( $this->valid_lead( array( 'job_title' => str_repeat( 'T', 101 ) ) ) ) );
+		$this->assertSame( 1, Analytics::count_leads() );
+
+		$response = rest_do_request( $this->lead_request( $this->valid_lead( array( 'department' => 'astronaut' ) ) ) );
+		$this->assertSame( 400, $response->get_status(), 'the REST schema only accepts known functions' );
+	}
+
 	public function test_oversized_fields_are_rejected_not_truncated(): void {
 		$this->assertFalse( Analytics::save_lead( $this->valid_lead( array( 'name' => str_repeat( 'N', 101 ) ) ) ) );
 		$this->assertFalse( Analytics::save_lead( $this->valid_lead( array( 'message' => str_repeat( 'M', 2001 ) ) ) ) );
@@ -184,6 +216,8 @@ final class AnalyticsAndLeadTest extends TestCase {
 		$this->assertSame( array( 'Newer', 'Older' ), array_column( $leads, 'name' ) );
 		$this->assertSame( '2026-10-14 08:00:00', $leads[1]['created_at'] );
 		$this->assertSame( 'migrated', $leads[1]['mail_status'] );
+		$this->assertSame( '', $leads[1]['job_title'], 'leads from before 1.2.0 read as empty' );
+		$this->assertSame( '', $leads[1]['department'] );
 	}
 
 	public function test_retention_filter_purges_only_old_leads(): void {
@@ -334,7 +368,7 @@ final class AnalyticsAndLeadTest extends TestCase {
 	}
 
 	public function test_leads_page_escapes_stored_values_and_is_admin_only(): void {
-		Analytics::save_lead( $this->valid_lead( array( 'name' => '<script>alert(1)</script>Eve', 'company' => '"><img src=x onerror=alert(1)>' ) ) );
+		Analytics::save_lead( $this->valid_lead( array( 'name' => '<script>alert(1)</script>Eve', 'company' => '"><img src=x onerror=alert(1)>', 'job_title' => 'CTO', 'department' => 'sales_marketing' ) ) );
 		Analytics::record_query( '<img src=x onerror=alert(2)> services?', 'en', false );
 		$page = new Admin_Page();
 
@@ -353,6 +387,7 @@ final class AnalyticsAndLeadTest extends TestCase {
 		$this->assertStringNotContainsString( '<script>alert(1)', $html );
 		$this->assertStringNotContainsString( '<img src=x', $html );
 		$this->assertStringContainsString( 'Eve', $html );
+		$this->assertStringContainsString( 'CTO · Sales &amp; Marketing', $html );
 	}
 
 	public function test_csv_export_neutralises_formulas(): void {
@@ -360,7 +395,17 @@ final class AnalyticsAndLeadTest extends TestCase {
 		$csv = Admin_Page::leads_csv();
 		$this->assertStringContainsString( "'=HYPERLINK", $csv );
 		$this->assertStringContainsString( "'+cmd", $csv );
-		$this->assertStringStartsWith( 'created_at_utc,name,email', $csv );
+		$this->assertStringStartsWith( 'created_at_utc,name,email,company,job_title,department,message', $csv );
+	}
+
+	public function test_job_title_and_function_reach_admin_csv_and_privacy_export(): void {
+		Analytics::save_lead( $this->valid_lead( array( 'email' => 'cfo@example.com', 'job_title' => 'CFO', 'department' => 'finance' ) ) );
+
+		$this->assertStringContainsString( ',CFO,finance,', Admin_Page::leads_csv(), 'CSV keeps the stable function key' );
+
+		$rows = array_column( Analytics::export_personal_data( 'cfo@example.com' )['data'][0]['data'], 'value', 'name' );
+		$this->assertSame( 'CFO', $rows['Job Title'] );
+		$this->assertSame( 'Finance / Investment', $rows['Function'] );
 	}
 
 	public function test_privacy_exporter_and_eraser_cover_leads(): void {

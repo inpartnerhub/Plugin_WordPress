@@ -600,8 +600,8 @@ msgid "Consultation requests"
 msgstr "상담 요청"
 
 #: includes/class-plugin.php:126
-msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
-msgstr "방문자는 선택적으로 상담 요청을 보낼 수 있습니다. 입력한 이름, 이메일 주소, 회사, 메시지는 이 사이트에 저장되고 사이트 관리자에게 이메일로 전송됩니다. IP 주소는 저장되지 않습니다. 요청은 관리자가 삭제할 때까지, 또는 사이트 소유자가 정한 보관 기간 동안 유지되며, 도구 → 개인 데이터 내보내기 및 개인 데이터 지우기를 통해 내보내거나 삭제할 수 있습니다."
+msgid "Visitors can optionally send a consultation request. The name, e-mail address, company, job title, function and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgstr "방문자는 선택적으로 상담 요청을 보낼 수 있습니다. 입력한 이름, 이메일 주소, 회사, 직책, 직무, 메시지는 이 사이트에 저장되고 사이트 관리자에게 이메일로 전송됩니다. IP 주소는 저장되지 않습니다. 요청은 관리자가 삭제할 때까지, 또는 사이트 소유자가 정한 보관 기간 동안 유지되며, 도구 → 개인 데이터 내보내기 및 개인 데이터 지우기를 통해 내보내거나 삭제할 수 있습니다."
 
 #: includes/class-plugin.php:149
 msgid "Every Four Minutes"
@@ -660,3 +660,51 @@ msgstr ""
 #, php-format
 #~ msgid "Contact URL must be an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
 #~ msgstr "문의 URL은 승인된 도메인(%s)의 절대 https:// URL이어야 하며, 자격 증명이나 사용자 지정 포트를 포함할 수 없습니다."
+
+#: includes/class-admin-page.php
+msgid "Job Title / Function"
+msgstr "직책 / 직무"
+
+#: includes/class-analytics.php
+msgid "Job Title"
+msgstr "직책"
+
+#: includes/class-analytics.php
+msgid "Function"
+msgstr "직무"
+
+#: includes/class-analytics.php
+msgid "Owner / Founder"
+msgstr "대표 / 창업자"
+
+#: includes/class-analytics.php
+msgid "C-level / Director"
+msgstr "임원 (C-level / 이사)"
+
+#: includes/class-analytics.php
+msgid "Business Development / Strategy"
+msgstr "사업개발 / 전략"
+
+#: includes/class-analytics.php
+msgid "Sales & Marketing"
+msgstr "영업 / 마케팅"
+
+#: includes/class-analytics.php
+msgid "Finance / Investment"
+msgstr "재무 / 투자"
+
+#: includes/class-analytics.php
+msgid "Operations / Supply Chain"
+msgstr "운영 / 공급망"
+
+#: includes/class-analytics.php
+msgid "Human Resources"
+msgstr "인사 (HR)"
+
+#: includes/class-analytics.php
+msgid "Legal / Compliance"
+msgstr "법무 / 컴플라이언스"
+
+#: includes/class-analytics.php
+msgid "Other"
+msgstr "기타"

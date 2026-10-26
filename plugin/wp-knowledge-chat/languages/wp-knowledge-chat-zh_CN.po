@@ -622,8 +622,8 @@ msgid "Consultation requests"
 msgstr "对话仅保存在访客的浏览器中（会话存储），关闭标签页后即被清除。本网站会存储短期的速率限制计数器、问题的汇总数量以及最近 25 条问题摘要（已移除电子邮箱地址、电话号码、链接和长数字）。"
 
 #: includes/class-plugin.php:126
-msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
-msgstr "访客可以选择发送咨询请求。他们填写的姓名、电子邮箱地址、公司和留言会保存在本网站，并通过电子邮件发送给网站管理员。不会存储 IP 地址。请求会一直保留，直到管理员将其删除或达到网站所有者设定的保留期限，并可通过“工具”→“导出个人数据”和“抹除个人数据”进行导出或抹除。"
+msgid "Visitors can optionally send a consultation request. The name, e-mail address, company, job title, function and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgstr "访客可以选择发送咨询请求。他们填写的姓名、电子邮箱地址、公司、职位、职能和留言会保存在本网站，并通过电子邮件发送给网站管理员。不会存储 IP 地址。请求会一直保留，直到管理员将其删除或达到网站所有者设定的保留期限，并可通过“工具”→“导出个人数据”和“抹除个人数据”进行导出或抹除。"
 
 #: includes/class-plugin.php:149
 msgid "Every Four Minutes"
@@ -669,3 +669,51 @@ msgstr "问候语不能超过 %d 个字符。"
 #, php-format
 msgid "Contact URL must be a valid WhatsApp number, email address, or an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
 msgstr "联系链接必须是有效的 WhatsApp 号码、电子邮箱地址，或已批准域名（%s）上的绝对 https:// URL，且不得包含凭据或自定义端口。"
+
+#: includes/class-admin-page.php
+msgid "Job Title / Function"
+msgstr "职位 / 职能"
+
+#: includes/class-analytics.php
+msgid "Job Title"
+msgstr "职位"
+
+#: includes/class-analytics.php
+msgid "Function"
+msgstr "职能"
+
+#: includes/class-analytics.php
+msgid "Owner / Founder"
+msgstr "所有者 / 创始人"
+
+#: includes/class-analytics.php
+msgid "C-level / Director"
+msgstr "高管（C-level / 董事）"
+
+#: includes/class-analytics.php
+msgid "Business Development / Strategy"
+msgstr "业务拓展 / 战略"
+
+#: includes/class-analytics.php
+msgid "Sales & Marketing"
+msgstr "销售与市场"
+
+#: includes/class-analytics.php
+msgid "Finance / Investment"
+msgstr "财务 / 投资"
+
+#: includes/class-analytics.php
+msgid "Operations / Supply Chain"
+msgstr "运营 / 供应链"
+
+#: includes/class-analytics.php
+msgid "Human Resources"
+msgstr "人力资源"
+
+#: includes/class-analytics.php
+msgid "Legal / Compliance"
+msgstr "法务 / 合规"
+
+#: includes/class-analytics.php
+msgid "Other"
+msgstr "其他"

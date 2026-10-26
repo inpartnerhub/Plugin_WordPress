@@ -622,8 +622,8 @@ msgid "Consultation requests"
 msgstr "会話は訪問者のブラウザ（セッションストレージ）にのみ保存され、タブを閉じると消去されます。このサイトには、短期間のレート制限カウンター、質問の集計数、最近の質問の抜粋25件（メールアドレス、電話番号、リンク、長い数字は削除済み）が保存されます。"
 
 #: includes/class-plugin.php:126
-msgid "Visitors can optionally send a consultation request. The name, e-mail address, company and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
-msgstr "訪問者は任意で相談リクエストを送信できます。入力された名前、メールアドレス、会社、メッセージはこのサイトに保存され、サイト管理者にメールで送信されます。IPアドレスは保存されません。リクエストは管理者が削除するまで、またはサイト所有者が設定した保存期間まで保管され、「ツール」→「個人データのエクスポート」および「個人データの消去」からエクスポートまたは消去できます。"
+msgid "Visitors can optionally send a consultation request. The name, e-mail address, company, job title, function and message they enter are stored on this site and e-mailed to the site administrator. The IP address is not stored. Requests are kept until an administrator deletes them, or for the retention period the site owner has set, and can be exported or erased through Tools → Export Personal Data and Erase Personal Data."
+msgstr "訪問者は任意で相談リクエストを送信できます。入力された名前、メールアドレス、会社、役職、職種、メッセージはこのサイトに保存され、サイト管理者にメールで送信されます。IPアドレスは保存されません。リクエストは管理者が削除するまで、またはサイト所有者が設定した保存期間まで保管され、「ツール」→「個人データのエクスポート」および「個人データの消去」からエクスポートまたは消去できます。"
 
 #: includes/class-plugin.php:149
 msgid "Every Four Minutes"
@@ -669,3 +669,51 @@ msgstr "あいさつメッセージは%d文字以内で入力してください�
 #, php-format
 msgid "Contact URL must be a valid WhatsApp number, email address, or an absolute https:// URL on an approved domain (%s), without credentials or a custom port."
 msgstr "連絡先URLは、有効なWhatsApp番号、メールアドレス、または承認済みドメイン（%s）上の絶対 https:// URL にしてください。認証情報やカスタムポートは使用できません。"
+
+#: includes/class-admin-page.php
+msgid "Job Title / Function"
+msgstr "役職 / 職種"
+
+#: includes/class-analytics.php
+msgid "Job Title"
+msgstr "役職"
+
+#: includes/class-analytics.php
+msgid "Function"
+msgstr "職種"
+
+#: includes/class-analytics.php
+msgid "Owner / Founder"
+msgstr "オーナー・創業者"
+
+#: includes/class-analytics.php
+msgid "C-level / Director"
+msgstr "経営層（C-level・取締役）"
+
+#: includes/class-analytics.php
+msgid "Business Development / Strategy"
+msgstr "事業開発・経営企画"
+
+#: includes/class-analytics.php
+msgid "Sales & Marketing"
+msgstr "営業・マーケティング"
+
+#: includes/class-analytics.php
+msgid "Finance / Investment"
+msgstr "財務・投資"
+
+#: includes/class-analytics.php
+msgid "Operations / Supply Chain"
+msgstr "オペレーション・サプライチェーン"
+
+#: includes/class-analytics.php
+msgid "Human Resources"
+msgstr "人事"
+
+#: includes/class-analytics.php
+msgid "Legal / Compliance"
+msgstr "法務・コンプライアンス"
+
+#: includes/class-analytics.php
+msgid "Other"
+msgstr "その他"
