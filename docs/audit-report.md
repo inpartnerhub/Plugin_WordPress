@@ -1,5 +1,7 @@
 # Audit and remediation report: WP Knowledge Chat 0.1.0
 
+> **Snapshot from 2026-10-14 (version 0.1.0).** This report is kept as a record of the review at that date. Code, limits and file names may have changed since; for current behaviour see the [README](../README.md), the [documentation index](../README.md#-documentation-index) and [CHANGELOG.md](../CHANGELOG.md).
+
 **Date:** 2026-10-14 · **Branch:** `audit-remediation` · **Scope:** WordPress plugin, Node.js backend, knowledge base, evaluation, tests, documentation. Local verification only; nothing was deployed.
 
 Every finding marked *Fixed* has a regression test that was run against the **original** code and failed there (or, for D1, hung), then passed after the fix. Test names are in the last column.

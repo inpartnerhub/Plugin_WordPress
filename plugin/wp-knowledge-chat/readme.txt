@@ -12,12 +12,12 @@ A floating chat widget that answers visitor questions from approved public websi
 
 == Description ==
 
-WP Knowledge Chat adds an accessible floating chat assistant to the Inpartner website. Visitors ask questions about Inpartner's services. The assistant answers only from approved, published website pages, shows the pages it used as sources, and points visitors to the official contact page when it does not have enough information.
+WP Knowledge Chat adds an accessible floating chat assistant to the Inpartner website. Visitors ask questions about Inpartner's services. The assistant answers only from the approved Inpartner knowledge base, shows the pages it used as sources, and points visitors to the Inpartner team when it does not have enough information. When a visitor wants a consultation, it offers a consultation form whose requests are stored in WordPress and e-mailed to the site administrator.
 
 The plugin is one half of a two-part system:
 
 * **This plugin** (PHP) loads the widget, provides the admin settings, and offers a same-origin REST endpoint. That endpoint validates and rate-limits visitor questions and forwards them, signed, to the AI backend.
-* **The AI backend** (Node.js, hosted separately) retrieves relevant content, calls Google Gemini, and validates every answer and source.
+* **The AI backend** (Node.js, hosted separately, for example on Vercel) retrieves relevant content, calls Google Gemini or OpenRouter (with automatic failover between them), and validates every answer and source.
 
 The AI provider key never reaches the browser or the WordPress database.
 
@@ -28,7 +28,11 @@ The AI provider key never reaches the browser or the WordPress database.
 * Source links for factual answers. Only https links to approved domains are shown.
 * English, Bahasa Indonesia, Korean (한국어), Japanese (日本語) and Simplified Chinese (简体中文) interface, with a language switcher and browser-language detection.
 * Keyboard accessible: Tab, Enter and Escape, visible focus, screen-reader announcements. Checked with axe-core (WCAG 2.1 A/AA).
-* Conversation kept for the browser session only; nothing is stored on the server.
+* **Consultation form** inside the chat: offered when the visitor asks for a consultation, a meeting or a price, when the answer points to the Inpartner team, and when the assistant cannot answer. It opens by itself (once per visit) when the visitor asks for a consultation. Fields: name, work e-mail, company, job title, function and inquiry.
+* **Analytics & Leads** screen: usage figures, consultation requests (CSV export, per-lead delete, notification status), recent questions and unanswered topics.
+* **Knowledge Base** screen: choose which pages the assistant may use; synced pages update automatically when edited or unpublished.
+* Conversation kept for the browser session only. Only consultation requests the visitor sends are stored.
+* Automatic updates from GitHub Releases through *Dashboard → Updates*.
 * Styles scoped to the widget, so they do not affect Elementor layouts or the site navigation.
 * Server-side validation of all settings, per-visitor rate limiting, and no secrets in the page source.
 
@@ -48,13 +52,15 @@ The AI backend must be deployed first (see `docs/deployment.md` in the project r
     define( 'WP_KNOWLEDGE_CHAT_BACKEND_URL', 'https://chat-api.example.com' );
     define( 'WP_KNOWLEDGE_CHAT_SHARED_SECRET', 'same value as CHAT_SHARED_SECRET on the backend' );
 
-   The URL must use https. The secret must be at least 32 characters.
+   The URL must use https. The secret must be at least 32 characters. To sync pages from the Knowledge Base screen (only with a backend that stores updates), also define `WP_KNOWLEDGE_CHAT_INDEX_API_TOKEN` with the backend's `INDEX_API_TOKEN`.
 3. Activate the plugin.
 4. Go to **WP Knowledge Chat → Settings** and review the settings. The Contact URL defaults to the homepage (`https://inpartnerglobal.com`); change it to a dedicated contact page only once the site owner has approved that page.
 5. Click **Test connection**. It should report that the backend is reachable, the shared secret is accepted and the knowledge base is ready.
 6. If a page cache other than LiteSpeed Cache is active, purge it. LiteSpeed Cache is purged automatically when the settings change.
 
 The widget stays hidden until both constants are defined and valid.
+
+Later versions are offered under **Dashboard → Updates** like any other plugin. Purge the page cache after updating.
 
 == Configuration ==
 
@@ -64,8 +70,8 @@ The widget stays hidden until both constants are defined and valid.
 * **Greeting Messages**: one per language (English, Bahasa Indonesia, 한국어, 日本語, 简体中文). Plain text, maximum 500 characters; any HTML is removed. Leave a field empty to restore that language's default.
 * **Default Language**: English (`en`), Bahasa Indonesia (`id`), Korean (`ko`), Japanese (`ja`) or Simplified Chinese (`zh`). Used when the visitor has not chosen a language and their browser language is not supported (or detection is off).
 * **Language Switcher**: show EN · ID · 한국어 · 日本語 · 简体中文 buttons in the chat header. The visitor's choice is remembered in the browser.
-* **Browser Language**: start in the visitor's browser language when it is one of the three.
-* **Contact URL**: an absolute `https://` URL on an approved domain (inpartnerglobal.com, www.inpartnerglobal.com, or this site's own domain), without a username/password or a custom port. The URL is never fetched by the server.
+* **Browser Language**: start in the visitor's browser language when it is one of the five (any Chinese region starts in Simplified Chinese).
+* **Contact URL**: an absolute `https://` URL on an approved domain (inpartnerglobal.com, inpartner.id, their `www.` hosts, WhatsApp `wa.me`, or this site's own domain), without a username/password or a custom port. The URL is never fetched by the server.
 
 All settings are stored in the single option `wp_knowledge_chat_settings`. Invalid values are rejected with an error message, and the previous value is kept. Saving changed settings triggers a LiteSpeed Cache purge (`litespeed_purge_all`), because the greetings, languages and contact link are embedded in cached pages.
 
@@ -90,15 +96,23 @@ The backend cannot be reached or rejected the request. Use **Test connection** o
 * "rejected the shared secret": `WP_KNOWLEDGE_CHAT_SHARED_SECRET` differs from the backend's `CHAT_SHARED_SECRET`, or the server clocks differ by more than 5 minutes.
 * "knowledge base is empty": the backend is running without `data/kb.json`.
 * Other failures: check the backend URL, that the service is running, and that the hosting allows outbound HTTPS.
-* If the test passes but chat still fails, check the backend logs (`llm_failed kind=auth` means the Gemini key is invalid; `rate_limited scope=daily` means the daily model-call budget is used up).
+* If the test passes but chat still fails, check the backend logs (`llm_failed kind=auth` means the AI provider key is invalid; `rate_limited scope=daily` means the daily model-call budget is used up).
 
 = Does the plugin store visitor conversations? =
 
-No. Conversation history stays in the visitor's browser (sessionStorage) and is cleared when the tab is closed. WordPress stores only short-lived rate-limit counters keyed by a one-way hash of the IP address.
+No. Conversation history stays in the visitor's browser (sessionStorage) and is cleared when the tab is closed. WordPress stores short-lived rate-limit counters keyed by a one-way hash of the IP address, aggregate counts with redacted question snippets, and the consultation requests visitors choose to send.
 
 = Where does the assistant get its answers? =
 
-From a reviewed snapshot of approved, published pages of inpartnerglobal.com held by the backend. Draft and private content cannot be indexed. To change which pages are used, see `docs/knowledge-base.md`.
+From a reviewed knowledge base held by the backend: the Inpartner company profile, mapped to the matching pages of inpartnerglobal.com, which are shown as sources. Draft and private content cannot be indexed. To change it, see `docs/knowledge-base.md`.
+
+= When does the "Request Consultation" button appear? =
+
+Under an answer when the visitor asks for a consultation, a meeting, a price or a proposal (in any of the five languages), when the answer suggests contacting the Inpartner team, or when the assistant could not answer. In the first case the form also opens by itself, once per page load, with the visitor's question filled in.
+
+= Where do consultation requests go? =
+
+They are saved in WordPress (WP Knowledge Chat → Analytics & Leads) and e-mailed to the site's admin address. They are never sent to the AI backend. Change the recipient with the `wp_knowledge_chat_lead_notification_email` filter.
 
 = Can I show the widget only on some pages? =
 
@@ -122,20 +136,32 @@ No, by design. The chat endpoint is public, and a nonce authorises nothing for a
 
 == Developer filters ==
 
+The complete list, with defaults, the stored data and examples, is in `docs/developer-reference.md`.
+
 * `wp_knowledge_chat_should_load` (bool): whether to load the widget on the current request.
-* `wp_knowledge_chat_suggested_questions` (string[], $language): suggested questions per language (`en`, `id`, `ko`). Maximum 4, each at most 150 characters.
+* `wp_knowledge_chat_suggested_questions` (string[], $language): suggested questions per language (`en`, `id`, `ko`, `ja`, `zh`). Maximum 4, each at most 150 characters.
 * `wp_knowledge_chat_allowed_contact_hosts` (string[]): domains allowed for the Contact URL.
 * `wp_knowledge_chat_allowed_source_hosts` (string[]): domains allowed for source links.
-* `wp_knowledge_chat_allowed_origins` (string[]): hostnames allowed to call the chat endpoint from a browser.
+* `wp_knowledge_chat_allowed_origins` (string[]): hostnames allowed to call the chat and lead endpoints from a browser.
 * `wp_knowledge_chat_rate_limit_per_minute` (int, default 6): chat requests per visitor per minute.
 * `wp_knowledge_chat_client_ip` (string $ip, string $remote_addr): the IP address used for rate limiting.
 * `wp_knowledge_chat_trusted_proxies` (string[]): proxy IPs/CIDR ranges whose `X-Forwarded-For` is trusted (default: `WP_KNOWLEDGE_CHAT_TRUSTED_PROXIES`, empty).
+* `wp_knowledge_chat_cache_ttl` (int, default 86400): seconds a grounded answer to a first question is cached; 0 disables it.
+* `wp_knowledge_chat_store_query_snippets` (bool, default true): keep redacted question snippets.
+* `wp_knowledge_chat_store_content_gaps` (bool, default true): keep unanswered questions for *Knowledge Gaps*.
+* `wp_knowledge_chat_lead_notification_email` (string): recipient of new-lead e-mails (default: the admin e-mail).
+* `wp_knowledge_chat_lead_retention_days` (int, default 0): delete leads older than this many days; 0 keeps them.
+* `wp_knowledge_chat_lead_limit_per_hour` (int, default 30): consultation requests per hour for the whole site.
+* `wp_knowledge_chat_disposable_email_domains` (string[]): e-mail domains refused on the consultation form.
+* `wp_knowledge_chat_boilerplate_lines` (string[]): page-builder lines dropped when pages are synced.
 
-Developer action:
+Developer actions:
 
 * `wp_knowledge_chat_backend_failure` (string $reason, int $status): fires when a chat request fails because of the backend (`unreachable`, `unauthorized`, `rate_limited`, `http_error`, `invalid_response`). Receives no message text or IP; hook it to log or alert.
+* `wp_knowledge_chat_sync_failure` (int $post_id, string $reason): an automatic knowledge-base update failed and will be retried.
+* `wp_knowledge_chat_lead_mail_failed` (string $reason): a lead was saved but its notification e-mail failed.
 
-REST endpoint: `POST /wp-json/wp-knowledge-chat/v1/chat` with `{"message": "...", "language": "en"}`. The full contract is in `docs/api-contract.md`.
+REST endpoints: `POST /wp-json/wp-knowledge-chat/v1/chat` with `{"message": "...", "language": "en"}`, and `POST /wp-json/wp-knowledge-chat/v1/lead` for the consultation form. The full contract is in `docs/api-contract.md`.
 
 == Screenshots ==
 
@@ -148,18 +174,18 @@ REST endpoint: `POST /wp-json/wp-knowledge-chat/v1/chat` with `{"message": "..."
 
 == Privacy ==
 
-* Visitor questions are sent to the configured AI backend, which forwards them, together with excerpts of public website pages, to Google Gemini to generate an answer.
+* Visitor questions (with up to 4 previous turns) are sent to the configured AI backend, which removes e-mail addresses, phone numbers and ID/card numbers and forwards them, together with knowledge-base excerpts, to Google Gemini or OpenRouter to generate an answer.
 * The visitor's IP address, cookies and identity are not sent. A salted one-way identifier is used for rate limiting.
 * The backend logs operational events (outcome, language, message length, latency) but not message text.
 * WordPress keeps aggregate counts (questions, grounded/fallback, language) and the 25 most recent question snippets for the Analytics & Leads screen. Snippets have e-mail addresses, phone numbers, links and long numbers replaced, but can still contain other personal details a visitor typed. Turn snippets off with `add_filter( 'wp_knowledge_chat_store_query_snippets', '__return_false' );`.
 * **Consultation requests (leads).** When a visitor submits the optional form, their name, e-mail, company, job title, function and message are stored in WordPress (a private post type `wkc_lead`, visible only to administrators on Analytics & Leads) and e-mailed to the site's admin address (filter `wp_knowledge_chat_lead_notification_email`). The IP address is not stored.
 * Leads are kept until an administrator deletes them (per lead, "Delete all", or Tools → Erase Personal Data). Set a retention period with `add_filter( 'wp_knowledge_chat_lead_retention_days', fn() => 180 );`. Leads can be exported as CSV or per person via Tools → Export Personal Data.
 * Abuse limits on the lead form: 3 submissions per visitor per 10 minutes, 30 per site per hour (filter `wp_knowledge_chat_lead_limit_per_hour`), a hidden honeypot field, field length limits and suppression of identical resubmissions.
-* Site owners should mention the AI assistant, Google Gemini and the consultation form in their privacy policy. Suggested wording is added to Settings → Privacy → Policy Guide.
+* Site owners should mention the AI assistant, the AI provider (Google Gemini / OpenRouter) and the consultation form in their privacy policy. Suggested wording is added to Settings → Privacy → Policy Guide.
 
 == Uninstall ==
 
-Deactivating keeps the settings, leads and metrics. Deleting the plugin from the Plugins screen runs `uninstall.php`, which removes the `wp_knowledge_chat_settings` option, the metrics, **all stored leads**, the knowledge-base sync state and the plugin's transients. Export leads first (Analytics & Leads → Export CSV) if you need to keep them. Remove the `wp-config.php` constants manually.
+Deactivating keeps the settings, leads and metrics. Deleting the plugin from the Plugins screen runs `uninstall.php`, which removes the `wp_knowledge_chat_settings` option, the metrics, **all stored leads**, the knowledge-base sync state, the plugin's transients and its scheduled events. Export leads first (Analytics & Leads → Export CSV) if you need to keep them. Remove the `wp-config.php` constants manually.
 
 == Changelog ==
 

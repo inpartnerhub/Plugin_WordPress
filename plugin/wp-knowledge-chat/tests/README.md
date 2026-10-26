@@ -78,9 +78,10 @@ Screenshots and `results.json` go to `<repo>/docs/screenshots/`; override with `
 | Activation, deactivation, defaults, migration of partial/corrupt options | `SettingsTest` |
 | Validation of every setting (17 malicious contact URLs, greeting rules, language enum) | `SettingsTest` |
 | Capabilities, nonces, admin menu, escaping, widget loading rules, no secrets in output | `AdminAndWidgetTest` |
-| REST route: signing, validation, origin, rate limit (incl. minute boundary), failure mapping, response sanitising | `RestControllerTest` |
-| Consultation requests, honeypot spam protection, disposable email blocking, and CSV export | `RestControllerTest`, `AnalyticsTest` |
-| Widget a11y structure, keyboard, XSS-safe rendering, URL filtering, duplicate-submit guard, errors, session restore, Korean lead form | `js/chat-widget.test.js` |
+| REST route: signing, validation, origin, rate limit (incl. minute boundary), failure mapping, response sanitising, answer cache | `RestControllerTest` |
+| Page sync: eligibility, automatic updates and removals, retry, password-protected pages | `ContentSyncTest` |
+| Consultation requests (job title, function, length limits, unknown function), honeypot, disposable e-mail, duplicates, lead rate limits, notification e-mail, leads table escaping and long-message collapse, CSV export and formula neutralising, privacy exporter/eraser, legacy migration, retention | `AnalyticsAndLeadTest` |
+| Widget a11y structure, keyboard, XSS-safe rendering, URL filtering, duplicate-submit guard, errors, session restore, five-language switcher, consultation trigger and auto-open, lead form fields and relabelling, Korean lead form | `js/chat-widget.test.js` |
 | Real options.php flow per role, nonce rejection, end-to-end answers, provider failures, rate limit | `e2e/http-check.mjs` |
 | Layout/style isolation on Hello Elementor, keyboard flow, axe-core WCAG 2.1 A/AA, mobile layout | `e2e/browser-check.mjs` |
 

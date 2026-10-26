@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Documentation
+- **New `docs/developer-reference.md`**: every `wp-config.php` constant, setting, filter (16) and action (3) with defaults, the REST routes, the consultation-form rules and field list, every option, post meta key, transient and cron hook the plugin stores, the CSV columns, the widget configuration and how automatic updates work.
+- **Brought up to date with 1.2.1**: README (models, repository layout, deployment and updates, documentation index), backend README (all environment variables with their real defaults, Vercel/Netlify, 152 tests, question lifecycle), admin guide (consultation form, leads table, Knowledge Base screen, updates), API contract (`/lead` fields, codes and limits; answer cache; 501 on serverless `/api/index`), architecture (module map, decisions, cron), deployment (Vercel setup, Netlify, releasing and updating), security (timeouts, lead data, providers), tech stack, knowledge base (6 profile documents), evaluation (current results for all five languages), test report, tests README, `readme.txt` (five languages, consultation form, all hooks), CONTRIBUTING (which docs to update, translations, full release procedure) and SECURITY (supported versions, secrets).
+- Dated audit reports are marked as snapshots, and their absolute `file:///` links are now relative links that work on GitHub.
+
 ## [1.2.1] - 2026-10-26
 
 ### Changed

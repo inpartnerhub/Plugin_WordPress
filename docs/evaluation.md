@@ -109,6 +109,17 @@ Not measured: whether the real Gemini model writes good Korean answers (no live 
 - One bug in the new rules was found through the held-out set and fixed: the founding-date check accepted "We support **founders**…" on the home page as founding information. The fix (require a year or "founded by") is a correction of the rule, not a new phrase, and it moved held-out "stopped" from 15 to 16.
 - Keyword rules can be evaded by rephrasing. They reduce how often the model sees unanswerable questions; they do not replace the model's own refusal or human review.
 
+## Current results (1.2.1, offline, 2026-10-26)
+
+Knowledge base: 6 profile documents. `topK=4`, `minScore=1.0`. Run with `npm run eval:retrieval` (design) and `node dist/eval/run-eval.js --mode=retrieval --dataset=eval/holdout.json` (held-out).
+
+| Set | Questions (en / id / ko / ja / zh) | Answerable: expected page reaches the model | Unanswerable: stopped before the model |
+|---|---|---|---|
+| Design (`eval/dataset.json`) | 144 (71 / 15 / 22 / 18 / 18) | 69/69 (100%), 0 false refusals | 65/65 (100%) |
+| Held-out (`eval/holdout.json`) | 68 (35 / 11 / 8 / 7 / 7) | 35/35 (100%), 0 false refusals | 29/33 (87.9%) |
+
+Japanese and Chinese (added in 1.1.0) use the same gate as the other languages; their questions are matched to the English knowledge base through `JAPANESE_EXPANSIONS` and `CHINESE_EXPANSIONS` in `src/services/text.ts`, and their scope and answer-type patterns are in `src/services/scope.ts`. The 4 held-out unanswerable questions that reach the model are still subject to the prompt rules and the claim check. As before, these are offline numbers: they measure retrieval and the gate, not the wording of real model answers.
+
 ## Live evaluation (real Gemini): blocked
 
 ```bash

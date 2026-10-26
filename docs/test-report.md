@@ -1,4 +1,17 @@
-# Test report: WP Knowledge Chat (v0.5.0 Production Release)
+# Test report: WP Knowledge Chat
+
+> **1.2.1 (2026-10-26), current:** run locally on the `docs/refresh-documentation` branch (code identical to the v1.2.1 tag):
+> - **Backend (`npm --prefix backend test`)**: 152 / 152 passed in 35 suites. `npm run kb:validate`: 6 documents, 0 errors, 0 warnings.
+> - **WordPress plugin (`vendor/bin/phpunit`)**: 143 tests, 764 assertions passed, on WordPress 7.1.3 (SQLite) with PHP 8.5.5.
+> - **Widget (`npm run test:widget`)**: 45 / 45 passed.
+> - **Coding standards (`vendor/bin/phpcs`)**: 0 findings.
+> - **CI** on the 1.2.x pull requests: backend, PHP 8.1 syntax, WordPress plugin CI on PHP 8.3 and 8.5, and the ZIP build all passed.
+> - **Not re-run for 1.2.x:** the E2E HTTP and Chrome checks (`e2e/run.sh`, last 12/12 and 16/16) and the MySQL/multisite checks. The leads table layout was checked by hand in the local WordPress admin.
+>
+> Everything below is the history of earlier runs and is kept as it was written.
+
+## Earlier runs
+
 
 > **v0.5.0 Verification Update (2026-10-22):** Full automated release qualification passed across all test layers:
 > - **Backend tests (`npm test`)**: 137 / 137 tests passed across 35 test suites (covering OpenRouter, Gemini, Failover, PII scrubbing, BM25 Korean/Indonesian/English retrieval, answerability gates, and security payloads).

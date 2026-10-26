@@ -1,12 +1,14 @@
 # Comprehensive Production Readiness Report: Inpartner WordPress AI Chatbot
 
+> **Snapshot from 2026-10-21 (version 0.2.3).** This report is kept as a record of the review at that date. Code, limits and file names may have changed since; for current behaviour see the [README](../../README.md), the [documentation index](../../README.md#-documentation-index) and [CHANGELOG.md](../../CHANGELOG.md).
+
 **Audit Date:** 2026-10-21  
 **Lead Auditor:** Senior WordPress Plugin Engineer, AI/RAG Engineer, Application Security Engineer, DevOps Engineer, QA Engineer  
 **Repository:** [inpartnerhub/Plugin_WordPress](https://github.com/inpartnerhub/Plugin_WordPress)  
 **Target Website:** [https://inpartnerglobal.com](https://inpartnerglobal.com)  
 **Plugin Version:** 0.2.2  
 **Backend Version:** 0.2.2  
-**Audit Artifacts Directory:** [`docs/audit/`](file:///Users/mac/Downloads/wp_plugin/docs/audit/)  
+**Audit Artifacts Directory:** [`docs/audit/`](./)  
 
 ---
 
@@ -35,26 +37,26 @@ Findings are strictly classified into the five mandatory categories:
 
 ### A. Confirmed Technical Defects (Remediated)
 1. **DEF-01: Missing Korean Localization Strings in Chat Widget**
-   - *Component:* [`plugin/wp-knowledge-chat/assets/js/chat-widget.js`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/assets/js/chat-widget.js#L143-L144)
+   - *Component:* [`plugin/wp-knowledge-chat/assets/js/chat-widget.js`](../../plugin/wp-knowledge-chat/assets/js/chat-widget.js)
    - *Description:* The Korean localization dictionary `STRINGS.ko` omitted `leadFailed` and `leadPrivacy`. Korean visitors who submitted a failed consultation form encountered an `undefined` error popup, and the privacy consent notice was absent.
-   - *Remediation:* Added accurate Korean translations for `leadFailed` ("전송하지 못했습니다. 잠시 후 다시 시도해 주세요.") and `leadPrivacy` ("제출 시 문의 처리를 위한 연락처 정보 수집에 동의하게 됩니다."). Verified via automated regression test in [`chat-widget.test.js`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/tests/js/chat-widget.test.js#L354-L373).
+   - *Remediation:* Added accurate Korean translations for `leadFailed` ("전송하지 못했습니다. 잠시 후 다시 시도해 주세요.") and `leadPrivacy` ("제출 시 문의 처리를 위한 연락처 정보 수집에 동의하게 됩니다."). Verified via automated regression test in [`chat-widget.test.js`](../../plugin/wp-knowledge-chat/tests/js/chat-widget.test.js).
 2. **DEF-02: Hardcoded Gemini Client in Live Evaluation Runner**
-   - *Component:* [`backend/eval/run-eval.ts`](file:///Users/mac/Downloads/wp_plugin/backend/eval/run-eval.ts#L104-L120)
+   - *Component:* [`backend/eval/run-eval.ts`](../../backend/eval/run-eval.ts)
    - *Description:* `run-eval.ts` hardcoded `GeminiClient` instantiation regardless of the configured `LLM_PROVIDER`, causing evaluation failures when testing OpenRouter configurations. Furthermore, `openrouterApiKey` was missing from the sensitive secret scrubbing routine.
    - *Remediation:* Dynamically instantiated `OpenRouterClient` when `config.llmProvider === 'openrouter'` and scrubbed `openrouterApiKey` from evaluation reports and logs.
 3. **DEF-03: Inactive ResponseCache Middleware in Backend Service**
-   - *Component:* [`backend/src/middleware/rate-limit.ts`](file:///Users/mac/Downloads/wp_plugin/backend/src/middleware/rate-limit.ts) and [`backend/src/app.ts`](file:///Users/mac/Downloads/wp_plugin/backend/src/app.ts)
+   - *Component:* [`backend/src/middleware/rate-limit.ts`](../../backend/src/middleware/rate-limit.ts) and [`backend/src/app.ts`](../../backend/src/app.ts)
    - *Description:* A high-performance in-memory `ResponseCache` was implemented and unit-tested in `rate-limit.ts`, but was disconnected from `app.ts` because sequential identical queries during daily budget tests bypassed the LLM.
    - *Status:* Maintained in codebase as documented inactive modular code. Documented in architecture audit rather than forcing a breaking rewrite.
 
 ### B. Confirmed Security Vulnerabilities (Audited & Safe)
 1. **SEC-01: CSV Formula Injection Defense**
    - *Status:* **REMEDIATED & VERIFIED SAFE**
-   - *Component:* [`plugin/wp-knowledge-chat/includes/class-admin-page.php:790`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/includes/class-admin-page.php#L790-L792)
+   - *Component:* [`plugin/wp-knowledge-chat/includes/class-admin-page.php:790`](../../plugin/wp-knowledge-chat/includes/class-admin-page.php)
    - *Verification:* `Admin_Page::csv_cell()` prepends a single quote (`'`) to any cell starting with `=`, `+`, `-`, `@`, `\t`, or `\r`, neutralizing malicious spreadsheet formula execution upon export.
 2. **SEC-02: Cryptographic Request Signing & Replay Protection**
    - *Status:* **VERIFIED SAFE**
-   - *Component:* [`plugin/wp-knowledge-chat/includes/class-backend-client.php`](file:///Users/mac/Downloads/wp_plugin/plugin/wp-knowledge-chat/includes/class-backend-client.php) and [`backend/src/lib/auth.ts`](file:///Users/mac/Downloads/wp_plugin/backend/src/lib/auth.ts)
+   - *Component:* [`plugin/wp-knowledge-chat/includes/class-backend-client.php`](../../plugin/wp-knowledge-chat/includes/class-backend-client.php) and [`backend/src/lib/auth.ts`](../../backend/src/lib/auth.ts)
    - *Verification:* Request integrity is guaranteed via HMAC-SHA256 (`${timestamp}.${nonce}.${clientId}.${rawBody}`), constant-time comparisons (`crypto.timingSafeEqual`), a 60-second drift window, and a 50,000-entry replay cache.
 3. **SEC-03: Zero-DOM XSS & Zero Dependencies**
    - *Status:* **VERIFIED SAFE**
@@ -126,18 +128,18 @@ OVERALL SUITE STATUS:                            ALL 10 VERIFICATION GATES PASSE
 
 ## 4. Documentation Deliverables Index
 
-All 10 requested audit documents have been generated in [`docs/audit/`](file:///Users/mac/Downloads/wp_plugin/docs/audit/):
+All 10 requested audit documents have been generated in [`docs/audit/`](./):
 
-1. [`docs/audit/architecture-audit.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/architecture-audit.md) — Comprehensive architectural map, trust boundaries, data flows, and single points of failure.
-2. [`docs/audit/knowledge-base-rag-audit.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/knowledge-base-rag-audit.md) — Technical evaluation of the BM25 retrieval engine, indexing pipeline, and chunking integrity.
-3. [`docs/audit/ai-evaluation-report.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/ai-evaluation-report.md) — Evaluation of AI response quality, hallucination resistance, prompt injection defenses, and live provider failover.
-4. [`docs/audit/security-findings.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/security-findings.md) — OWASP Top 10 assessment, cryptographic HMAC-SHA256 verification, and CSV formula injection defense.
-5. [`docs/audit/hosting-readiness-checklist.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/hosting-readiness-checklist.md) — Infrastructure requirements, memory/CPU footprints, systemd services, and Nginx configurations.
-6. [`docs/audit/privacy-and-lead-management.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/privacy-and-lead-management.md) — PII scrubbing (NIK/Card/Phone/Email), private CPT lead storage, and WordPress Core Privacy exporter/eraser compliance.
-7. [`docs/audit/ux-accessibility-performance.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/ux-accessibility-performance.md) — WCAG 2.1 AA axe-core compliance, keyboard traps, mobile viewports, and Elementor coexistence.
-8. [`docs/audit/staging-deployment-runbook.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/staging-deployment-runbook.md) — Step-by-step instructions for staging provisioning, secret generation, smoke testing, and rollback.
-9. [`docs/audit/production-deployment-runbook.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/production-deployment-runbook.md) — Production release gates, zero-downtime deployment, telemetry monitoring, and emergency kill switches.
-10. [`docs/audit/production-readiness-report.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/production-readiness-report.md) — This master synthesis report.
+1. [`docs/audit/architecture-audit.md`](architecture-audit.md) — Comprehensive architectural map, trust boundaries, data flows, and single points of failure.
+2. [`docs/audit/knowledge-base-rag-audit.md`](knowledge-base-rag-audit.md) — Technical evaluation of the BM25 retrieval engine, indexing pipeline, and chunking integrity.
+3. [`docs/audit/ai-evaluation-report.md`](ai-evaluation-report.md) — Evaluation of AI response quality, hallucination resistance, prompt injection defenses, and live provider failover.
+4. [`docs/audit/security-findings.md`](security-findings.md) — OWASP Top 10 assessment, cryptographic HMAC-SHA256 verification, and CSV formula injection defense.
+5. [`docs/audit/hosting-readiness-checklist.md`](hosting-readiness-checklist.md) — Infrastructure requirements, memory/CPU footprints, systemd services, and Nginx configurations.
+6. [`docs/audit/privacy-and-lead-management.md`](privacy-and-lead-management.md) — PII scrubbing (NIK/Card/Phone/Email), private CPT lead storage, and WordPress Core Privacy exporter/eraser compliance.
+7. [`docs/audit/ux-accessibility-performance.md`](ux-accessibility-performance.md) — WCAG 2.1 AA axe-core compliance, keyboard traps, mobile viewports, and Elementor coexistence.
+8. [`docs/audit/staging-deployment-runbook.md`](staging-deployment-runbook.md) — Step-by-step instructions for staging provisioning, secret generation, smoke testing, and rollback.
+9. [`docs/audit/production-deployment-runbook.md`](production-deployment-runbook.md) — Production release gates, zero-downtime deployment, telemetry monitoring, and emergency kill switches.
+10. [`docs/audit/production-readiness-report.md`](production-readiness-report.md) — This master synthesis report.
 
 ---
 
@@ -152,7 +154,7 @@ flowchart TD
 ```
 
 ### Action Items
-1. **Immediate (DevOps):** Deploy the backend service and plugin to the staging environment following [`staging-deployment-runbook.md`](file:///Users/mac/Downloads/wp_plugin/docs/audit/staging-deployment-runbook.md).
+1. **Immediate (DevOps):** Deploy the backend service and plugin to the staging environment following [`staging-deployment-runbook.md`](staging-deployment-runbook.md).
 2. **Immediate (AI / QA):** Execute live model evaluation against Google Gemini 2.5 Flash using staging test credentials (`npm run eval:live`) and benchmark token cost per conversation.
 3. **Short-Term (Marketing / Web Operations):** Publish the official Inpartner company profile, services, and leadership information to public pages on `https://inpartnerglobal.com` to resolve `DISC-01` and satisfy strict source verification.
 4. **Final Gate (Executive Stakeholders):** Review consultation lead workflows, verify email notifications, and issue formal production deployment authorization.
