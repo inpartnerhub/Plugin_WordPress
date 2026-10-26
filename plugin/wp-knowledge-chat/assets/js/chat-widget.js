@@ -12,6 +12,8 @@
 	var STORAGE_KEY = 'wkc-history-v1';
 	var LANG_KEY = 'wkc-lang';
 	var MAX_HISTORY = 30;
+	// Longer than the WordPress-to-backend timeout (Backend_Client::TIMEOUT_SECONDS, 22 s), so the
+	// visitor sees WordPress's localized error rather than a generic abort.
 	var REQUEST_TIMEOUT_MS = 30000;
 
 	var STRINGS = {

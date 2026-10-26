@@ -130,6 +130,7 @@ All configuration is supplied via environment variables and validated at process
 | `INDEX_API_TOKEN` | **Yes** | — | ≥ 32 characters; used for `/api/index` authorization |
 | `HOST` / `PORT` | No | `127.0.0.1` / `8787` | Set `HOST=0.0.0.0` in containers or cloud environments |
 | `GEMINI_TIMEOUT_MS` | No | `12000` | Request deadline including one retry (applies to both providers) |
+| `LLM_TOTAL_TIMEOUT_MS` | No | `18000` | Shared deadline for primary + failover provider (the secondary keeps a 6 s reserve). Must stay below the WordPress timeout (`Backend_Client::TIMEOUT_SECONDS`, 22 s) |
 | `GEMINI_MAX_OUTPUT_TOKENS` | No | `600` | Maximum token ceiling for model responses |
 | `DAILY_REQUEST_LIMIT` | No | `1000` | Daily model-call budget ceiling (only charges actual LLM calls) |
 | `RATE_LIMIT_PER_CLIENT_PER_MINUTE` | No | `8` | Per-client sliding window rate limit |
